@@ -65,7 +65,7 @@ export default function Home() {
         </h2>
 
         {/* Product & service grid */}
-        <div className="grid grid-cols-1 gap-0 mt-8 mx-4 md:mx-16 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-6 mt-8 mx-4 md:mx-16 md:grid-cols-2">
           {/* Bouquet Subscriptions */}
           <ProductCard
             href="/shop/bouquet-subscription"
@@ -206,7 +206,7 @@ function ProductCard({
   bg: string;
 }) {
   return (
-    <Link href={href} className="group flex flex-col border-2 border-foreground/10 hover:border-foreground/30 transition-colors">
+    <Link href={href} className="group flex flex-col overflow-hidden rounded-2xl border-2 border-foreground/10 hover:border-foreground/30 transition-colors">
       <div className={`${bg} aspect-[4/3] w-full`} />
       <div className="p-5">
         <p className="font-display font-black text-xl md:text-2xl leading-tight group-hover:underline">
@@ -228,7 +228,7 @@ function ServiceCard({
   body: string;
 }) {
   return (
-    <Link href={href} className="group flex flex-col gap-3 p-6 border-2 border-foreground/10 hover:border-foreground/30 transition-colors">
+    <Link href={href} className="group flex flex-col gap-3 p-6 rounded-2xl border-2 border-foreground/10 hover:border-foreground/30 transition-colors">
       <p className="font-display font-black text-xl md:text-2xl leading-tight group-hover:underline">
         {label}
       </p>

@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
-import { Fraunces, DM_Sans } from "next/font/google";
+import { Caveat, Courier_Prime } from "next/font/google";
 import "./globals.css";
 
-const fraunces = Fraunces({
+const caveat = Caveat({
   subsets: ["latin"],
   variable: "--font-display",
   display: "swap",
 });
 
-const dmSans = DM_Sans({
+const courierPrime = Courier_Prime({
   subsets: ["latin"],
+  weight: ["400", "700"],
   variable: "--font-sans",
   display: "swap",
 });
@@ -27,7 +28,7 @@ export default function RootLayout({
   return (
     <html
       lang="fr"
-      className={`${fraunces.variable} ${dmSans.variable} h-full antialiased`}
+      className={`${caveat.variable} ${courierPrime.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>

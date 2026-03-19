@@ -18,7 +18,7 @@ export default function ServicesPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
           <Link
             href="/services/weddings"
-            className="group flex flex-col border-2 border-foreground/10 hover:border-foreground/30 transition-colors"
+            className="group flex flex-col overflow-hidden rounded-2xl border-2 border-foreground/10 hover:border-foreground/30 transition-colors"
           >
             <div className="aspect-[4/3] bg-purple/20" />
             <div className="p-6">
@@ -37,7 +37,7 @@ export default function ServicesPage() {
 
           <Link
             href="/services/funerals"
-            className="group flex flex-col border-2 border-foreground/10 hover:border-foreground/30 transition-colors"
+            className="group flex flex-col overflow-hidden rounded-2xl border-2 border-foreground/10 hover:border-foreground/30 transition-colors"
           >
             <div className="aspect-[4/3] bg-foreground/8" />
             <div className="p-6">

@@ -42,12 +42,12 @@ export default function ShopPage() {
           flowers &amp; things
         </h1>
 
-        <div className="grid grid-cols-2 gap-0 mt-8 mx-4 md:mx-16 md:grid-cols-2">
+        <div className="grid grid-cols-2 gap-6 mt-8 mx-4 md:mx-16 md:grid-cols-2">
           {products.map((p) => (
             <Link
               key={p.id}
               href={p.href}
-              className="group flex flex-col border-2 border-foreground/10 hover:border-foreground/30 transition-colors"
+              className="group flex flex-col overflow-hidden rounded-2xl border-2 border-foreground/10 hover:border-foreground/30 transition-colors"
             >
               <div className="aspect-[4/3] w-full bg-purple/20" />
               <div className="p-5">
