@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import DaisyLogo from "@/app/components/DaisyLogo";
 
 export const metadata = {
@@ -11,12 +12,16 @@ const products = [
     name: "Bouquet Subscription",
     desc: "Bi-weekly seasonal bouquets · from $250",
     href: "/shop/bouquet-subscription",
+    image: "/Flower Photos/bouquet1.jpg",
   },
   {
     id: "mothers-day",
     name: "Mother's Day Bouquets",
-    desc: "Pickup May 2nd or Delivery May 3rd · from $60",
+    desc: "Pick up May 9th or delivery May 10th · from $60",
     href: "/shop/mothers-day",
+    image: "/Flower Photos/mama.jpg",
+    imageClass: "object-cover object-center",
+    imageStyle: { filter: "brightness(1.05) saturate(1.15) sepia(0.1)" },
   },
   {
     id: "vases",
@@ -38,18 +43,20 @@ export default function ShopPage() {
       <SiteHeader active="shop" />
 
       <main className="flex flex-col">
-        <h1 className="font-display font-black text-[14vw] md:text-[6vw] leading-none px-4 mt-8 md:px-16">
+        <h1 className="font-display font-black text-[14vw] md:text-[6vw] leading-none px-4 mt-8 md:px-32">
           flowers &amp; things
         </h1>
 
-        <div className="grid grid-cols-2 gap-6 mt-8 mx-4 md:mx-16 md:grid-cols-2">
+        <div className="grid grid-cols-2 gap-6 mt-8 mx-8 md:mx-32 md:grid-cols-2">
           {products.map((p) => (
             <Link
               key={p.id}
               href={p.href}
               className="group flex flex-col overflow-hidden rounded-2xl border-2 border-foreground/10 hover:border-foreground/30 transition-colors"
             >
-              <div className="aspect-[4/3] w-full bg-purple/20" />
+              <div className="relative aspect-[4/3] w-full bg-purple/20">
+                {p.image && <Image src={p.image} alt={p.name} fill className={p.imageClass ?? "object-cover object-center"} style={p.imageStyle} />}
+              </div>
               <div className="p-5">
                 <p className="font-display font-black text-xl md:text-2xl leading-tight group-hover:underline">
                   {p.name}
@@ -76,17 +83,17 @@ function SiteHeader({ active }: { active?: string }) {
     { href: "/#contact", label: "Contact" },
   ];
   return (
-    <header className="relative flex items-center justify-between px-4 py-4 md:flex-col md:items-center md:pt-8 md:pb-0">
-      <div className="md:hidden"><Link href="/"><DaisyLogo size={56} /></Link></div>
+    <header className="relative flex items-center justify-between px-8 py-6 md:flex-col md:items-center md:pt-12 md:pb-0">
+      <div className="md:hidden"><Link href="/"><DaisyLogo size={81} /></Link></div>
       <div className="hidden md:flex md:flex-col md:items-center md:gap-5">
-        <Link href="/"><DaisyLogo size={120} /></Link>
-        <nav className="flex gap-10 text-xs font-sans font-semibold tracking-widest uppercase text-foreground">
+        <Link href="/"><DaisyLogo size={175} /></Link>
+        <nav className="flex gap-10 text-[0.992rem] font-sans tracking-widest uppercase text-foreground">
           {links.map(({ href, label }) => (
             <Link key={label} href={href} className={`hover:opacity-60 transition-opacity ${active === label.toLowerCase() ? "underline underline-offset-4" : ""}`}>{label}</Link>
           ))}
         </nav>
       </div>
-      <div className="hidden md:flex items-center gap-5 absolute top-6 right-8 font-sans text-foreground">
+      <div className="hidden md:flex items-center gap-5 absolute top-10 right-12 font-sans text-foreground">
         <Link href="/cart" className="flex items-center gap-1.5 text-xs font-semibold hover:opacity-60 transition-opacity"><CartIcon /><span>0</span></Link>
       </div>
       <div className="flex items-center gap-4 md:hidden">

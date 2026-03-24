@@ -1,7 +1,39 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'F_ck Beans';
+  src: url('/f_ck_beans/F_ck Beans.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'F_ck Beans';
+  src: url('/f_ck_beans/F_ck Beans Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'F_ck Beans';
+  src: url('/f_ck_beans/F_ck Beans Italic.ttf') format('truetype');
+  font-weight: normal;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'F_ck Beans';
+  src: url('/f_ck_beans/F_ck Beans Bold Italic.ttf') format('truetype');
+  font-weight: bold;
+  font-style: italic;
+  font-display: swap;
+}
+
 :root {
-  --color-brand-yellow: #f5f5a0;
+  --color-brand-yellow: #f8f8bc;
   --color-brand-purple: #9b7fc7;
   --color-brand-green:  #2d3315;
 }
@@ -10,12 +42,16 @@
   --color-background: var(--color-brand-yellow);
   --color-foreground: var(--color-brand-green);
   --color-purple:     var(--color-brand-purple);
-  --font-display:     var(--font-display);
+  --font-display:     'F_ck Beans', cursive;
   --font-sans:        var(--font-sans);
 }
 
-@utility clip-chevron-top {
-  clip-path: polygon(0% 8%, 50% 0%, 100% 8%, 100% 100%, 0% 100%);
+.font-display {
+  text-transform: uppercase;
+}
+
+@utility clip-bowtie {
+  clip-path: polygon(0% 0%, 50% 9%, 100% 0%, 100% 100%, 50% 91%, 0% 100%);
 }
 
 body {

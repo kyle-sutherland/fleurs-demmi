@@ -13,14 +13,14 @@ export default function AboutPage() {
       <SiteHeader active="about" />
 
       <main className="flex flex-col">
-        <div className="mx-4 md:mx-16 mt-10 md:mt-16">
+        <div className="mx-8 md:mx-32 mt-10 md:mt-16">
           <h1 className="font-display font-black text-[14vw] md:text-[7vw] leading-none">
             About
           </h1>
         </div>
 
         {/* Photos */}
-        <div className="grid grid-cols-2 gap-4 mt-8 mx-4 md:mx-16">
+        <div className="grid grid-cols-2 gap-4 mt-8 mx-8 md:mx-32">
           <div className="relative aspect-[3/4]">
             <Image
               src="/60c13257-cae1-486f-b37a-683c0594416b.jpeg"
@@ -41,7 +41,7 @@ export default function AboutPage() {
         </div>
 
         {/* Bio */}
-        <div className="mx-4 md:mx-16 mt-12 md:mt-16 max-w-2xl">
+        <div className="mx-8 md:mx-32 mt-12 md:mt-16 max-w-2xl md:max-w-none">
           <p className="font-sans text-base leading-relaxed text-foreground/80">
             fleurs d&apos;emmi is the floral project of <strong>Emily Gray</strong>, based in
             Montréal, Québec, using primarily local blooms grown by local farmers and from her own
@@ -102,13 +102,13 @@ function SiteHeader({ active }: { active?: string }) {
     { href: "/#contact", label: "Contact" },
   ];
   return (
-    <header className="relative flex items-center justify-between px-4 py-4 md:flex-col md:items-center md:pt-8 md:pb-0">
+    <header className="relative flex items-center justify-between px-8 py-6 md:flex-col md:items-center md:pt-12 md:pb-0">
       <div className="md:hidden">
-        <Link href="/"><DaisyLogo size={56} /></Link>
+        <Link href="/"><DaisyLogo size={81} /></Link>
       </div>
       <div className="hidden md:flex md:flex-col md:items-center md:gap-5">
-        <Link href="/"><DaisyLogo size={120} /></Link>
-        <nav className="flex gap-10 text-xs font-sans font-semibold tracking-widest uppercase text-foreground">
+        <Link href="/"><DaisyLogo size={175} /></Link>
+        <nav className="flex gap-10 text-[0.992rem] font-sans tracking-widest uppercase text-foreground">
           {links.map(({ href, label }) => (
             <Link
               key={label}
@@ -120,7 +120,7 @@ function SiteHeader({ active }: { active?: string }) {
           ))}
         </nav>
       </div>
-      <div className="hidden md:flex items-center gap-5 absolute top-6 right-8 font-sans text-foreground">
+      <div className="hidden md:flex items-center gap-5 absolute top-10 right-12 font-sans text-foreground">
         <Link href="/cart" className="flex items-center gap-1.5 text-xs font-semibold hover:opacity-60 transition-opacity">
           <CartIcon /><span>0</span>
         </Link>

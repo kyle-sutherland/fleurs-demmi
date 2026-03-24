@@ -1,12 +1,6 @@
 import type { Metadata } from "next";
-import { Caveat, Courier_Prime } from "next/font/google";
+import { Courier_Prime } from "next/font/google";
 import "./globals.css";
-
-const caveat = Caveat({
-  subsets: ["latin"],
-  variable: "--font-display",
-  display: "swap",
-});
 
 const courierPrime = Courier_Prime({
   subsets: ["latin"],
@@ -28,7 +22,7 @@ export default function RootLayout({
   return (
     <html
       lang="fr"
-      className={`${caveat.variable} ${courierPrime.variable} h-full antialiased`}
+      className={`${courierPrime.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>

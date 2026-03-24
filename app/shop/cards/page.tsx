@@ -10,7 +10,7 @@ export default function CardsPage() {
     <div className="flex flex-col flex-1">
       <SiteHeader active="shop" />
 
-      <main className="mx-4 md:mx-16 mt-10 md:mt-16 pb-24">
+      <main className="mx-8 md:mx-32 mt-10 md:mt-16 pb-24">
         <h1 className="font-display font-black text-[11vw] md:text-[5.5vw] leading-none">
           Cards &<br />Goodies
         </h1>
@@ -47,17 +47,17 @@ function SiteHeader({ active }: { active?: string }) {
     { href: "/#contact", label: "Contact" },
   ];
   return (
-    <header className="relative flex items-center justify-between px-4 py-4 md:flex-col md:items-center md:pt-8 md:pb-0">
-      <div className="md:hidden"><Link href="/"><DaisyLogo size={56} /></Link></div>
+    <header className="relative flex items-center justify-between px-8 py-6 md:flex-col md:items-center md:pt-12 md:pb-0">
+      <div className="md:hidden"><Link href="/"><DaisyLogo size={81} /></Link></div>
       <div className="hidden md:flex md:flex-col md:items-center md:gap-5">
-        <Link href="/"><DaisyLogo size={120} /></Link>
-        <nav className="flex gap-10 text-xs font-sans font-semibold tracking-widest uppercase text-foreground">
+        <Link href="/"><DaisyLogo size={175} /></Link>
+        <nav className="flex gap-10 text-[0.992rem] font-sans tracking-widest uppercase text-foreground">
           {links.map(({ href, label }) => (
             <Link key={label} href={href} className={`hover:opacity-60 transition-opacity ${active === label.toLowerCase() ? "underline underline-offset-4" : ""}`}>{label}</Link>
           ))}
         </nav>
       </div>
-      <div className="hidden md:flex items-center gap-5 absolute top-6 right-8 font-sans text-foreground">
+      <div className="hidden md:flex items-center gap-5 absolute top-10 right-12 font-sans text-foreground">
         <Link href="/cart" className="flex items-center gap-1.5 text-xs font-semibold hover:opacity-60 transition-opacity"><CartIcon /><span>0</span></Link>
       </div>
       <div className="flex items-center gap-4 md:hidden">
