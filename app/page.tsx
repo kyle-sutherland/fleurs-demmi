@@ -46,7 +46,7 @@ export default function Home() {
           {/* Chevron image block — pulled up so title overlaps it */}
           <div className="clip-bowtie relative mx-4 md:w-[78.75%] md:mx-auto aspect-square -mt-[10vw] md:-mt-[6vw]">
             <Image
-              src="/Flower Photos/HOME.jpg"
+              src="/FlowerPhotos/HOME.jpg"
               alt="Fleurs d'Emmi hero"
               fill
               className="object-cover object-center scale-[1.08]"
@@ -78,7 +78,7 @@ export default function Home() {
             label="Bouquet Subscription"
             sublabel="Bi-weekly seasonal bouquets · Pick up or delivery"
             bg="bg-purple/20"
-            image="/Flower Photos/bouquet1.jpg"
+            image="/FlowerPhotos/bouquet1.jpg"
           />
           {/* Mother's Day */}
           <ProductCard
@@ -86,7 +86,7 @@ export default function Home() {
             label="Mother's Day Bouquets"
             sublabel="Order now · Pick up May 9th or delivery May 10th"
             bg="bg-purple/10"
-            image="/Flower Photos/mama.jpg"
+            image="/FlowerPhotos/mama.jpg"
           />
           {/* Vases */}
           <ProductCard
@@ -114,14 +114,14 @@ export default function Home() {
               href="/services/weddings"
               label="Weddings & Special Events"
               body="DIY floral buckets, à la carte arrangements, and full installations. Request a custom quote."
-              image="/Flower Photos/Wedding Flowers 3.jpg"
+              image="/FlowerPhotos/Wedding Flowers 3.jpg"
               imagePosition="object-top"
             />
             <ServiceCard
               href="/services/funerals"
               label="Sympathy & Support"
               body="Vase arrangements as a gesture of comfort and remembrance, for honouring a loved one."
-              image="/Flower Photos/sympathy.jpeg"
+              image="/FlowerPhotos/sympathy.jpeg"
               imageClass="scale-[1.5625] [filter:brightness(1.0)_contrast(1.04)_saturate(1.15)_sepia(0.18)]"
             />
           </div>
@@ -147,7 +147,7 @@ export default function Home() {
               </Link>
               {/* Image — below Read more on left side */}
               <div className="mt-14 aspect-square relative overflow-hidden rounded-2xl md:w-80">
-                <Image src="/Flower Photos/contact.jpg" alt="Flowers" fill className="object-cover object-center" />
+                <Image src="/FlowerPhotos/contact.jpg" alt="Flowers" fill className="object-cover object-center" />
               </div>
             </div>
           </div>
@@ -241,13 +241,13 @@ function ServiceCard({
         </div>
       )}
       <div className="flex flex-col gap-3 p-6">
-      <p className="font-display font-black text-xl md:text-2xl leading-tight group-hover:underline">
-        {label}
-      </p>
-      <p className="font-sans text-sm text-foreground/70 leading-relaxed">{body}</p>
-      <span className="font-sans text-xs uppercase tracking-widest font-semibold mt-auto pt-2 underline underline-offset-4">
-        Learn more →
-      </span>
+        <p className="font-display font-black text-xl md:text-2xl leading-tight group-hover:underline">
+          {label}
+        </p>
+        <p className="font-sans text-sm text-foreground/70 leading-relaxed">{body}</p>
+        <span className="font-sans text-xs uppercase tracking-widest font-semibold mt-auto pt-2 underline underline-offset-4">
+          Learn more →
+        </span>
       </div>
     </Link>
   );

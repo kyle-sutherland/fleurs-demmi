@@ -4,17 +4,17 @@ import Image from 'next/image';
 import { useState } from 'react';
 
 const photos = [
-  '/Flower Photos/1.jpg',
-  '/Flower Photos/2.jpg',
-  '/Flower Photos/3.jpg',
-  '/Flower Photos/4.jpg',
-  '/Flower Photos/5.jpg',
-  '/Flower Photos/6.jpg',
-  '/Flower Photos/7.jpg',
-  '/Flower Photos/8.jpg',
-  '/Flower Photos/9.jpg',
-  '/Flower Photos/10.jpg',
-  '/Flower Photos/11.jpg',
+  '/FlowerPhotos/1.jpg',
+  '/FlowerPhotos/2.jpg',
+  '/FlowerPhotos/3.jpg',
+  '/FlowerPhotos/4.jpg',
+  '/FlowerPhotos/5.jpg',
+  '/FlowerPhotos/6.jpg',
+  '/FlowerPhotos/7.jpg',
+  '/FlowerPhotos/8.jpg',
+  '/FlowerPhotos/9.jpg',
+  '/FlowerPhotos/10.jpg',
+  '/FlowerPhotos/11.jpg',
 ];
 
 export default function BouquetSlideshow({ className }: { className?: string }) {

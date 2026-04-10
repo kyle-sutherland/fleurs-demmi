@@ -22,7 +22,7 @@ export default function ServicesPage() {
             className="group flex flex-col overflow-hidden rounded-2xl border-2 border-foreground/10 hover:border-foreground/30 transition-colors"
           >
             <div className="relative aspect-[4/3] bg-purple/20 overflow-hidden">
-              <Image src="/Flower Photos/Wedding Flowers 3.jpg" alt="Weddings & Special Events" fill className="object-cover object-top" />
+              <Image src="/FlowerPhotos/Wedding Flowers 3.jpg" alt="Weddings & Special Events" fill className="object-cover object-top" />
             </div>
             <div className="p-6">
               <p className="font-display font-black text-2xl md:text-3xl leading-tight group-hover:underline">
@@ -43,7 +43,7 @@ export default function ServicesPage() {
             className="group flex flex-col overflow-hidden rounded-2xl border-2 border-foreground/10 hover:border-foreground/30 transition-colors"
           >
             <div className="relative aspect-[4/3] bg-foreground/8 overflow-hidden">
-              <Image src="/Flower Photos/sympathy.jpeg" alt="Sympathy & Support" fill className="object-cover object-center scale-[1.5625] [filter:brightness(1.0)_contrast(1.04)_saturate(1.15)_sepia(0.18)]" />
+              <Image src="/FlowerPhotos/sympathy.jpeg" alt="Sympathy & Support" fill className="object-cover object-center scale-[1.5625] [filter:brightness(1.0)_contrast(1.04)_saturate(1.15)_sepia(0.18)]" />
             </div>
             <div className="p-6">
               <p className="font-display font-black text-2xl md:text-3xl leading-tight group-hover:underline">
