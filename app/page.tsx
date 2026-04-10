@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import DaisyLogo from "@/app/components/DaisyLogo";
+import EmailSignupForm from "@/app/components/EmailSignupForm";
 
 export default function Home() {
   return (
@@ -161,25 +162,7 @@ export default function Home() {
           <p className="font-sans text-sm mt-3 text-foreground/70">
             Sign up to receive occasional updates from the farm and discover our new arrivals.
           </p>
-          <form className="mt-8 flex flex-col gap-5 md:flex-row md:items-end">
-            <div className="flex flex-col gap-1 flex-1">
-              <label className="font-sans text-xs uppercase tracking-widest font-semibold text-foreground">
-                Email
-              </label>
-              <input
-                type="email"
-                name="email"
-                required
-                className="border-2 border-foreground bg-transparent font-sans text-sm px-4 py-3 focus:outline-none focus:border-purple w-full"
-              />
-            </div>
-            <button
-              type="submit"
-              className="font-sans text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-10 py-3 hover:bg-foreground hover:text-background transition-colors whitespace-nowrap"
-            >
-              Subscribe
-            </button>
-          </form>
+          <EmailSignupForm />
         </div>
       </main>
 
