@@ -32,18 +32,24 @@ export default async function LocaleLayout({
             {t.footer.body}
           </p>
           <form className="mt-8 flex flex-col gap-5 md:flex-row md:items-end">
-            <div className="flex-1">
+            <div className="flex-1 flex items-center border-2 border-orange-500 rounded-full bg-foreground/5 pr-1 md:rounded-none md:border-0 md:bg-transparent md:p-0 md:flex-none md:contents">
               <input
                 type="email"
                 name="email"
                 required
                 placeholder={t.footer.emailLabel}
-                className="border-2 border-orange-500 rounded-full bg-foreground/5 font-sans text-sm px-5 py-3 focus:outline-none focus:border-orange-400 w-full placeholder:text-foreground/40"
+                className="flex-1 bg-transparent font-sans text-sm px-5 py-3 focus:outline-none w-full placeholder:text-foreground/40 md:border-2 md:border-orange-500 md:rounded-full md:bg-foreground/5 md:focus:border-orange-400"
               />
+              <button
+                type="submit"
+                className="md:hidden font-sans text-xs font-semibold uppercase tracking-widest text-foreground/70 px-4 py-2 whitespace-nowrap"
+              >
+                {t.footer.subscribe}
+              </button>
             </div>
             <button
               type="submit"
-              className="self-start font-sans text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-4 py-2 hover:bg-orange-500 hover:border-orange-500 hover:text-white transition-colors whitespace-nowrap"
+              className="hidden md:block self-start font-sans text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-4 py-2 hover:bg-orange-500 hover:border-orange-500 hover:text-white transition-colors whitespace-nowrap"
             >
               {t.footer.subscribe}
             </button>

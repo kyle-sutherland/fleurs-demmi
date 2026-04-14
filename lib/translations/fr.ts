@@ -8,7 +8,7 @@ export const fr: Dictionary = {
     contact: "Contact",
   },
   footer: {
-    heading: "Restez dans la boucle",
+    heading: "Restez au courant",
     body: "Inscrivez-vous pour recevoir des nouvelles des jardins et d\u00e9couvrir nos nouveaut\u00e9s.",
     emailLabel: "Courriel",
     subscribe: "S\u2019abonner",
@@ -198,5 +198,11 @@ export const fr: Dictionary = {
     heading: "Vases artisanaux\net vintage",
     intro: "Des contenants uniques pour votre maison et vos arrangements floraux. D\u00e9couvrez ici notre collection de c\u00e9ramiques artisanales locales et de trouvailles vintage.",
     comingSoon: "\u00c0 venir",
+    oneOfAKind: "Pi\u00e8ce unique",
+    items: [
+      { id: 1, title: "Vase sgraffito" },
+      { id: 2, title: "Vase jaune beurre" },
+      { id: 3, title: "Vase boucle bleu vert" },
+    ],
   },
 };

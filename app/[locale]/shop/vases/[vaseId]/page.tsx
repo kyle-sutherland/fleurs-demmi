@@ -4,10 +4,19 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState, use } from "react";
 import SiteHeader from "@/app/components/SiteHeader";
+const vaseTitles: Record<string, Record<string, string>> = {
+  "1": { en: "Sgraffito Vase", fr: "Vase sgraffito" },
+  "2": { en: "Butter Yellow Vase", fr: "Vase jaune beurre" },
+  "3": { en: "Seafoam Loop Vase", fr: "Vase boucle bleu vert" },
+};
 
-const vaseData: Record<string, { title: string; price: number; slides: { src: string; position?: string; fit?: string }[] }> = {
+const oneOfAKind: Record<string, string> = {
+  en: "One of a kind",
+  fr: "Pièce unique",
+};
+
+const vaseSlides: Record<string, { price: number; slides: { src: string; position?: string; fit?: string }[] }> = {
   "1": {
-    title: "Sgraffito Vase",
     price: 95,
     slides: [
       { src: "/Vases/1c.jpg" },
@@ -16,7 +25,6 @@ const vaseData: Record<string, { title: string; price: number; slides: { src: st
     ],
   },
   "2": {
-    title: "Butter Yellow Vase",
     price: 95,
     slides: [
       { src: "/Vases/4c.jpg" },
@@ -24,7 +32,6 @@ const vaseData: Record<string, { title: string; price: number; slides: { src: st
     ],
   },
   "3": {
-    title: "Seafoam Loop Vase",
     price: 95,
     slides: [
       { src: "/Vases/6c.jpg" },
@@ -39,7 +46,9 @@ export default function VaseDetailPage({
   params: Promise<{ locale: string; vaseId: string }>;
 }) {
   const { locale, vaseId } = use(params);
-  const vase = vaseData[vaseId];
+  const slideData = vaseSlides[vaseId];
+  const title = vaseTitles[vaseId]?.[locale] ?? vaseTitles[vaseId]?.en ?? "";
+  const vase = slideData ? { ...slideData, title } : null;
   const [index, setIndex] = useState(0);
 
   if (!vase) {
@@ -117,7 +126,7 @@ export default function VaseDetailPage({
               {vase.title}
             </h1>
             <p className="font-sans text-sm text-foreground/60 uppercase tracking-widest">
-              One of a kind
+              {oneOfAKind[locale] ?? oneOfAKind.en}
             </p>
             <p className="font-display font-black text-2xl">${vase.price}.00</p>
             <div className="mt-2 p-4 border-2 border-dashed border-foreground/30 font-sans text-sm text-foreground/50 text-center">

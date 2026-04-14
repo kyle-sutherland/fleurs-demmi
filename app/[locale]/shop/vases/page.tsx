@@ -3,11 +3,12 @@ import Link from "next/link";
 import SiteHeader from "@/app/components/SiteHeader";
 import { getDictionary } from "@/lib/i18n";
 
-const vases = [
-  { id: 1, src: "/Vases/1c.jpg", title: "Sgraffito Vase", price: 95 },
-  { id: 2, src: "/Vases/4c.jpg", title: "Butter Yellow Vase", price: 95 },
-  { id: 3, src: "/Vases/6c.jpg", title: "Seafoam Loop Vase", price: 95 },
-];
+const vaseSrcs: Record<number, string> = {
+  1: "/Vases/1c.jpg",
+  2: "/Vases/4c.jpg",
+  3: "/Vases/6c.jpg",
+};
+const vasePrice = 95;
 
 export default async function VasesPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -25,11 +26,11 @@ export default async function VasesPage({ params }: { params: Promise<{ locale: 
         <p className="font-sans text-base mt-6 max-w-xl text-foreground/80 leading-relaxed">{v.intro}</p>
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-6 mt-10">
-          {vases.map((vase) => (
+          {v.items.map((vase) => (
             <Link key={vase.id} href={`/${locale}/shop/vases/${vase.id}`} className="group flex flex-col">
               <div className="relative aspect-square bg-purple/10 overflow-hidden">
                 <Image
-                  src={vase.src}
+                  src={vaseSrcs[vase.id]}
                   alt={vase.title}
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -39,7 +40,7 @@ export default async function VasesPage({ params }: { params: Promise<{ locale: 
                     {vase.title}
                   </span>
                   <span className="font-sans text-background text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    ${vase.price}
+                    ${vasePrice}
                   </span>
                 </div>
               </div>

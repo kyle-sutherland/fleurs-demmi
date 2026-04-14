@@ -196,6 +196,12 @@ export const en = {
     heading: "Handmade &\nVintage Vases",
     intro: "Unique vessels for your home & floral arrangements. Find here our collection of locally handmade ceramics and vintage finds.",
     comingSoon: "Coming soon",
+    oneOfAKind: "One-of-a-kind",
+    items: [
+      { id: 1, title: "Sgraffito Vase" },
+      { id: 2, title: "Butter Yellow Vase" },
+      { id: 3, title: "Seafoam Loop Vase" },
+    ],
   },
 };
 
