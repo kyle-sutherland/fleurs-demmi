@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import DaisyLogo from "@/app/components/DaisyLogo";
 
@@ -19,6 +20,15 @@ export default function MothersDayPage() {
           It&apos;s that special time of year to show love to all the wonderful mothers in our lives.
         </p>
 
+        <div className="relative mt-8 aspect-[4/3] w-full max-w-2xl overflow-hidden">
+          <Image
+            src="/Flower%20Photos/mother_flower.jpg"
+            alt="Mother's Day flowers"
+            fill
+            className="object-cover object-center"
+          />
+        </div>
+
         <section className="mt-12 max-w-2xl">
           <form className="flex flex-col gap-5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -30,47 +40,39 @@ export default function MothersDayPage() {
             {/* Pickup / delivery */}
             <div className="flex flex-col gap-2">
               <label className="font-sans text-xs uppercase tracking-widest font-semibold">
-                Fulfillment *
+                Select one *
               </label>
               <div className="flex flex-col gap-2 font-sans text-sm">
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input type="radio" name="fulfillment" value="pickup" defaultChecked className="accent-purple" />
-                  Pick up in Mile End — Fri May 2nd, 10am–5pm
+                  Pick up in Mile End — Fri May 9th, 10am–5pm
                 </label>
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input type="radio" name="fulfillment" value="delivery" className="accent-purple" />
-                  Delivery — Sat May 3rd (+$10)
+                  Delivery — Sat May 10th (+$10)
                 </label>
               </div>
             </div>
 
-            <Field label="Delivery Address" name="address" type="text" hint="Only required if choosing delivery." />
-            <Field label="Preferred Delivery Time" name="delivery_time" type="text" hint="e.g. Morning, Afternoon" />
+            <Field label="Address" name="address" type="text" hint="Required if choosing delivery." />
+            <Field label="Preferred Time of Delivery" name="delivery_time" type="text" hint="e.g. Morning, Afternoon" />
 
-            {/* Bouquet selection */}
+            {/* Arrangement selection */}
             <div className="flex flex-col gap-2">
               <label className="font-sans text-xs uppercase tracking-widest font-semibold">
-                $60 Bouquet Style *
+                Arrangement *
               </label>
-              <select name="bouquet_style" required className="border-2 border-foreground bg-background font-sans text-sm px-4 py-3 focus:outline-none focus:border-purple appearance-none">
-                <option value="">Select a style…</option>
-                <option value="soft_warm">Soft &amp; Warm</option>
-                <option value="bold_bright">Bold &amp; Bright</option>
-              </select>
+              <div className="flex flex-col gap-2 font-sans text-sm">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input type="radio" name="arrangement" value="50" defaultChecked className="accent-purple" />
+                  $50 arrangement (in 490mL mason jar)
+                </label>
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input type="radio" name="arrangement" value="75" className="accent-purple" />
+                  $75 arrangement (in 750mL mason jar)
+                </label>
+              </div>
             </div>
-
-            <div className="flex flex-col gap-2">
-              <label className="font-sans text-xs uppercase tracking-widest font-semibold">
-                Custom Bouquet
-              </label>
-              <select name="custom_bouquet" className="border-2 border-foreground bg-background font-sans text-sm px-4 py-3 focus:outline-none focus:border-purple appearance-none">
-                <option value="">None</option>
-                <option value="80">Custom Bouquet — $80</option>
-                <option value="100">Custom Bouquet — $100</option>
-              </select>
-            </div>
-
-            <Textarea label="Notes on Style / Colour" name="style_notes" rows={3} />
 
             {/* Card */}
             <div className="flex flex-col gap-2 p-5 bg-foreground/5">

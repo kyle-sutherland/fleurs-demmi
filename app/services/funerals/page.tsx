@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import DaisyLogo from "@/app/components/DaisyLogo";
 
@@ -18,6 +19,15 @@ export default function FuneralsPage() {
           Our offerings provide a gesture of comfort and remembrance, for honouring a loved one or
           symbolising support to those experiencing the grief of loss.
         </p>
+
+        <div className="relative mt-8 aspect-[4/3] w-full max-w-2xl overflow-hidden">
+          <Image
+            src="/Flower%20Photos/sympathy.jpeg"
+            alt="Sympathy & Support"
+            fill
+            className="object-cover object-center scale-[1.5625] [filter:brightness(1.0)_contrast(1.04)_saturate(1.15)_sepia(0.18)]"
+          />
+        </div>
 
         <section className="mt-12 max-w-2xl md:max-w-7xl">
           <h2 className="font-display font-black text-2xl md:text-3xl">Order Form</h2>
@@ -47,12 +57,12 @@ export default function FuneralsPage() {
 
             <div className="flex flex-col gap-2">
               <label className="font-sans text-xs uppercase tracking-widest font-semibold">Fulfillment *</label>
-              <div className="flex gap-4">
-                <label className="flex items-center gap-2 font-sans text-sm cursor-pointer">
-                  <input type="checkbox" name="fulfillment" value="pickup" className="accent-purple" required /> Pick up
+              <div className="flex flex-col gap-2 font-sans text-sm">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input type="radio" name="fulfillment" value="pickup" defaultChecked className="accent-purple" /> Pick up
                 </label>
-                <label className="flex items-center gap-2 font-sans text-sm cursor-pointer">
-                  <input type="checkbox" name="fulfillment" value="delivery" className="accent-purple" /> Delivery
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input type="radio" name="fulfillment" value="delivery" className="accent-purple" /> Delivery (+$15)
                 </label>
               </div>
             </div>
@@ -67,9 +77,9 @@ export default function FuneralsPage() {
                 className="border-2 border-foreground bg-background font-sans text-sm px-4 py-3 focus:outline-none focus:border-purple appearance-none"
               >
                 <option value="">Select an option…</option>
-                <option value="small">Small vase arrangement — $80</option>
-                <option value="medium">Medium vase arrangement — $120</option>
-                <option value="large">Large vase arrangement — $160</option>
+                <option value="small">Small vase arrangement — $50</option>
+                <option value="medium">Medium vase arrangement — $100</option>
+                <option value="large">Large vase arrangement — $150</option>
               </select>
             </div>
 
