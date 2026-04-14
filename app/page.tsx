@@ -175,7 +175,7 @@ export default function Home() {
             </div>
             <button
               type="submit"
-              className="font-sans text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-10 py-3 hover:bg-foreground hover:text-background transition-colors whitespace-nowrap"
+              className="font-sans text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-4 py-2 md:px-10 md:py-3 hover:bg-foreground hover:text-background transition-colors whitespace-nowrap"
             >
               Subscribe
             </button>
