@@ -35,6 +35,8 @@ export function CheckoutForm({ applicationId, locationId, sdkUrl, total }: Props
     script.onerror = () => setError('Failed to load payment form. Please refresh and try again.')
     document.head.appendChild(script)
     return () => {
+      cardRef.current?.destroy()
+      cardRef.current = null
       document.head.removeChild(script)
     }
   }, [applicationId, locationId, sdkUrl])
