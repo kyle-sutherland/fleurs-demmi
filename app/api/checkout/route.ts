@@ -57,22 +57,6 @@ export async function POST(request: Request) {
       order: {
         locationId: LOCATION_ID,
         lineItems,
-        ...(email || name
-          ? {
-              fulfillments: [
-                {
-                  type: 'PICKUP' as const,
-                  state: 'PROPOSED' as const,
-                  pickupDetails: {
-                    recipient: {
-                      displayName: name ?? undefined,
-                      emailAddress: email ?? undefined,
-                    },
-                  },
-                },
-              ],
-            }
-          : {}),
       },
       idempotencyKey: randomUUID(),
     })
