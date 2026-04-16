@@ -1,5 +1,6 @@
 import SiteHeader from "@/app/components/SiteHeader";
 import WeddingSlideshow from "@/app/components/WeddingSlideshow";
+import { WeddingsForm } from "@/app/components/WeddingsForm";
 import { getDictionary } from "@/lib/i18n";
 
 export default async function WeddingsPage({ params }: { params: Promise<{ locale: string }> }) {
@@ -57,81 +58,9 @@ export default async function WeddingsPage({ params }: { params: Promise<{ local
         <section className="mt-16 max-w-2xl md:max-w-7xl">
           <h2 className="font-display font-black text-2xl md:text-3xl">{w.form.heading}</h2>
           <p className="font-sans text-sm mt-3 text-foreground/70 leading-relaxed">{w.form.intro}</p>
-
-          <form className="mt-8 flex flex-col gap-5">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <Field label={w.form.name} name="name" type="text" required />
-              <Field label={w.form.email} name="email" type="email" required />
-            </div>
-            <Field label={w.form.phone} name="phone" type="tel" required />
-            <Field label={w.form.eventDate} name="event_date" type="date" hint={w.form.eventDateHint} required />
-
-            <div className="flex flex-col gap-2">
-              <label className="font-sans text-xs uppercase tracking-widest font-semibold">{w.form.fulfillment} *</label>
-              <div className="flex gap-4">
-                <label className="flex items-center gap-2 font-sans text-sm cursor-pointer">
-                  <input type="checkbox" name="fulfillment" value="pickup" className="accent-purple" required /> {w.form.pickUp}
-                </label>
-                <label className="flex items-center gap-2 font-sans text-sm cursor-pointer">
-                  <input type="checkbox" name="fulfillment" value="delivery" className="accent-purple" /> {w.form.delivery}
-                </label>
-              </div>
-            </div>
-
-            <Field label={w.form.eventLocation} name="event_location" type="text" hint={w.form.eventLocationHint} />
-            <Field label={w.form.guestCount} name="guest_count" type="text" />
-
-            <div className="flex flex-col gap-1">
-              <label className="font-sans text-xs uppercase tracking-widest font-semibold">{w.form.selectedItems}</label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-1">
-                {w.form.items.map((item) => (
-                  <label key={item} className="flex items-center gap-2 font-sans text-sm cursor-pointer">
-                    <input type="checkbox" name="items" value={item} className="accent-purple" />
-                    {item}
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            <Textarea label={w.form.styleNotes} name="style_notes" rows={3} />
-            <Textarea label={w.form.additionalInfo} name="additional" rows={3} />
-
-            <div className="flex flex-col gap-1">
-              <label className="font-sans text-xs uppercase tracking-widest font-semibold">{w.form.images}</label>
-              <input type="file" name="images" multiple accept="image/*" className="font-sans text-sm file:mr-4 file:py-2 file:px-4 file:border-2 file:border-foreground file:bg-transparent file:font-sans file:font-semibold file:text-xs file:uppercase file:tracking-widest cursor-pointer" />
-            </div>
-
-            <div className="p-4 border-2 border-dashed border-foreground/30 font-sans text-sm text-foreground/50 text-center">
-              {w.form.paymentSoon}
-            </div>
-
-            <button type="submit" className="self-start font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-10 py-3 hover:bg-foreground hover:text-background transition-colors">
-              {w.form.submit}
-            </button>
-          </form>
+          <WeddingsForm t={w.form} />
         </section>
       </main>
-    </div>
-  );
-}
-
-function Field({ label, name, type, hint, required }: { label: string; name: string; type: string; hint?: string; required?: boolean }) {
-  return (
-    <div className="flex flex-col gap-1">
-      <label htmlFor={name} className="font-sans text-xs uppercase tracking-widest font-semibold">
-        {label}{required && " *"}
-      </label>
-      {hint && <p className="font-sans text-xs text-foreground/50 -mt-0.5">{hint}</p>}
-      <input id={name} name={name} type={type} required={required} className="border-2 border-foreground bg-transparent font-sans text-sm px-4 py-3 focus:outline-none focus:border-purple" />
-    </div>
-  );
-}
-
-function Textarea({ label, name, rows }: { label: string; name: string; rows: number }) {
-  return (
-    <div className="flex flex-col gap-1">
-      <label className="font-sans text-xs uppercase tracking-widest font-semibold">{label}</label>
-      <textarea name={name} rows={rows} className="border-2 border-foreground bg-transparent font-sans text-sm px-4 py-3 focus:outline-none focus:border-purple resize-none" />
     </div>
   );
 }
