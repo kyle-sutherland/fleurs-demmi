@@ -36,26 +36,21 @@ export default function EmailSignupForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="mt-8 flex flex-col gap-4">
-      <div className="flex flex-col gap-4 md:flex-row md:items-start">
-        <div className="flex flex-col gap-1 flex-1">
-          <label className="font-sans text-xs uppercase tracking-widest font-semibold text-foreground">
-            Name
-          </label>
+      <div className="flex flex-col gap-4 md:flex-row md:items-end">
+        {/* Name — mobile: pill, desktop: square */}
+        <div className="flex items-center border-2 border-orange-500 rounded-full bg-foreground/5 pr-1 md:rounded-none md:border-0 md:bg-transparent md:p-0 md:flex-none md:flex-1 md:flex md:flex-col md:gap-0">
           <input
             type="text"
+            placeholder="Name"
             {...register('name', { required: 'Name is required.' })}
-            className="border-2 border-foreground bg-transparent font-sans text-sm px-4 py-3 focus:outline-none focus:border-purple w-full"
+            className="flex-1 bg-transparent font-sans text-sm px-5 py-3 focus:outline-none w-full placeholder:text-foreground/40 md:border-2 md:border-orange-500 md:rounded-full md:bg-foreground/5 md:focus:border-orange-400"
           />
-          {errors.name && (
-            <p className="font-sans text-xs text-red-600">{errors.name.message}</p>
-          )}
         </div>
-        <div className="flex flex-col gap-1 flex-1">
-          <label className="font-sans text-xs uppercase tracking-widest font-semibold text-foreground">
-            Email
-          </label>
+        {/* Email — mobile: pill, desktop: square */}
+        <div className="flex items-center border-2 border-orange-500 rounded-full bg-foreground/5 pr-1 md:rounded-none md:border-0 md:bg-transparent md:p-0 md:flex-none md:flex-1 md:flex md:flex-col md:gap-0">
           <input
             type="email"
+            placeholder="Email"
             {...register('email', {
               required: 'Email is required.',
               pattern: {
@@ -63,22 +58,30 @@ export default function EmailSignupForm() {
                 message: 'Please enter a valid email address.',
               },
             })}
-            className="border-2 border-foreground bg-transparent font-sans text-sm px-4 py-3 focus:outline-none focus:border-purple w-full"
+            className="flex-1 bg-transparent font-sans text-sm px-5 py-3 focus:outline-none w-full placeholder:text-foreground/40 md:border-2 md:border-orange-500 md:rounded-full md:bg-foreground/5 md:focus:border-orange-400"
           />
-          {errors.email && (
-            <p className="font-sans text-xs text-red-600">{errors.email.message}</p>
-          )}
+          {/* Mobile inline submit */}
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="md:hidden font-sans text-xs font-semibold uppercase tracking-widest text-foreground/70 px-4 py-2 whitespace-nowrap disabled:opacity-50"
+          >
+            {isSubmitting ? '…' : 'Go'}
+          </button>
         </div>
+        {/* Desktop submit */}
         <button
           type="submit"
           disabled={isSubmitting}
-          className="md:mt-[1.625rem] font-sans text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-10 py-3 hover:bg-foreground hover:text-background transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+          className="hidden md:block self-start font-sans text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-4 py-2 hover:bg-orange-500 hover:border-orange-500 hover:text-white transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSubmitting ? 'Subscribing…' : 'Subscribe'}
         </button>
       </div>
-      {serverError && (
-        <p className="font-sans text-xs text-red-600">{serverError}</p>
+      {(errors.name || errors.email || serverError) && (
+        <p className="font-sans text-xs text-red-600">
+          {errors.name?.message ?? errors.email?.message ?? serverError}
+        </p>
       )}
     </form>
   )
