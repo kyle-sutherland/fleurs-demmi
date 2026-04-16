@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
-import { SiteHeader } from '@/app/components/SiteHeader'
+import SiteHeader from '@/app/components/SiteHeader'
 import { CheckoutForm } from '@/app/components/CheckoutForm'
 import { parseCart, cartTotal } from '@/app/lib/cart'
 
@@ -21,7 +21,7 @@ export default async function CheckoutPage() {
 
   return (
     <div className="flex flex-col flex-1">
-      <SiteHeader active="shop" />
+      <SiteHeader locale="en" active="shop" />
 
       <main className="mx-8 md:mx-32 mt-10 md:mt-16 pb-24">
         <h1 className="font-display font-black text-[11vw] md:text-[5vw] leading-none">

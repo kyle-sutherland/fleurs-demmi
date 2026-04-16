@@ -52,7 +52,7 @@ export async function GET(request: Request) {
       }
     }
 
-    for (const count of response.counts ?? []) {
+    for (const count of response.data ?? []) {
       if (!count.catalogObjectId) continue
       const productId = variationToProductId[count.catalogObjectId]
       if (!productId) continue

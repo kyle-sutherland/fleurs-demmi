@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { SiteHeader } from '@/app/components/SiteHeader'
+import SiteHeader from '@/app/components/SiteHeader'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -15,7 +15,7 @@ export default async function OrderConfirmationPage({
 
   return (
     <div className="flex flex-col flex-1">
-      <SiteHeader active="shop" />
+      <SiteHeader locale="en" active="shop" />
 
       <main className="mx-8 md:mx-32 mt-10 md:mt-16 pb-24">
         <h1 className="font-display font-black text-[11vw] md:text-[5vw] leading-none">
