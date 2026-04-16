@@ -93,7 +93,7 @@ export function CheckoutForm({ applicationId, locationId, sdkUrl, total }: Props
         </label>
         <div
           id="card-container"
-          className="border-2 border-foreground bg-transparent px-1 py-1 min-h-[56px]"
+          className="bg-transparent px-1 py-1 min-h-[56px]"
         />
         {!sdkReady && !error && (
           <p className="font-sans text-xs text-foreground/40">Loading payment form…</p>

@@ -213,7 +213,7 @@ export function MothersDayCheckoutForm({ applicationId, locationId, sdkUrl, t }:
         <label className="font-sans text-xs uppercase tracking-widest font-semibold">Card Details</label>
         <div
           id="mothers-day-card-container"
-          className="border-2 border-foreground bg-transparent px-1 py-1 min-h-[56px]"
+          className="bg-transparent px-1 py-1 min-h-[56px]"
         />
         {!sdkReady && !error && (
           <p className="font-sans text-xs text-foreground/40">Loading payment form…</p>
