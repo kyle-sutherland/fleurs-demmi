@@ -1,5 +1,6 @@
 import SiteHeader from "@/app/components/SiteHeader";
 import BouquetSlideshow from "@/app/components/BouquetSlideshow";
+import { BouquetSubscribeButton } from "@/app/components/BouquetSubscribeButton";
 import { getDictionary } from "@/lib/i18n";
 
 export default async function BouquetSubscriptionPage({ params }: { params: Promise<{ locale: string }> }) {
@@ -43,25 +44,16 @@ export default async function BouquetSubscriptionPage({ params }: { params: Prom
                   <p className="font-display font-black text-2xl whitespace-nowrap">${tier.price}.00</p>
                 </div>
 
-                <div className="flex flex-col gap-2">
-                  <label className="font-sans text-xs uppercase tracking-widest font-semibold">{b.deliveryLabel}</label>
-                  <div className="relative">
-                    <select className="w-full border-2 border-foreground bg-background font-sans text-sm px-4 py-3 pr-10 focus:outline-none focus:border-orange-500 appearance-none text-foreground">
-                      <option>{b.pickUpOption}</option>
-                      <option>{b.pickUpOption2}</option>
-                      <option>{b.deliveryOption}</option>
-                    </select>
-                    <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-foreground">&#8964;</span>
-                  </div>
-                </div>
-
-                <div className="p-3 border-2 border-dashed border-foreground/30 font-sans text-sm text-foreground/50 text-center">
-                  {b.paymentSoon}
-                </div>
-
-                <button type="button" className="self-start font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-4 py-2 hover:bg-foreground hover:text-background transition-colors">
-                  {b.subscribeBtn}{tier.price}.00
-                </button>
+                <BouquetSubscribeButton
+                  tierId={tier.id}
+                  tierLabel={tier.label}
+                  tierPrice={tier.price}
+                  subscribeBtn={b.subscribeBtn}
+                  deliveryLabel={b.deliveryLabel}
+                  pickUpOption={b.pickUpOption}
+                  pickUpOption2={b.pickUpOption2}
+                  deliveryOption={b.deliveryOption}
+                />
               </div>
             ))}
           </section>
