@@ -1,8 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { SiteHeader } from "@/app/components/SiteHeader";
+import { Metadata } from "next";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "About — Fleurs d'Emmi",
   description: "The floral project of Emily Gray, based in Montréal, QC.",
 };
@@ -21,7 +22,7 @@ export default function AboutPage() {
 
         {/* Photos */}
         <div className="grid grid-cols-2 gap-4 mt-8 mx-8 md:mx-32">
-          <div className="relative aspect-[3/4]">
+          <div className="relative aspect-3/4">
             <Image
               src="/60c13257-cae1-486f-b37a-683c0594416b.jpeg"
               alt="Emily Gray with flower cart"
@@ -30,7 +31,7 @@ export default function AboutPage() {
               priority
             />
           </div>
-          <div className="relative aspect-[3/4]">
+          <div className="relative aspect-3/4">
             <Image
               src="/ee457bb0-6711-4bd4-a478-09e127b505a6.jpeg"
               alt="Emily Gray watering plants"

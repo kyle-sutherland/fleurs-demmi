@@ -124,7 +124,7 @@ export default function Home() {
         </div>
 
         {/* Email subscription */}
-        <div id="contact" className="mx-8 md:mx-32 mt-10 md:mt-[72px] mb-16 max-w-2xl md:max-w-none">
+        <div id="contact" className="mx-8 md:mx-32 mt-10 md:mt-18 mb-16 max-w-2xl md:max-w-none">
           <h2 className="font-display font-black text-[8vw] md:text-[4vw] leading-none">
             Stay in the loop
           </h2>
@@ -211,13 +211,13 @@ function ServiceCard({
         </div>
       )}
       <div className="flex flex-col gap-3 p-6">
-      <p className="font-display font-black text-xl md:text-2xl leading-tight group-hover:underline">
-        {label}
-      </p>
-      <p className="font-sans text-sm text-foreground/70 leading-relaxed">{body}</p>
-      <span className="font-sans text-xs uppercase tracking-widest font-semibold mt-auto pt-2 underline underline-offset-4">
-        Learn more →
-      </span>
+        <p className="font-display font-black text-xl md:text-2xl leading-tight group-hover:underline">
+          {label}
+        </p>
+        <p className="font-sans text-sm text-foreground/70 leading-relaxed">{body}</p>
+        <span className="font-sans text-xs uppercase tracking-widest font-semibold mt-auto pt-2 underline underline-offset-4">
+          Learn more →
+        </span>
       </div>
     </Link>
   );

@@ -1,7 +1,8 @@
 import Link from 'next/link'
 import { SiteHeader } from '@/app/components/SiteHeader'
+import { Metadata } from 'next'
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Order Confirmed — Fleurs d'Emmi",
 }
 
