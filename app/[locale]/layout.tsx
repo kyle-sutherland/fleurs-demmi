@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { getDictionary } from "@/lib/i18n";
+import EmailSignupForm from "@/app/components/EmailSignupForm";
 
 export function generateStaticParams() {
   return [{ locale: "en" }, { locale: "fr" }];
@@ -31,29 +32,7 @@ export default async function LocaleLayout({
           <p className="font-sans text-sm mt-3 text-foreground/70">
             {t.footer.body}
           </p>
-          <form className="mt-8 flex flex-col gap-5 md:flex-row md:items-end">
-            <div className="flex-1 flex items-center border-2 border-orange-500 rounded-full bg-foreground/5 pr-1 md:rounded-none md:border-0 md:bg-transparent md:p-0 md:flex-none md:contents">
-              <input
-                type="email"
-                name="email"
-                required
-                placeholder={t.footer.emailLabel}
-                className="flex-1 bg-transparent font-sans text-sm px-5 py-3 focus:outline-none w-full placeholder:text-foreground/40 md:border-2 md:border-orange-500 md:rounded-full md:bg-foreground/5 md:focus:border-orange-400"
-              />
-              <button
-                type="submit"
-                className="md:hidden font-sans text-xs font-semibold uppercase tracking-widest text-foreground/70 px-4 py-2 whitespace-nowrap"
-              >
-                {t.footer.subscribe}
-              </button>
-            </div>
-            <button
-              type="submit"
-              className="hidden md:block self-start font-sans text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-4 py-2 hover:bg-orange-500 hover:border-orange-500 hover:text-white transition-colors whitespace-nowrap"
-            >
-              {t.footer.subscribe}
-            </button>
-          </form>
+          <EmailSignupForm />
         </div>
         <div className="border-t-2 border-foreground/10 py-8 mx-12 md:mx-32 flex flex-col md:flex-row md:items-center md:justify-between gap-3 text-sm font-sans text-foreground/50">
           <div className="flex items-center justify-between w-full md:w-auto md:justify-start md:gap-6">
