@@ -14,7 +14,7 @@ export function parseCart(value: string | undefined): Cart {
   try {
     const parsed = JSON.parse(decodeURIComponent(value))
     if (parsed && Array.isArray(parsed.items)) return parsed as Cart
-  } catch { }
+  } catch {}
   return { items: [] }
 }
 

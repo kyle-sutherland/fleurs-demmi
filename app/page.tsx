@@ -1,11 +1,41 @@
 import Image from "next/image";
 import Link from "next/link";
-import { SiteHeader } from "@/app/components/SiteHeader";
+import DaisyLogo from "@/app/components/DaisyLogo";
 
 export default function Home() {
   return (
     <div className="flex flex-col flex-1">
-      <SiteHeader />
+      {/* Header */}
+      <header className="relative flex items-center justify-between px-8 py-6 md:flex-col md:items-center md:pt-12 md:pb-0">
+        <div className="md:hidden">
+          <DaisyLogo size={81} />
+        </div>
+        <div className="hidden md:flex md:flex-col md:items-center md:gap-5">
+          <DaisyLogo size={175} />
+          <nav className="flex gap-10 text-[0.992rem] font-sans tracking-widest uppercase text-foreground">
+            <Link href="/shop" className="hover:opacity-60 transition-opacity">Shop</Link>
+            <Link href="/services" className="hover:opacity-60 transition-opacity">Services</Link>
+            <Link href="/about" className="hover:opacity-60 transition-opacity">About</Link>
+            <Link href="#contact" className="hover:opacity-60 transition-opacity">Contact</Link>
+          </nav>
+        </div>
+        <div className="hidden md:flex items-center gap-5 absolute top-10 right-12 font-sans text-foreground">
+          <Link href="/cart" className="flex items-center gap-1.5 text-xs font-semibold hover:opacity-60 transition-opacity">
+            <CartIcon />
+            <span>0</span>
+          </Link>
+        </div>
+        <div className="flex items-center gap-4 md:hidden">
+          <Link href="/cart" className="flex items-center gap-1 hover:opacity-60 transition-opacity">
+            <CartIcon />
+            <span className="text-xs font-sans font-semibold">0</span>
+          </Link>
+          <button className="flex flex-col gap-1.5 p-1" aria-label="Open menu">
+            <span className="block w-6 h-0.5 bg-foreground" />
+            <span className="block w-6 h-0.5 bg-foreground" />
+          </button>
+        </div>
+      </header>
 
       <main className="flex flex-col">
         {/* Hero — title overlaps the chevron image */}
@@ -124,7 +154,7 @@ export default function Home() {
         </div>
 
         {/* Email subscription */}
-        <div id="contact" className="mx-8 md:mx-32 mt-10 md:mt-18 mb-16 max-w-2xl md:max-w-none">
+        <div id="contact" className="mx-8 md:mx-32 mt-10 md:mt-[72px] mb-16 max-w-2xl md:max-w-none">
           <h2 className="font-display font-black text-[8vw] md:text-[4vw] leading-none">
             Stay in the loop
           </h2>
@@ -145,7 +175,7 @@ export default function Home() {
             </div>
             <button
               type="submit"
-              className="font-sans text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-10 py-3 hover:bg-foreground hover:text-background transition-colors whitespace-nowrap"
+              className="font-sans text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-4 py-2 md:px-10 md:py-3 hover:bg-foreground hover:text-background transition-colors whitespace-nowrap"
             >
               Subscribe
             </button>
@@ -211,13 +241,13 @@ function ServiceCard({
         </div>
       )}
       <div className="flex flex-col gap-3 p-6">
-        <p className="font-display font-black text-xl md:text-2xl leading-tight group-hover:underline">
-          {label}
-        </p>
-        <p className="font-sans text-sm text-foreground/70 leading-relaxed">{body}</p>
-        <span className="font-sans text-xs uppercase tracking-widest font-semibold mt-auto pt-2 underline underline-offset-4">
-          Learn more →
-        </span>
+      <p className="font-display font-black text-xl md:text-2xl leading-tight group-hover:underline">
+        {label}
+      </p>
+      <p className="font-sans text-sm text-foreground/70 leading-relaxed">{body}</p>
+      <span className="font-sans text-xs uppercase tracking-widest font-semibold mt-auto pt-2 underline underline-offset-4">
+        Learn more →
+      </span>
       </div>
     </Link>
   );
@@ -250,3 +280,12 @@ function FormField({
   );
 }
 
+function CartIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="9" cy="21" r="1" />
+      <circle cx="20" cy="21" r="1" />
+      <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+    </svg>
+  );
+}

@@ -36,12 +36,14 @@
   --color-brand-yellow: #f8f8bc;
   --color-brand-purple: #9b7fc7;
   --color-brand-green:  #2d3315;
+  --color-brand-coral:  #e27556;
 }
 
 @theme inline {
   --color-background: var(--color-brand-yellow);
   --color-foreground: var(--color-brand-green);
   --color-purple:     var(--color-brand-purple);
+  --color-coral:      var(--color-brand-coral);
   --font-display:     'F_ck Beans', cursive;
   --font-sans:        var(--font-sans);
 }
