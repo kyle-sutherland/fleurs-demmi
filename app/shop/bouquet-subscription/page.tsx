@@ -68,7 +68,7 @@ export default function BouquetSubscriptionPage() {
 
                 <button
                   type="button"
-                  className="self-start font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-8 py-3 hover:bg-foreground hover:text-background transition-colors"
+                  className="self-start font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-4 py-2 hover:bg-foreground hover:text-background transition-colors"
                 >
                   Subscribe — ${tier.price}.00
                 </button>

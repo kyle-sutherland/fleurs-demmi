@@ -4,9 +4,9 @@ import Image from 'next/image';
 import { useState } from 'react';
 
 const photos = [
-  '/FlowerPhotos/Wedding Flowers 2.jpg',
-  '/FlowerPhotos/Wedding Flowers 4.jpg',
-  '/FlowerPhotos/Wedding Flowers 3.jpg',
+  '/Flower Photos/Wedding Flowers 2.jpg',
+  '/Flower Photos/Wedding Flowers 4.jpg',
+  '/Flower Photos/Wedding Flowers 3.jpg',
 ];
 
 export default function WeddingSlideshow() {

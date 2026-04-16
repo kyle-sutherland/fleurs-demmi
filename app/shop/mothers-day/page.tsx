@@ -1,6 +1,6 @@
+import Image from "next/image";
 import Link from "next/link";
 import DaisyLogo from "@/app/components/DaisyLogo";
-import MothersDayForm from "./MothersDayForm";
 
 export const metadata = {
   title: "Mother's Day Bouquets — Fleurs d'Emmi",
@@ -20,8 +20,81 @@ export default function MothersDayPage() {
           It&apos;s that special time of year to show love to all the wonderful mothers in our lives.
         </p>
 
-        <section>
-          <MothersDayForm />
+        <div className="relative mt-8 aspect-[4/3] w-full max-w-2xl overflow-hidden">
+          <Image
+            src="/Flower%20Photos/mother_flower.jpg"
+            alt="Mother's Day flowers"
+            fill
+            className="object-cover object-center"
+          />
+        </div>
+
+        <section className="mt-12 max-w-2xl">
+          <form className="flex flex-col gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <Field label="Name" name="name" type="text" required />
+              <Field label="Email" name="email" type="email" required />
+            </div>
+            <Field label="Phone" name="phone" type="tel" required />
+
+            {/* Pickup / delivery */}
+            <div className="flex flex-col gap-2">
+              <label className="font-sans text-xs uppercase tracking-widest font-semibold">
+                Select one *
+              </label>
+              <div className="flex flex-col gap-2 font-sans text-sm">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input type="radio" name="fulfillment" value="pickup" defaultChecked className="accent-purple" />
+                  Pick up in Mile End — Fri May 9th, 10am–5pm
+                </label>
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input type="radio" name="fulfillment" value="delivery" className="accent-purple" />
+                  Delivery — Sat May 10th (+$10)
+                </label>
+              </div>
+            </div>
+
+            <Field label="Address" name="address" type="text" hint="Required if choosing delivery." />
+            <Field label="Preferred Time of Delivery" name="delivery_time" type="text" hint="e.g. Morning, Afternoon" />
+
+            {/* Arrangement selection */}
+            <div className="flex flex-col gap-2">
+              <label className="font-sans text-xs uppercase tracking-widest font-semibold">
+                Arrangement *
+              </label>
+              <div className="flex flex-col gap-2 font-sans text-sm">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input type="radio" name="arrangement" value="50" defaultChecked className="accent-purple" />
+                  $50 arrangement (in 490mL mason jar)
+                </label>
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input type="radio" name="arrangement" value="75" className="accent-purple" />
+                  $75 arrangement (in 750mL mason jar)
+                </label>
+              </div>
+            </div>
+
+            {/* Card */}
+            <div className="flex flex-col gap-2 p-5 bg-foreground/5">
+              <p className="font-sans text-xs uppercase tracking-widest font-semibold">
+                Add a Card — $4 (optional)
+              </p>
+              <Field label="Name of Mother" name="card_to" type="text" />
+              <Textarea label="Message" name="card_message" rows={3} />
+            </div>
+
+            {/* Payment placeholder */}
+            <div className="p-4 border-2 border-dashed border-foreground/30 font-sans text-sm text-foreground/50 text-center">
+              Payment integration coming soon
+            </div>
+
+            <button
+              type="submit"
+              className="self-start font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-10 py-3 hover:bg-foreground hover:text-background transition-colors"
+            >
+              Check Out
+            </button>
+          </form>
         </section>
       </main>
 
@@ -32,6 +105,26 @@ export default function MothersDayPage() {
   );
 }
 
+function Field({ label, name, type, hint, required }: { label: string; name: string; type: string; hint?: string; required?: boolean }) {
+  return (
+    <div className="flex flex-col gap-1">
+      <label htmlFor={name} className="font-sans text-xs uppercase tracking-widest font-semibold">
+        {label}{required && " *"}
+      </label>
+      {hint && <p className="font-sans text-xs text-foreground/50 -mt-0.5">{hint}</p>}
+      <input id={name} name={name} type={type} required={required} className="border-2 border-foreground bg-transparent font-sans text-sm px-4 py-3 focus:outline-none focus:border-purple" />
+    </div>
+  );
+}
+
+function Textarea({ label, name, rows }: { label: string; name: string; rows: number }) {
+  return (
+    <div className="flex flex-col gap-1">
+      {label && <label className="font-sans text-xs uppercase tracking-widest font-semibold">{label}</label>}
+      <textarea name={name} rows={rows} className="border-2 border-foreground bg-transparent font-sans text-sm px-4 py-3 focus:outline-none focus:border-purple resize-none" />
+    </div>
+  );
+}
 
 function SiteHeader({ active }: { active?: string }) {
   const links = [

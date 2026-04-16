@@ -36,12 +36,11 @@ export default function WeddingsPage() {
               <h2 className="font-display font-black text-2xl md:text-3xl">À la Carte Menu</h2>
               <ul className="mt-4 font-sans text-sm text-foreground/80 space-y-2 leading-relaxed">
                 {[
-                  ["Bridal bouquet", "$150–200"],
-                  ["Boutonniere", "$20"],
+                  ["Bridal bouquet", "$100–200"],
+                  ["Boutonniere / Corsages", "$20–40"],
                   ["Bridesmaids bouquets", "$50–100"],
-                  ["Corsages", "$30"],
                   ["Centerpieces", "$75+"],
-                  ["Floral installations & arches", "$400+"],
+                  ["Floral installations & arches", "$300+"],
                 ].map(([item, price]) => (
                   <li key={item} className="flex justify-between border-b border-foreground/10 pb-2">
                     <span>{item}</span>
@@ -107,9 +106,8 @@ export default function WeddingsPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-1">
                 {[
                   "Bridal bouquet",
-                  "Boutonniere",
+                  "Boutonniere / Corsages",
                   "Bridesmaids bouquets",
-                  "Corsages",
                   "Centerpieces",
                   "Floral installations & arches",
                   "DIY floral bucket",
