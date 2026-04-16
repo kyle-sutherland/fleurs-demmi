@@ -18,26 +18,32 @@ export function CheckoutForm({ applicationId, locationId, sdkUrl, total }: Props
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    let cancelled = false
     const script = document.createElement('script')
     script.src = sdkUrl
     script.async = true
     script.onload = async () => {
+      if (cancelled) return
       try {
         const payments = await (window as any).Square.payments(applicationId, locationId)
+        if (cancelled) return
         const card = await payments.card()
+        if (cancelled) return
         await card.attach('#card-container')
+        if (cancelled) { card.destroy(); return }
         cardRef.current = card
         setSdkReady(true)
       } catch {
-        setError('Failed to load payment form. Please refresh and try again.')
+        if (!cancelled) setError('Failed to load payment form. Please refresh and try again.')
       }
     }
-    script.onerror = () => setError('Failed to load payment form. Please refresh and try again.')
+    script.onerror = () => { if (!cancelled) setError('Failed to load payment form. Please refresh and try again.') }
     document.head.appendChild(script)
     return () => {
+      cancelled = true
       cardRef.current?.destroy()
       cardRef.current = null
-      document.head.removeChild(script)
+      if (document.head.contains(script)) document.head.removeChild(script)
     }
   }, [applicationId, locationId, sdkUrl])
 
