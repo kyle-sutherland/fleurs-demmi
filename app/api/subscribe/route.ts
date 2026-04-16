@@ -5,7 +5,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export async function POST(req: NextRequest) {
   try {
-    const { email } = await req.json()
+    const { name, email } = await req.json()
 
     if (!email || !EMAIL_RE.test(email)) {
       return NextResponse.json({ error: 'Invalid email address.' }, { status: 400 })
@@ -20,12 +20,15 @@ export async function POST(req: NextRequest) {
 
     const sheets = google.sheets({ version: 'v4', auth })
 
+    const now = new Date()
+    const date = `${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}-${now.getFullYear()}`
+
     await sheets.spreadsheets.values.append({
       spreadsheetId: process.env.SUBSCRIBERS_SHEET_ID,
-      range: 'Sheet1!A:B',
+      range: 'Sheet1!A:D',
       valueInputOption: 'USER_ENTERED',
       requestBody: {
-        values: [[email, new Date().toISOString()]],
+        values: [[name ?? '', email, 'subscribed', date]],
       },
     })
 
