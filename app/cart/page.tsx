@@ -76,17 +76,12 @@ export default async function CartPage() {
                 <span>${total.toFixed(2)}</span>
               </div>
 
-              <div className="flex flex-col gap-3 pt-2">
-                <div className="p-3 border-2 border-dashed border-foreground/30 font-sans text-xs text-foreground/50 text-center">
-                  Payment integration coming soon
-                </div>
-                <button
-                  disabled
-                  className="font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground/30 text-foreground/30 px-8 py-3 text-center cursor-not-allowed"
-                >
-                  Proceed to Checkout
-                </button>
-              </div>
+              <Link
+                href="/checkout"
+                className="font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-8 py-3 text-center hover:bg-foreground hover:text-background transition-colors"
+              >
+                Proceed to Checkout
+              </Link>
             </div>
           </div>
         )}
