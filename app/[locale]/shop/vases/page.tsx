@@ -2,18 +2,18 @@ import Image from "next/image";
 import Link from "next/link";
 import SiteHeader from "@/app/components/SiteHeader";
 import { getDictionary } from "@/lib/i18n";
+import { getCatalogItemsByCategory } from "@/app/lib/catalog";
 
-const vaseSrcs: Record<number, string> = {
-  1: "/Vases/1c.jpg",
-  2: "/Vases/4c.jpg",
-  3: "/Vases/6c.jpg",
-};
-const vasePrice = 95;
+export const revalidate = 3600
+
+const VASE_CATEGORY = "Vases"
 
 export default async function VasesPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const t = getDictionary(locale);
   const v = t.vases;
+
+  const vases = await getCatalogItemsByCategory(VASE_CATEGORY, locale)
 
   return (
     <div className="flex flex-col flex-1">
@@ -26,26 +26,35 @@ export default async function VasesPage({ params }: { params: Promise<{ locale: 
         <p className="font-sans text-base mt-6 max-w-xl text-foreground/80 leading-relaxed">{v.intro}</p>
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-6 mt-10">
-          {v.items.map((vase) => (
-            <Link key={vase.id} href={`/${locale}/shop/vases/${vase.id}`} className="group flex flex-col">
-              <div className="relative aspect-square bg-purple/10 overflow-hidden">
-                <Image
-                  src={vaseSrcs[vase.id]}
-                  alt={vase.title}
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-                <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/40 transition-colors duration-300 flex flex-col items-center justify-center gap-1">
-                  <span className="font-display font-black text-background text-lg leading-tight opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-center px-4">
-                    {vase.title}
-                  </span>
-                  <span className="font-sans text-background text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    ${vasePrice}
-                  </span>
+          {vases.map((vase) => {
+            const price = Number(vase.variations[0]?.priceMoney ?? 0) / 100
+            const imageUrl = vase.imageUrls[0]
+
+            return (
+              <Link key={vase.id} href={`/${locale}/shop/vases/${vase.id}`} className="group flex flex-col">
+                <div className="relative aspect-square bg-purple/10 overflow-hidden">
+                  {imageUrl ? (
+                    <Image
+                      src={imageUrl}
+                      alt={vase.name}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-foreground/5" />
+                  )}
+                  <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/40 transition-colors duration-300 flex flex-col items-center justify-center gap-1">
+                    <span className="font-display font-black text-background text-lg leading-tight opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-center px-4">
+                      {vase.name}
+                    </span>
+                    <span className="font-sans text-background text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      ${price}
+                    </span>
+                  </div>
                 </div>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            )
+          })}
         </div>
       </main>
     </div>

@@ -3,32 +3,31 @@ import { randomUUID } from 'crypto'
 import { z } from 'zod'
 import { SquareError } from 'square'
 import type { OrderLineItem } from 'square'
-import { getSquareClient, LOCATION_ID, PRODUCT_VARIATION_MAP } from '@/app/lib/square'
+import { getSquareClient, LOCATION_ID } from '@/app/lib/square'
+import { getCatalogItem } from '@/app/lib/catalog'
 import { sendMail } from '@/app/lib/email'
 import { escapeHtml, emailSchema, nameSchema, phoneSchema, textSchema } from '@/app/lib/validate'
 import { verifyTurnstile } from '@/app/lib/turnstile'
 
-const ARRANGEMENT_PRICES: Record<string, { label: string; price: number; productId: string }> = {
-  '50': { label: '$50 Arrangement (490mL mason jar)', price: 50, productId: 'mothers-day-bouquet-50' },
-  '75': { label: '$75 Arrangement (750mL mason jar)', price: 75, productId: 'mothers-day-bouquet-75' },
-}
-
+const MD_ITEM_ID = 'WL4TWQBDVWNCTN2O3QJWJ6Z3'
+const CARD_VARIATION_ID = '6Y6ABIYXJAA72P7FTXAV7OB4'
 const DELIVERY_PRICE = 10
 const CARD_PRICE = 4
 
 const bodySchema = z.object({
-  token:         z.string().min(1).max(512),
-  name:          nameSchema,
-  email:         emailSchema,
-  phone:         phoneSchema,
-  fulfillment:   z.enum(['pickup', 'delivery']),
-  address:       textSchema.optional(),
-  delivery_time: textSchema.optional(),
-  arrangement:   z.enum(['50', '75']),
-  card_to:       textSchema.optional(),
-  card_message:  textSchema.optional(),
-  turnstile:     z.string().optional(),
-  website:       z.string().max(0, 'Honeypot').optional(),
+  token:           z.string().min(1).max(512),
+  name:            nameSchema,
+  email:           emailSchema,
+  phone:           phoneSchema,
+  fulfillment:     z.enum(['pickup', 'delivery']),
+  address:         textSchema.optional(),
+  delivery_time:   textSchema.optional(),
+  variationId:     z.string().min(1).max(64),  // Square variation ID for chosen arrangement
+  arrangementName: z.string().min(1).max(255), // Display name for emails
+  card_to:         textSchema.optional(),
+  card_message:    textSchema.optional(),
+  turnstile:       z.string().optional(),
+  website:         z.string().max(0, 'Honeypot').optional(),
 })
 
 export async function POST(request: Request) {
@@ -48,17 +47,24 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Bot verification failed. Please try again.' }, { status: 403 })
   }
 
-  const { token, name, email, phone, fulfillment, address, delivery_time, arrangement, card_to, card_message } = body
+  const { token, name, email, phone, fulfillment, address, delivery_time, variationId, arrangementName, card_to, card_message } = body
 
-  const arrangementInfo = ARRANGEMENT_PRICES[arrangement]
+  // Validate that variationId actually belongs to the Mother's Day item
+  const mdItem = await getCatalogItem(MD_ITEM_ID, 'en')
+  const validVariation = mdItem?.variations.find((v) => v.variationId === variationId)
+  if (!validVariation) {
+    return NextResponse.json({ error: 'Invalid arrangement selection.' }, { status: 400 })
+  }
+
+  const arrangementPrice = Number(validVariation.priceMoney) / 100
   const isDelivery = fulfillment === 'delivery'
   const hasCard = !!(card_to || card_message)
-  const total = arrangementInfo.price + (isDelivery ? DELIVERY_PRICE : 0) + (hasCard ? CARD_PRICE : 0)
+  const total = arrangementPrice + (isDelivery ? DELIVERY_PRICE : 0) + (hasCard ? CARD_PRICE : 0)
 
   const lineItems: OrderLineItem[] = [
     {
       quantity: '1',
-      catalogObjectId: PRODUCT_VARIATION_MAP[arrangementInfo.productId],
+      catalogObjectId: variationId,
     },
   ]
 
@@ -74,7 +80,7 @@ export async function POST(request: Request) {
   if (hasCard) {
     lineItems.push({
       quantity: '1',
-      catalogObjectId: PRODUCT_VARIATION_MAP['card-addon'],
+      catalogObjectId: CARD_VARIATION_ID,
       ...(card_to || card_message
         ? { note: [card_to && `To: ${card_to}`, card_message].filter(Boolean).join(' — ') }
         : {}),
@@ -125,7 +131,7 @@ export async function POST(request: Request) {
         <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Phone</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${sPhone}</td></tr>
         <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Fulfillment</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${isDelivery ? 'Delivery — May 10th' : 'Pick up — May 9th, Mile End'}</td></tr>
         ${isDelivery && sAddress ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Address</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${sAddress}${sDeliveryTime ? ` · ${sDeliveryTime}` : ''}</td></tr>` : ''}
-        <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Arrangement</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${arrangementInfo.label}</td></tr>
+        <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Arrangement</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${escapeHtml(arrangementName)}</td></tr>
         ${hasCard ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Card</td><td style="padding:6px 12px;border-bottom:1px solid #eee">To: ${sCardTo || '—'}<br/>${sCardMsg}</td></tr>` : ''}
         <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Total Paid</td><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:700">$${total.toFixed(2)} CAD</td></tr>
         <tr><td style="padding:6px 12px;font-weight:600">Square Order ID</td><td style="padding:6px 12px">${order.id}</td></tr>
@@ -140,7 +146,7 @@ export async function POST(request: Request) {
         </p>
         <h2 style="font-size:16px;font-weight:700;margin-top:32px;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em">Order Summary</h2>
         <table style="font-size:14px;border-collapse:collapse;width:100%">
-          <tr><td style="padding:6px 12px;border-bottom:1px solid #eee">${arrangementInfo.label}</td><td style="padding:6px 12px;border-bottom:1px solid #eee;text-align:right">$${arrangementInfo.price.toFixed(2)}</td></tr>
+          <tr><td style="padding:6px 12px;border-bottom:1px solid #eee">${escapeHtml(arrangementName)}</td><td style="padding:6px 12px;border-bottom:1px solid #eee;text-align:right">$${arrangementPrice.toFixed(2)}</td></tr>
           ${isDelivery ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee">Delivery — May 10th</td><td style="padding:6px 12px;border-bottom:1px solid #eee;text-align:right">$${DELIVERY_PRICE.toFixed(2)}</td></tr>` : ''}
           ${hasCard ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee">Greeting Card</td><td style="padding:6px 12px;border-bottom:1px solid #eee;text-align:right">$${CARD_PRICE.toFixed(2)}</td></tr>` : ''}
           <tr><td style="padding:6px 12px;font-weight:700">Total</td><td style="padding:6px 12px;font-weight:700;text-align:right">$${total.toFixed(2)} CAD</td></tr>

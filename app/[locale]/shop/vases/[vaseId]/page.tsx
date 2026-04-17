@@ -2,46 +2,9 @@ import Link from "next/link";
 import SiteHeader from "@/app/components/SiteHeader";
 import { VaseSlideshow } from "./VaseSlideshow";
 import { AddToCartButton } from "@/app/components/AddToCartButton";
-import { getInventory } from "@/app/lib/inventory";
-
-const vaseTitles: Record<string, Record<string, string>> = {
-  "1": { en: "Sgraffito Vase", fr: "Vase sgraffito" },
-  "2": { en: "Butter Yellow Vase", fr: "Vase jaune beurre" },
-  "3": { en: "Seafoam Loop Vase", fr: "Vase boucle bleu vert" },
-};
-
-const oneOfAKind: Record<string, string> = {
-  en: "One of a kind",
-  fr: "Pièce unique",
-};
-
-const vaseSlides: Record<string, { productId: string; price: number; slides: { src: string; position?: string; fit?: string }[] }> = {
-  "1": {
-    productId: "vase-sgraffito",
-    price: 95,
-    slides: [
-      { src: "/Vases/1c.jpg" },
-      { src: "/Vases/2b.jpg" },
-      { src: "/Vases/3b.jpg", fit: "object-contain" },
-    ],
-  },
-  "2": {
-    productId: "vase-butter-yellow",
-    price: 95,
-    slides: [
-      { src: "/Vases/4c.jpg" },
-      { src: "/Vases/5.jpg" },
-    ],
-  },
-  "3": {
-    productId: "vase-seafoam",
-    price: 95,
-    slides: [
-      { src: "/Vases/6c.jpg" },
-      { src: "/Vases/7.jpg" },
-    ],
-  },
-};
+import { getCatalogItem } from "@/app/lib/catalog";
+import { getInventoryByVariationId } from "@/app/lib/inventory";
+import { getDictionary } from "@/lib/i18n";
 
 export default async function VaseDetailPage({
   params,
@@ -49,14 +12,21 @@ export default async function VaseDetailPage({
   params: Promise<{ locale: string; vaseId: string }>;
 }) {
   const { locale, vaseId } = await params;
-  const slideData = vaseSlides[vaseId];
-  const title = vaseTitles[vaseId]?.[locale] ?? vaseTitles[vaseId]?.en ?? "";
-  const vase = slideData ? { ...slideData, title } : null;
+  const t = getDictionary(locale);
+  const v = t.vases;
 
-  const inventory = vase ? await getInventory([vase.productId]) : {}
-  const stockCount = vase ? (inventory[vase.productId] ?? null) : null
+  const vase = await getCatalogItem(vaseId, locale)
+  const variation = vase?.variations[0]
 
-  if (!vase) {
+  const inventory = variation ? await getInventoryByVariationId([variation.variationId]) : {}
+  const stockCount = variation ? (inventory[variation.variationId] ?? null) : null
+
+  const price = variation ? Number(variation.priceMoney) / 100 : 0
+  const slides = vase && vase.imageUrls.length > 0
+    ? vase.imageUrls.map((src) => ({ src }))
+    : []
+
+  if (!vase || !variation) {
     return (
       <div className="flex flex-col flex-1">
         <SiteHeader locale={locale} active="shop" />
@@ -83,18 +53,18 @@ export default async function VaseDetailPage({
         </Link>
 
         <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-start">
-          <VaseSlideshow slides={vase.slides} title={vase.title} />
+          <VaseSlideshow slides={slides} title={vase.name} />
 
           <div className="flex flex-col gap-4">
             <h1 className="font-display font-black text-[8.8vw] md:text-[3vw] leading-none">
-              {vase.title}
+              {vase.name}
             </h1>
             <p className="font-sans text-sm text-foreground/60 uppercase tracking-widest">
-              {oneOfAKind[locale] ?? oneOfAKind.en}
+              {v.oneOfAKind}
             </p>
-            <p className="font-display font-black text-2xl">${vase.price}.00</p>
+            <p className="font-display font-black text-2xl">${price}.00</p>
             <AddToCartButton
-              item={{ productId: vase.productId, name: vase.title, price: vase.price, quantity: 1 }}
+              item={{ productId: variation.variationId, name: vase.name, price, quantity: 1 }}
               stockCount={stockCount}
             />
           </div>

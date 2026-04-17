@@ -6,14 +6,19 @@ import { TurnstileWidget } from '@/app/components/TurnstileWidget'
 
 const DELIVERY_PRICE = 10
 const CARD_PRICE = 4
-const ARRANGEMENT_PRICES: Record<string, number> = { '50': 50, '75': 75 }
+
+export type MDArrangement = {
+  variationId: string
+  name: string        // Localized display name
+  price: number       // CAD dollars
+  soldOut: boolean
+}
 
 type Props = {
   applicationId: string
   locationId: string
   sdkUrl: string
-  soldOut50?: boolean
-  soldOut75?: boolean
+  arrangements: MDArrangement[]
   t: {
     name: string
     email: string
@@ -26,8 +31,6 @@ type Props = {
     deliveryTime: string
     deliveryTimeHint: string
     arrangement: string
-    arrangement50: string
-    arrangement75: string
     card: string
     cardName: string
     cardMessage: string
@@ -35,20 +38,22 @@ type Props = {
   }
 }
 
-export function MothersDayCheckoutForm({ applicationId, locationId, sdkUrl, t, soldOut50 = false, soldOut75 = false }: Props) {
+export function MothersDayCheckoutForm({ applicationId, locationId, sdkUrl, arrangements, t }: Props) {
   const router = useRouter()
   const cardRef = useRef<any>(null)
   const [sdkReady, setSdkReady] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [fulfillment, setFulfillment] = useState('pickup')
-  const [arrangement, setArrangement] = useState(() => soldOut50 ? '75' : '50')
+  const firstAvailable = arrangements.find((a) => !a.soldOut)
+  const [selectedId, setSelectedId] = useState(firstAvailable?.variationId ?? arrangements[0]?.variationId ?? '')
   const [showCard, setShowCard] = useState(false)
   const [turnstileToken, setTurnstileToken] = useState('')
 
   const onTurnstileToken = useCallback((t: string) => setTurnstileToken(t), [])
 
-  const arrangementPrice = ARRANGEMENT_PRICES[arrangement] ?? 0
+  const selected = arrangements.find((a) => a.variationId === selectedId)
+  const arrangementPrice = selected?.price ?? 0
   const total = arrangementPrice + (fulfillment === 'delivery' ? DELIVERY_PRICE : 0) + (showCard ? CARD_PRICE : 0)
 
   useEffect(() => {
@@ -83,7 +88,7 @@ export function MothersDayCheckoutForm({ applicationId, locationId, sdkUrl, t, s
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    if (!cardRef.current) return
+    if (!cardRef.current || !selected) return
     setError(null)
     setSubmitting(true)
 
@@ -105,7 +110,8 @@ export function MothersDayCheckoutForm({ applicationId, locationId, sdkUrl, t, s
       fulfillment,
       address: data.get('address') as string,
       delivery_time: data.get('delivery_time') as string,
-      arrangement,
+      variationId: selected.variationId,
+      arrangementName: selected.name,
       card_to: data.get('card_to') as string,
       card_message: data.get('card_message') as string,
       turnstile: turnstileToken,
@@ -176,30 +182,20 @@ export function MothersDayCheckoutForm({ applicationId, locationId, sdkUrl, t, s
       <div className="flex flex-col gap-2">
         <label className="font-sans text-xs uppercase tracking-widest font-semibold">{t.arrangement} *</label>
         <div className="flex flex-col gap-2 font-sans text-sm">
-          <label className={`flex items-center gap-3 ${soldOut50 ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}`}>
-            <input
-              type="radio"
-              name="arrangement"
-              value="50"
-              checked={arrangement === '50'}
-              onChange={() => setArrangement('50')}
-              disabled={soldOut50}
-              className="accent-purple"
-            />
-            {t.arrangement50}{soldOut50 && ' — Sold out'}
-          </label>
-          <label className={`flex items-center gap-3 ${soldOut75 ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}`}>
-            <input
-              type="radio"
-              name="arrangement"
-              value="75"
-              checked={arrangement === '75'}
-              onChange={() => setArrangement('75')}
-              disabled={soldOut75}
-              className="accent-purple"
-            />
-            {t.arrangement75}{soldOut75 && ' — Sold out'}
-          </label>
+          {arrangements.map((a) => (
+            <label key={a.variationId} className={`flex items-center gap-3 ${a.soldOut ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}`}>
+              <input
+                type="radio"
+                name="arrangement"
+                value={a.variationId}
+                checked={selectedId === a.variationId}
+                onChange={() => setSelectedId(a.variationId)}
+                disabled={a.soldOut}
+                className="accent-purple"
+              />
+              {a.name}{a.soldOut && ' — Sold out'}
+            </label>
+          ))}
         </div>
       </div>
 
@@ -238,7 +234,7 @@ export function MothersDayCheckoutForm({ applicationId, locationId, sdkUrl, t, s
 
       <div className="border-t-2 border-foreground/10 pt-4 flex flex-col gap-1">
         <div className="flex justify-between font-sans text-sm text-foreground/60">
-          <span>{arrangement === '50' ? t.arrangement50 : t.arrangement75}</span>
+          <span>{selected?.name ?? ''}</span>
           <span>${arrangementPrice.toFixed(2)}</span>
         </div>
         {fulfillment === 'delivery' && (
@@ -263,7 +259,7 @@ export function MothersDayCheckoutForm({ applicationId, locationId, sdkUrl, t, s
 
       <button
         type="submit"
-        disabled={!sdkReady || submitting || (arrangement === '50' && soldOut50) || (arrangement === '75' && soldOut75)}
+        disabled={!sdkReady || submitting || (selected?.soldOut ?? true)}
         className="self-start font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-10 py-3 hover:bg-foreground hover:text-background transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
       >
         {submitting ? 'Processing…' : `${t.submit} — $${total.toFixed(2)}`}

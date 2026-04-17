@@ -5,6 +5,11 @@ import { z } from 'zod'
 import { SquareError } from 'square'
 import { parseCart, serializeCart, cartTotal } from '@/app/lib/cart'
 import { getSquareClient, LOCATION_ID, PRODUCT_VARIATION_MAP } from '@/app/lib/square'
+
+// Square variation IDs are 24–26 char uppercase alphanumeric strings
+function isSquareVariationId(s: string) {
+  return /^[A-Z0-9]{20,30}$/.test(s)
+}
 import { sendMail } from '@/app/lib/email'
 import { escapeHtml, emailSchema, nameSchema } from '@/app/lib/validate'
 import { verifyTurnstile } from '@/app/lib/turnstile'
@@ -54,7 +59,10 @@ export async function POST(request: Request) {
   try {
     // Build order line items, splitting into catalog and custom line items
     const lineItems = cart.items.map((item) => {
-      const variationId = PRODUCT_VARIATION_MAP[item.productId]
+      // productId is either a Square variation ID directly, or a legacy key in PRODUCT_VARIATION_MAP
+      const variationId = isSquareVariationId(item.productId)
+        ? item.productId
+        : PRODUCT_VARIATION_MAP[item.productId]
 
       if (variationId) {
         return {

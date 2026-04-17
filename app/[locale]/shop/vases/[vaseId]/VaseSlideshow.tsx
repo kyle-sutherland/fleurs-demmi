@@ -12,13 +12,17 @@ export function VaseSlideshow({ slides, title }: { slides: Slide[]; title: strin
 
   return (
     <div className="relative aspect-square w-full overflow-hidden bg-purple/10">
-      <Image
-        src={slides[index].src}
-        alt={`${title} — photo ${index + 1}`}
-        fill
-        className={`${slides[index].fit ?? 'object-cover'} transition-opacity duration-300 ${slides[index].position ?? 'object-center'}`}
-        priority
-      />
+      {slides.length > 0 ? (
+        <Image
+          src={slides[index].src}
+          alt={`${title} — photo ${index + 1}`}
+          fill
+          className={`${slides[index].fit ?? 'object-cover'} transition-opacity duration-300 ${slides[index].position ?? 'object-center'}`}
+          priority
+        />
+      ) : (
+        <div className="w-full h-full bg-foreground/5" />
+      )}
       {slides.length > 1 && (
         <>
           <button
