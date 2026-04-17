@@ -8,6 +8,8 @@ import { getCatalogItem } from '@/app/lib/catalog'
 import { sendMail } from '@/app/lib/email'
 import { escapeHtml, emailSchema, nameSchema, phoneSchema, textSchema } from '@/app/lib/validate'
 import { verifyTurnstile } from '@/app/lib/turnstile'
+import { appendToCustomerList } from '@/app/lib/sheets'
+import { appendToCustomerList } from '@/app/lib/sheets'
 
 const MD_ITEM_ID = 'WL4TWQBDVWNCTN2O3QJWJ6Z3'
 const CARD_VARIATION_ID = '6Y6ABIYXJAA72P7FTXAV7OB4'
@@ -24,10 +26,11 @@ const bodySchema = z.object({
   delivery_time:   textSchema.optional(),
   variationId:     z.string().min(1).max(64),  // Square variation ID for chosen arrangement
   arrangementName: z.string().min(1).max(255), // Display name for emails
-  card_to:         textSchema.optional(),
-  card_message:    textSchema.optional(),
-  turnstile:       z.string().optional(),
-  website:         z.string().max(0, 'Honeypot').optional(),
+  card_to:            textSchema.optional(),
+  card_message:       textSchema.optional(),
+  subscribe_to_news:  z.boolean().optional(),
+  turnstile:          z.string().optional(),
+  website:            z.string().max(0, 'Honeypot').optional(),
 })
 
 export async function POST(request: Request) {
@@ -47,7 +50,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Bot verification failed. Please try again.' }, { status: 403 })
   }
 
-  const { token, name, email, phone, fulfillment, address, delivery_time, variationId, arrangementName, card_to, card_message } = body
+  const { token, name, email, phone, fulfillment, address, delivery_time, variationId, arrangementName, card_to, card_message, subscribe_to_news } = body
 
   // Validate that variationId actually belongs to the Mother's Day item
   const mdItem = await getCatalogItem(MD_ITEM_ID, 'en')
@@ -163,6 +166,7 @@ export async function POST(request: Request) {
       await Promise.all([
         sendMail({ to: process.env.RECIPIENT_EMAIL!, subject: `New Mother's Day order — ${name}`, html: ownerHtml }),
         sendMail({ to: email, subject: `Your order is confirmed — Fleurs d'Emmi`, html: customerHtml }),
+        appendToCustomerList({ name, email, phone, source: 'mothers-day', subscribed: subscribe_to_news ? 'subscribed' : 'unknown' }),
       ])
     } catch (err) {
       console.error("Email error (Mother's Day checkout):", err)

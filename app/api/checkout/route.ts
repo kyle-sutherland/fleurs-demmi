@@ -13,15 +13,18 @@ function isSquareVariationId(s: string) {
 import { sendMail } from '@/app/lib/email'
 import { escapeHtml, emailSchema, nameSchema } from '@/app/lib/validate'
 import { verifyTurnstile } from '@/app/lib/turnstile'
+import { appendToCustomerList } from '@/app/lib/sheets'
+import { appendToCustomerList } from '@/app/lib/sheets'
 
 const COOKIE_NAME = 'cart'
 
 const bodySchema = z.object({
-  token:     z.string().min(1).max(512),
-  email:     emailSchema.optional(),
-  name:      nameSchema.optional(),
-  turnstile: z.string().optional(),
-  website:   z.string().max(0, 'Honeypot').optional(), // must be empty
+  token:              z.string().min(1).max(512),
+  email:              emailSchema.optional(),
+  name:               nameSchema.optional(),
+  subscribe_to_news:  z.boolean().optional(),
+  turnstile:          z.string().optional(),
+  website:            z.string().max(0, 'Honeypot').optional(), // must be empty
 })
 
 export async function POST(request: Request) {
@@ -45,7 +48,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Bot verification failed. Please try again.' }, { status: 403 })
   }
 
-  const { token, email, name } = body
+  const { token, email, name, subscribe_to_news } = body
 
   const cookieStore = await cookies()
   const cart = parseCart(cookieStore.get(COOKIE_NAME)?.value)
@@ -192,6 +195,7 @@ export async function POST(request: Request) {
         ...(customerHtml && email
           ? [sendMail({ to: email, subject: `Your order is confirmed — Fleurs d'Emmi`, html: customerHtml })]
           : []),
+        appendToCustomerList({ name, email, source: 'checkout', subscribed: subscribe_to_news ? 'subscribed' : 'unknown' }),
       ])
     } catch (err) {
       console.error('Email error (shop checkout):', err)

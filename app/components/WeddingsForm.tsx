@@ -29,6 +29,7 @@ export function WeddingsForm({ t }: Props) {
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [subscribeToNews, setSubscribeToNews] = useState(false)
   const [turnstileToken, setTurnstileToken] = useState('')
 
   const onTurnstileToken = useCallback((t: string) => setTurnstileToken(t), [])
@@ -52,6 +53,7 @@ export function WeddingsForm({ t }: Props) {
       items: data.getAll('items'),
       style_notes: data.get('style_notes') as string,
       additional: data.get('additional') as string,
+      subscribe_to_news: subscribeToNews,
       turnstile: turnstileToken,
     }
 
@@ -138,6 +140,16 @@ export function WeddingsForm({ t }: Props) {
       {error && (
         <p className="font-sans text-sm text-red-600 border-2 border-red-200 bg-red-50 px-4 py-3">{error}</p>
       )}
+
+      <label className="flex items-center gap-3 font-sans text-sm cursor-pointer">
+        <input
+          type="checkbox"
+          checked={subscribeToNews}
+          onChange={(e) => setSubscribeToNews(e.target.checked)}
+          className="accent-purple"
+        />
+        Subscribe to our newsletter
+      </label>
 
       <TurnstileWidget onToken={onTurnstileToken} />
 

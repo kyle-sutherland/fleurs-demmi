@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 import SiteHeader from '@/app/components/SiteHeader'
 import { CheckoutForm } from '@/app/components/CheckoutForm'
-import { parseCart, cartTotal } from '@/app/lib/cart'
+import { parseCart, cartTotal, type CartItem } from '@/app/lib/cart'
 
 export const metadata = {
   title: "Checkout — Fleurs d'Emmi",
@@ -33,13 +33,43 @@ export default async function CheckoutPage({
           Checkout
         </h1>
 
-        <div className="mt-10 max-w-lg">
-          <CheckoutForm
-            applicationId={process.env.NEXT_PUBLIC_SQUARE_APPLICATION_ID!}
-            locationId={process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID!}
-            sdkUrl={sdkUrl}
-            total={cartTotal(cart)}
-          />
+        <div className="mt-10 flex flex-col md:flex-row gap-12 md:gap-16 items-start">
+          <div className="flex-1 max-w-lg">
+            <CheckoutForm
+              applicationId={process.env.NEXT_PUBLIC_SQUARE_APPLICATION_ID!}
+              locationId={process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID!}
+              sdkUrl={sdkUrl}
+              total={cartTotal(cart)}
+            />
+          </div>
+
+          <aside className="w-full md:w-72 border-2 border-foreground/20 p-6 md:sticky md:top-8">
+            <h2 className="font-display font-black text-base mb-4">Order Summary</h2>
+            <ul className="flex flex-col gap-3">
+              {cart.items.map((item: CartItem) => (
+                <li key={item.id} className="flex justify-between items-start gap-4">
+                  <div>
+                    <p className="font-sans text-sm font-semibold">{item.name}</p>
+                    {item.options && Object.keys(item.options).length > 0 && (
+                      <p className="font-sans text-xs text-foreground/60">
+                        {Object.values(item.options).join(' · ')}
+                      </p>
+                    )}
+                    <p className="font-sans text-xs text-foreground/60">
+                      ${item.price.toFixed(2)} × {item.quantity}
+                    </p>
+                  </div>
+                  <span className="font-sans text-sm font-semibold shrink-0">
+                    ${(item.price * item.quantity).toFixed(2)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <div className="border-t-2 border-foreground/10 mt-4 pt-4 flex justify-between items-center font-display font-black text-base">
+              <span>Total</span>
+              <span>${cartTotal(cart).toFixed(2)} CAD</span>
+            </div>
+          </aside>
         </div>
       </main>
 

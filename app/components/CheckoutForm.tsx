@@ -17,6 +17,7 @@ export function CheckoutForm({ applicationId, locationId, sdkUrl, total }: Props
   const [sdkReady, setSdkReady] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [subscribeToNews, setSubscribeToNews] = useState(false)
   const [turnstileToken, setTurnstileToken] = useState('')
 
   const onTurnstileToken = useCallback((t: string) => setTurnstileToken(t), [])
@@ -71,7 +72,7 @@ export function CheckoutForm({ applicationId, locationId, sdkUrl, total }: Props
     const res = await fetch('/api/checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token: tokenResult.token, name, email, turnstile: turnstileToken }),
+      body: JSON.stringify({ token: tokenResult.token, name, email, subscribe_to_news: subscribeToNews, turnstile: turnstileToken }),
     })
 
     const data = await res.json()
@@ -117,6 +118,16 @@ export function CheckoutForm({ applicationId, locationId, sdkUrl, total }: Props
         <span>Total</span>
         <span>${total.toFixed(2)} CAD</span>
       </div>
+
+      <label className="flex items-center gap-3 font-sans text-sm cursor-pointer">
+        <input
+          type="checkbox"
+          checked={subscribeToNews}
+          onChange={(e) => setSubscribeToNews(e.target.checked)}
+          className="accent-purple"
+        />
+        Subscribe to our newsletter
+      </label>
 
       <TurnstileWidget onToken={onTurnstileToken} />
 

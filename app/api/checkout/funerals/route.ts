@@ -7,6 +7,7 @@ import { getSquareClient, LOCATION_ID } from '@/app/lib/square'
 import { sendMail } from '@/app/lib/email'
 import { escapeHtml, emailSchema, nameSchema, phoneSchema, dateSchema, textSchema } from '@/app/lib/validate'
 import { verifyTurnstile } from '@/app/lib/turnstile'
+import { appendToCustomerList } from '@/app/lib/sheets'
 
 const ARRANGEMENT_PRICES: Record<string, { label: string; price: number }> = {
   small:  { label: 'Small Vase Arrangement',  price: 80  },
@@ -154,6 +155,7 @@ export async function POST(request: Request) {
       await Promise.all([
         sendMail({ to: process.env.RECIPIENT_EMAIL!, subject: `New sympathy order — ${name}`, html: ownerHtml }),
         sendMail({ to: email, subject: `Your order is confirmed — Fleurs d'Emmi`, html: customerHtml }),
+        appendToCustomerList({ name, email, phone, source: 'funerals' }),
       ])
     } catch (err) {
       console.error('Email error (funerals checkout):', err)

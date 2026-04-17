@@ -48,6 +48,7 @@ export function MothersDayCheckoutForm({ applicationId, locationId, sdkUrl, arra
   const firstAvailable = arrangements.find((a) => !a.soldOut)
   const [selectedId, setSelectedId] = useState(firstAvailable?.variationId ?? arrangements[0]?.variationId ?? '')
   const [showCard, setShowCard] = useState(false)
+  const [subscribeToNews, setSubscribeToNews] = useState(false)
   const [turnstileToken, setTurnstileToken] = useState('')
 
   const onTurnstileToken = useCallback((t: string) => setTurnstileToken(t), [])
@@ -114,6 +115,7 @@ export function MothersDayCheckoutForm({ applicationId, locationId, sdkUrl, arra
       arrangementName: selected.name,
       card_to: data.get('card_to') as string,
       card_message: data.get('card_message') as string,
+      subscribe_to_news: subscribeToNews,
       turnstile: turnstileToken,
     }
 
@@ -254,6 +256,16 @@ export function MothersDayCheckoutForm({ applicationId, locationId, sdkUrl, arra
           <span>${total.toFixed(2)} CAD</span>
         </div>
       </div>
+
+      <label className="flex items-center gap-3 font-sans text-sm cursor-pointer">
+        <input
+          type="checkbox"
+          checked={subscribeToNews}
+          onChange={(e) => setSubscribeToNews(e.target.checked)}
+          className="accent-purple"
+        />
+        Subscribe to our newsletter
+      </label>
 
       <TurnstileWidget onToken={onTurnstileToken} />
 

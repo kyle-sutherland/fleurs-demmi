@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { sendMail } from '@/app/lib/email'
 import { escapeHtml, emailSchema, nameSchema, phoneSchema, dateSchema, textSchema } from '@/app/lib/validate'
 import { verifyTurnstile } from '@/app/lib/turnstile'
+import { appendToCustomerList } from '@/app/lib/sheets'
 
 const bodySchema = z.object({
   name:           nameSchema,
@@ -13,10 +14,11 @@ const bodySchema = z.object({
   event_location: textSchema.optional(),
   guest_count:    textSchema.optional(),
   items:          z.union([z.string(), z.array(z.string())]).optional(),
-  style_notes:    textSchema.optional(),
-  additional:     textSchema.optional(),
-  turnstile:      z.string().optional(),
-  website:        z.string().max(0, 'Honeypot').optional(),
+  style_notes:        textSchema.optional(),
+  additional:         textSchema.optional(),
+  subscribe_to_news:  z.boolean().optional(),
+  turnstile:          z.string().optional(),
+  website:            z.string().max(0, 'Honeypot').optional(),
 })
 
 export async function POST(request: Request) {
@@ -36,7 +38,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Bot verification failed. Please try again.' }, { status: 403 })
   }
 
-  const { name, email, phone, event_date, fulfillment, event_location, guest_count, items, style_notes, additional } = body
+  const { name, email, phone, event_date, fulfillment, event_location, guest_count, items, style_notes, additional, subscribe_to_news } = body
 
   const sName     = escapeHtml(name)
   const sEmail    = escapeHtml(email)
@@ -91,6 +93,7 @@ export async function POST(request: Request) {
     await Promise.all([
       sendMail({ to: process.env.RECIPIENT_EMAIL!, subject: `New wedding inquiry — ${name}`, html: ownerHtml }),
       sendMail({ to: email, subject: `Inquiry received — Fleurs d'Emmi`, html: customerHtml }),
+      appendToCustomerList({ name, email, phone, source: 'weddings-inquiry', subscribed: subscribe_to_news ? 'subscribed' : 'unknown' }),
     ])
   } catch (err) {
     console.error('Email error (weddings inquiry):', err)
