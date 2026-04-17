@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { TurnstileWidget } from '@/app/components/TurnstileWidget'
 
 type Props = {
   applicationId: string
@@ -16,6 +17,9 @@ export function CheckoutForm({ applicationId, locationId, sdkUrl, total }: Props
   const [sdkReady, setSdkReady] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [turnstileToken, setTurnstileToken] = useState('')
+
+  const onTurnstileToken = useCallback((t: string) => setTurnstileToken(t), [])
 
   useEffect(() => {
     let cancelled = false
@@ -67,7 +71,7 @@ export function CheckoutForm({ applicationId, locationId, sdkUrl, total }: Props
     const res = await fetch('/api/checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token: tokenResult.token, name, email }),
+      body: JSON.stringify({ token: tokenResult.token, name, email, turnstile: turnstileToken }),
     })
 
     const data = await res.json()
@@ -82,6 +86,9 @@ export function CheckoutForm({ applicationId, locationId, sdkUrl, total }: Props
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+      {/* Honeypot */}
+      <input name="website" type="text" tabIndex={-1} autoComplete="off" style={{ display: 'none' }} aria-hidden="true" />
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <Field label="Name" name="name" type="text" required />
         <Field label="Email" name="email" type="email" required />
@@ -110,6 +117,8 @@ export function CheckoutForm({ applicationId, locationId, sdkUrl, total }: Props
         <span>Total</span>
         <span>${total.toFixed(2)} CAD</span>
       </div>
+
+      <TurnstileWidget onToken={onTurnstileToken} />
 
       <button
         type="submit"

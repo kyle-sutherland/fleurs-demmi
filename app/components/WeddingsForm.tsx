@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
+import { TurnstileWidget } from '@/app/components/TurnstileWidget'
 
 type Props = {
   t: {
@@ -28,6 +29,9 @@ export function WeddingsForm({ t }: Props) {
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [turnstileToken, setTurnstileToken] = useState('')
+
+  const onTurnstileToken = useCallback((t: string) => setTurnstileToken(t), [])
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -48,6 +52,7 @@ export function WeddingsForm({ t }: Props) {
       items: data.getAll('items'),
       style_notes: data.get('style_notes') as string,
       additional: data.get('additional') as string,
+      turnstile: turnstileToken,
     }
 
     try {
@@ -84,6 +89,9 @@ export function WeddingsForm({ t }: Props) {
 
   return (
     <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-5">
+      {/* Honeypot */}
+      <input name="website" type="text" tabIndex={-1} autoComplete="off" style={{ display: 'none' }} aria-hidden="true" />
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <Field label={t.name} name="name" type="text" required />
         <Field label={t.email} name="email" type="email" required />
@@ -130,6 +138,8 @@ export function WeddingsForm({ t }: Props) {
       {error && (
         <p className="font-sans text-sm text-red-600 border-2 border-red-200 bg-red-50 px-4 py-3">{error}</p>
       )}
+
+      <TurnstileWidget onToken={onTurnstileToken} />
 
       <button
         type="submit"

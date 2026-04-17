@@ -17,7 +17,7 @@ function cartResponse(cart: ReturnType<typeof parseCart>) {
     path: '/',
     maxAge: COOKIE_MAX_AGE,
     sameSite: 'lax',
-    httpOnly: false,
+    httpOnly: true,
   })
   return res
 }

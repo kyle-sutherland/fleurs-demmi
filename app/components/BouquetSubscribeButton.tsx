@@ -7,29 +7,35 @@ type Props = {
   tierId: string
   tierLabel: string
   tierPrice: number
+  tierBouquets: number
   subscribeBtn: string
   deliveryLabel: string
   pickUpOption: string
   pickUpOption2: string
   deliveryOption: string
+  stockCount?: number | null
 }
 
 export function BouquetSubscribeButton({
   tierId,
   tierLabel,
   tierPrice,
+  tierBouquets,
   subscribeBtn,
   deliveryLabel,
   pickUpOption,
   pickUpOption2,
   deliveryOption,
+  stockCount,
 }: Props) {
   const router = useRouter()
   const [delivery, setDelivery] = useState('pickup1')
   const [state, setState] = useState<'idle' | 'adding' | 'added'>('idle')
 
+  const soldOut = stockCount === 0
+
   const isDelivery = delivery === 'delivery'
-  const total = isDelivery ? tierPrice + 10 : tierPrice
+  const total = isDelivery ? tierPrice + 10 * tierBouquets : tierPrice
 
   async function handleClick() {
     setState('adding')
@@ -57,7 +63,7 @@ export function BouquetSubscribeButton({
         body: JSON.stringify({
           productId: `delivery-surcharge-${tierId}`,
           name: 'Home Delivery',
-          price: 10,
+          price: 10 * tierBouquets,
           quantity: 1,
           options: { for: tierLabel },
         }),
@@ -66,6 +72,7 @@ export function BouquetSubscribeButton({
 
     setState('added')
     router.refresh()
+    window.dispatchEvent(new Event('cart-updated'))
     setTimeout(() => setState('idle'), 1500)
   }
 
@@ -77,7 +84,8 @@ export function BouquetSubscribeButton({
           <select
             value={delivery}
             onChange={(e) => setDelivery(e.target.value)}
-            className="w-full border-2 border-foreground bg-background font-sans text-sm px-4 py-3 pr-10 focus:outline-none focus:border-orange-500 appearance-none text-foreground"
+            disabled={soldOut}
+            className="w-full border-2 border-foreground bg-background font-sans text-sm px-4 py-3 pr-10 focus:outline-none focus:border-orange-500 appearance-none text-foreground disabled:opacity-50"
           >
             <option value="pickup1">{pickUpOption}</option>
             <option value="pickup2">{pickUpOption2}</option>
@@ -90,10 +98,10 @@ export function BouquetSubscribeButton({
       <button
         type="button"
         onClick={handleClick}
-        disabled={state === 'adding'}
-        className="self-start font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-4 py-2 hover:bg-foreground hover:text-background transition-colors disabled:opacity-50"
+        disabled={soldOut || state === 'adding'}
+        className="self-start font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-4 py-2 hover:bg-foreground hover:text-background transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {state === 'adding' ? 'Adding…' : state === 'added' ? 'Added!' : `${subscribeBtn}${total}.00`}
+        {soldOut ? 'Sold Out' : state === 'adding' ? 'Adding…' : state === 'added' ? 'Added!' : `${subscribeBtn}${total}.00`}
       </button>
     </div>
   )

@@ -1,14 +1,18 @@
 'use client'
 
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import axios from 'axios'
+import { TurnstileWidget } from '@/app/components/TurnstileWidget'
 
-type FormValues = { name: string; email: string }
+type FormValues = { name: string; email: string; website: string }
 
 export default function EmailSignupForm() {
   const [submitted, setSubmitted] = useState(false)
   const [serverError, setServerError] = useState('')
+  const [turnstileToken, setTurnstileToken] = useState('')
+
+  const onTurnstileToken = useCallback((t: string) => setTurnstileToken(t), [])
 
   const {
     register,
@@ -19,7 +23,7 @@ export default function EmailSignupForm() {
   const onSubmit = async (data: FormValues) => {
     setServerError('')
     try {
-      await axios.post('/api/subscribe', data)
+      await axios.post('/api/subscribe', { ...data, turnstile: turnstileToken })
       setSubmitted(true)
     } catch {
       setServerError('Something went wrong. Please try again.')
@@ -36,6 +40,9 @@ export default function EmailSignupForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="mt-8 flex flex-col gap-5 md:flex-row md:items-end">
+      {/* Honeypot */}
+      <input {...register('website')} type="text" tabIndex={-1} autoComplete="off" style={{ display: 'none' }} aria-hidden="true" />
+
       <input type="hidden" {...register('name')} />
       <div className="flex-1 flex items-center border-2 border-orange-500 rounded-full bg-foreground/5 pr-1 md:rounded-none md:border-0 md:bg-transparent md:p-0 md:flex-none md:contents">
         <input
@@ -70,6 +77,7 @@ export default function EmailSignupForm() {
           {errors.email?.message ?? serverError}
         </p>
       )}
+      <TurnstileWidget onToken={onTurnstileToken} />
     </form>
   )
 }

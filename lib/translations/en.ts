@@ -150,9 +150,9 @@ export const en = {
     intro:
       "Subscribe to regularly receive seasonal bouquet arrangements made with local flowers. Pick up on Saturdays at Caf\u00e9 Replika (252 Rue Rachel E, Montr\u00e9al) or D\u00e9panneur Le Pick-Up (7032 Rue Waverly) between 11am\u20134pm. Home delivery available for an extra $10.00 per bouquet.",
     tiers: [
-      { id: "12weeks", label: "Bi-weekly bouquets for 12 weeks", dates: "May 23rd to Oct 24th", price: 350, available: 20 },
-      { id: "8weeks", label: "Bi-weekly bouquets for 8 weeks", dates: "June 20th to Sept 26th", price: 250, available: 20 },
-      { id: "monthly", label: "Monthly bouquets for 4 months", dates: "July 18th, Aug 29th, Sept 26th, Oct 24th", price: 150, available: 20 },
+      { id: "12weeks", label: "Bi-weekly bouquets for 12 weeks", dates: "May 23rd to Oct 24th", price: 350, available: 20, bouquets: 12 },
+      { id: "8weeks", label: "Bi-weekly bouquets for 8 weeks", dates: "June 20th to Sept 26th", price: 250, available: 20, bouquets: 8 },
+      { id: "monthly", label: "Monthly bouquets for 4 months", dates: "July 18th, Aug 29th, Sept 26th, Oct 24th", price: 150, available: 20, bouquets: 4 },
     ],
     from: "From",
     available: "available",

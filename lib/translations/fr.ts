@@ -152,9 +152,9 @@ export const fr: Dictionary = {
     intro:
       "Abonnez-vous pour recevoir r\u00e9guli\u00e8rement des bouquets saisonniers r\u00e9alis\u00e9s avec des fleurs locales. Cueillette le samedi au Caf\u00e9 Replika (252 Rue Rachel E, Montr\u00e9al) ou au D\u00e9panneur Le Pick-Up (7032 Rue Waverly) entre 11h et 16h. Livraison \u00e0 domicile disponible pour un suppl\u00e9ment de 10,00\u00a0$ par bouquet.",
     tiers: [
-      { id: "12weeks", label: "Bouquets aux deux semaines pour 12 semaines", dates: "23 mai au 24 oct.", price: 350, available: 20 },
-      { id: "8weeks", label: "Bouquets aux deux semaines pour 8 semaines", dates: "20 juin au 26 sept.", price: 250, available: 20 },
-      { id: "monthly", label: "Bouquets mensuels pour 4 mois", dates: "18 juill., 29 août, 26 sept., 24 oct.", price: 150, available: 20 },
+      { id: "12weeks", label: "Bouquets aux deux semaines pour 12 semaines", dates: "23 mai au 24 oct.", price: 350, available: 20, bouquets: 12 },
+      { id: "8weeks", label: "Bouquets aux deux semaines pour 8 semaines", dates: "20 juin au 26 sept.", price: 250, available: 20, bouquets: 8 },
+      { id: "monthly", label: "Bouquets mensuels pour 4 mois", dates: "18 juill., 29 août, 26 sept., 24 oct.", price: 150, available: 20, bouquets: 4 },
     ],
     from: "Du",
     available: "disponibles",

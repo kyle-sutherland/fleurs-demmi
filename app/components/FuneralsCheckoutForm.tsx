@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { TurnstileWidget } from '@/app/components/TurnstileWidget'
 
 const ARRANGEMENT_PRICES: Record<string, number> = {
   small: 80,
@@ -44,6 +45,9 @@ export function FuneralsCheckoutForm({ applicationId, locationId, sdkUrl, t }: P
   const [error, setError] = useState<string | null>(null)
   const [arrangement, setArrangement] = useState('')
   const [showCard, setShowCard] = useState(false)
+  const [turnstileToken, setTurnstileToken] = useState('')
+
+  const onTurnstileToken = useCallback((t: string) => setTurnstileToken(t), [])
 
   const arrangementPrice = ARRANGEMENT_PRICES[arrangement] ?? 0
   const total = arrangementPrice + (showCard ? CARD_PRICE : 0)
@@ -106,6 +110,7 @@ export function FuneralsCheckoutForm({ applicationId, locationId, sdkUrl, t }: P
       style_notes: data.get('style_notes') as string,
       card_name: data.get('card_name') as string,
       card_message: data.get('card_message') as string,
+      turnstile: turnstileToken,
     }
 
     const res = await fetch('/api/checkout/funerals', {
@@ -126,6 +131,9 @@ export function FuneralsCheckoutForm({ applicationId, locationId, sdkUrl, t }: P
 
   return (
     <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-5">
+      {/* Honeypot */}
+      <input name="website" type="text" tabIndex={-1} autoComplete="off" style={{ display: 'none' }} aria-hidden="true" />
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <Field label={t.name} name="name" type="text" required />
         <Field label={t.email} name="email" type="email" required />
@@ -216,6 +224,8 @@ export function FuneralsCheckoutForm({ applicationId, locationId, sdkUrl, t }: P
           </div>
         </div>
       )}
+
+      <TurnstileWidget onToken={onTurnstileToken} />
 
       <button
         type="submit"

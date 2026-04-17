@@ -8,11 +8,14 @@ type Props = {
   item: Omit<CartItem, 'id'>
   label?: string
   className?: string
+  stockCount?: number | null  // null = untracked, 0 = sold out, >0 = in stock
 }
 
-export function AddToCartButton({ item, label, className }: Props) {
+export function AddToCartButton({ item, label, className, stockCount }: Props) {
   const router = useRouter()
   const [state, setState] = useState<'idle' | 'adding' | 'added'>('idle')
+
+  const soldOut = stockCount === 0
 
   async function handleClick() {
     setState('adding')
@@ -23,20 +26,31 @@ export function AddToCartButton({ item, label, className }: Props) {
     })
     setState('added')
     router.refresh()
+    window.dispatchEvent(new Event('cart-updated'))
     setTimeout(() => setState('idle'), 1500)
   }
 
   const defaultClass =
-    'self-start font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-8 py-3 hover:bg-foreground hover:text-background transition-colors disabled:opacity-50'
+    'self-start font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-8 py-3 hover:bg-foreground hover:text-background transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
+
+  const buttonLabel = soldOut
+    ? 'Sold Out'
+    : state === 'adding'
+    ? 'Adding…'
+    : state === 'added'
+    ? 'Added!'
+    : (label ?? 'Add to Cart')
 
   return (
-    <button
-      type="button"
-      onClick={handleClick}
-      disabled={state === 'adding'}
-      className={className ?? defaultClass}
-    >
-      {state === 'adding' ? 'Adding…' : state === 'added' ? 'Added!' : (label ?? 'Add to Cart')}
-    </button>
+    <div className="flex flex-col gap-2">
+      <button
+        type="button"
+        onClick={handleClick}
+        disabled={soldOut || state === 'adding'}
+        className={className ?? defaultClass}
+      >
+        {buttonLabel}
+      </button>
+    </div>
   )
 }

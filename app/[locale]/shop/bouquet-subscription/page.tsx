@@ -2,11 +2,15 @@ import SiteHeader from "@/app/components/SiteHeader";
 import BouquetSlideshow from "@/app/components/BouquetSlideshow";
 import { BouquetSubscribeButton } from "@/app/components/BouquetSubscribeButton";
 import { getDictionary } from "@/lib/i18n";
+import { getInventory } from "@/app/lib/inventory";
 
 export default async function BouquetSubscriptionPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const t = getDictionary(locale);
   const b = t.bouquetSubscription;
+
+  const tierProductIds = b.tiers.map((tier) => `subscription-${tier.id}`)
+  const inventory = await getInventory(tierProductIds)
 
   return (
     <div className="flex flex-col flex-1">
@@ -48,6 +52,8 @@ export default async function BouquetSubscriptionPage({ params }: { params: Prom
                   tierId={tier.id}
                   tierLabel={tier.label}
                   tierPrice={tier.price}
+                  tierBouquets={tier.bouquets}
+                  stockCount={inventory[`subscription-${tier.id}`] ?? null}
                   subscribeBtn={b.subscribeBtn}
                   deliveryLabel={b.deliveryLabel}
                   pickUpOption={b.pickUpOption}

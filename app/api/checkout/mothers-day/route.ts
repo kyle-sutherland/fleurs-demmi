@@ -1,9 +1,12 @@
 import { NextResponse } from 'next/server'
 import { randomUUID } from 'crypto'
+import { z } from 'zod'
 import { SquareError } from 'square'
 import type { OrderLineItem } from 'square'
 import { getSquareClient, LOCATION_ID, PRODUCT_VARIATION_MAP } from '@/app/lib/square'
 import { sendMail } from '@/app/lib/email'
+import { escapeHtml, emailSchema, nameSchema, phoneSchema, textSchema } from '@/app/lib/validate'
+import { verifyTurnstile } from '@/app/lib/turnstile'
 
 const ARRANGEMENT_PRICES: Record<string, { label: string; price: number; productId: string }> = {
   '50': { label: '$50 Arrangement (490mL mason jar)', price: 50, productId: 'mothers-day-bouquet-50' },
@@ -13,30 +16,41 @@ const ARRANGEMENT_PRICES: Record<string, { label: string; price: number; product
 const DELIVERY_PRICE = 10
 const CARD_PRICE = 4
 
-export async function POST(request: Request) {
-  const body = await request.json()
-  const {
-    token,
-    name,
-    email,
-    phone,
-    fulfillment,
-    address,
-    delivery_time,
-    arrangement,
-    card_to,
-    card_message,
-  } = body
+const bodySchema = z.object({
+  token:         z.string().min(1).max(512),
+  name:          nameSchema,
+  email:         emailSchema,
+  phone:         phoneSchema,
+  fulfillment:   z.enum(['pickup', 'delivery']),
+  address:       textSchema.optional(),
+  delivery_time: textSchema.optional(),
+  arrangement:   z.enum(['50', '75']),
+  card_to:       textSchema.optional(),
+  card_message:  textSchema.optional(),
+  turnstile:     z.string().optional(),
+  website:       z.string().max(0, 'Honeypot').optional(),
+})
 
-  if (!token || !name || !email || !phone || !arrangement) {
-    return NextResponse.json({ error: 'Missing required fields.' }, { status: 400 })
+export async function POST(request: Request) {
+  let body: z.infer<typeof bodySchema>
+  try {
+    body = bodySchema.parse(await request.json())
+  } catch {
+    return NextResponse.json({ error: 'Invalid request.' }, { status: 400 })
   }
+
+  if (body.website) {
+    return NextResponse.json({ error: 'Invalid request.' }, { status: 400 })
+  }
+
+  const ip = request.headers.get('cf-connecting-ip') ?? request.headers.get('x-forwarded-for') ?? undefined
+  if (!await verifyTurnstile(body.turnstile, ip)) {
+    return NextResponse.json({ error: 'Bot verification failed. Please try again.' }, { status: 403 })
+  }
+
+  const { token, name, email, phone, fulfillment, address, delivery_time, arrangement, card_to, card_message } = body
 
   const arrangementInfo = ARRANGEMENT_PRICES[arrangement]
-  if (!arrangementInfo) {
-    return NextResponse.json({ error: 'Invalid arrangement selected.' }, { status: 400 })
-  }
-
   const isDelivery = fulfillment === 'delivery'
   const hasCard = !!(card_to || card_message)
   const total = arrangementInfo.price + (isDelivery ? DELIVERY_PRICE : 0) + (hasCard ? CARD_PRICE : 0)
@@ -94,16 +108,25 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Payment failed. Please try again.' }, { status: 402 })
     }
 
+    // Escaped values for email
+    const sName         = escapeHtml(name)
+    const sEmail        = escapeHtml(email)
+    const sPhone        = escapeHtml(phone)
+    const sAddress      = address ? escapeHtml(address) : ''
+    const sDeliveryTime = delivery_time ? escapeHtml(delivery_time) : ''
+    const sCardTo       = card_to ? escapeHtml(card_to) : ''
+    const sCardMsg      = card_message ? escapeHtml(card_message) : ''
+
     const ownerHtml = `
-      <h2 style="font-family:sans-serif">New Mother's Day Order — ${name}</h2>
+      <h2 style="font-family:sans-serif">New Mother's Day Order — ${sName}</h2>
       <table style="font-family:sans-serif;font-size:14px;border-collapse:collapse;width:100%;max-width:600px">
-        <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;width:160px">Name</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${name}</td></tr>
-        <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Email</td><td style="padding:6px 12px;border-bottom:1px solid #eee"><a href="mailto:${email}">${email}</a></td></tr>
-        <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Phone</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${phone}</td></tr>
-        <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Fulfillment</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${isDelivery ? `Delivery — May 10th` : 'Pick up — May 9th, Mile End'}</td></tr>
-        ${isDelivery && address ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Address</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${address}${delivery_time ? ` · ${delivery_time}` : ''}</td></tr>` : ''}
+        <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;width:160px">Name</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${sName}</td></tr>
+        <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Email</td><td style="padding:6px 12px;border-bottom:1px solid #eee"><a href="mailto:${sEmail}">${sEmail}</a></td></tr>
+        <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Phone</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${sPhone}</td></tr>
+        <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Fulfillment</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${isDelivery ? 'Delivery — May 10th' : 'Pick up — May 9th, Mile End'}</td></tr>
+        ${isDelivery && sAddress ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Address</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${sAddress}${sDeliveryTime ? ` · ${sDeliveryTime}` : ''}</td></tr>` : ''}
         <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Arrangement</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${arrangementInfo.label}</td></tr>
-        ${hasCard ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Card</td><td style="padding:6px 12px;border-bottom:1px solid #eee">To: ${card_to || '—'}<br/>${card_message || ''}</td></tr>` : ''}
+        ${hasCard ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Card</td><td style="padding:6px 12px;border-bottom:1px solid #eee">To: ${sCardTo || '—'}<br/>${sCardMsg}</td></tr>` : ''}
         <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Total Paid</td><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:700">$${total.toFixed(2)} CAD</td></tr>
         <tr><td style="padding:6px 12px;font-weight:600">Square Order ID</td><td style="padding:6px 12px">${order.id}</td></tr>
       </table>
@@ -113,7 +136,7 @@ export async function POST(request: Request) {
       <div style="font-family:sans-serif;max-width:600px;color:#1a1a1a">
         <h1 style="font-size:28px;font-weight:900;margin-bottom:8px">Order confirmed</h1>
         <p style="font-size:15px;line-height:1.6;color:#444">
-          Thank you, ${name}! Your Mother's Day order is confirmed. Emmi will have it ready for you.
+          Thank you, ${sName}! Your Mother's Day order is confirmed. Emmi will have it ready for you.
         </p>
         <h2 style="font-size:16px;font-weight:700;margin-top:32px;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em">Order Summary</h2>
         <table style="font-size:14px;border-collapse:collapse;width:100%">
@@ -123,7 +146,7 @@ export async function POST(request: Request) {
           <tr><td style="padding:6px 12px;font-weight:700">Total</td><td style="padding:6px 12px;font-weight:700;text-align:right">$${total.toFixed(2)} CAD</td></tr>
         </table>
         <table style="font-size:14px;border-collapse:collapse;width:100%;margin-top:24px">
-          <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;width:160px">Fulfillment</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${isDelivery ? `Delivery — May 10th${address ? `, ${address}` : ''}` : 'Pick up — May 9th, 10am–5pm, Mile End'}</td></tr>
+          <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;width:160px">Fulfillment</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${isDelivery ? `Delivery — May 10th${sAddress ? `, ${sAddress}` : ''}` : 'Pick up — May 9th, 10am–5pm, Mile End'}</td></tr>
         </table>
         <p style="font-size:12px;color:#aaa;margin-top:32px">Order ref: ${order.id}</p>
         <p style="font-size:13px;color:#888;margin-top:4px">Fleurs d'Emmi · Montréal, QC</p>
@@ -132,16 +155,8 @@ export async function POST(request: Request) {
 
     try {
       await Promise.all([
-        sendMail({
-          to: process.env.RECIPIENT_EMAIL!,
-          subject: `New Mother's Day order — ${name}`,
-          html: ownerHtml,
-        }),
-        sendMail({
-          to: email,
-          subject: `Your order is confirmed — Fleurs d'Emmi`,
-          html: customerHtml,
-        }),
+        sendMail({ to: process.env.RECIPIENT_EMAIL!, subject: `New Mother's Day order — ${name}`, html: ownerHtml }),
+        sendMail({ to: email, subject: `Your order is confirmed — Fleurs d'Emmi`, html: customerHtml }),
       ])
     } catch (err) {
       console.error("Email error (Mother's Day checkout):", err)
@@ -150,8 +165,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ orderId: order.id, paymentId: payment.id })
   } catch (err: unknown) {
     if (err instanceof SquareError) {
-      const message = err.errors?.[0]?.detail ?? 'Payment failed. Please try again.'
-      return NextResponse.json({ error: message }, { status: 402 })
+      console.error("Square error (Mother's Day checkout):", err.errors)
+      return NextResponse.json({ error: 'Payment failed. Please try again.' }, { status: 402 })
     }
     console.error("Mother's Day checkout error:", err)
     return NextResponse.json({ error: 'Payment failed. Please try again.' }, { status: 500 })

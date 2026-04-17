@@ -2,6 +2,7 @@ import Link from "next/link";
 import SiteHeader from "@/app/components/SiteHeader";
 import { VaseSlideshow } from "./VaseSlideshow";
 import { AddToCartButton } from "@/app/components/AddToCartButton";
+import { getInventory } from "@/app/lib/inventory";
 
 const vaseTitles: Record<string, Record<string, string>> = {
   "1": { en: "Sgraffito Vase", fr: "Vase sgraffito" },
@@ -52,6 +53,9 @@ export default async function VaseDetailPage({
   const title = vaseTitles[vaseId]?.[locale] ?? vaseTitles[vaseId]?.en ?? "";
   const vase = slideData ? { ...slideData, title } : null;
 
+  const inventory = vase ? await getInventory([vase.productId]) : {}
+  const stockCount = vase ? (inventory[vase.productId] ?? null) : null
+
   if (!vase) {
     return (
       <div className="flex flex-col flex-1">
@@ -91,6 +95,7 @@ export default async function VaseDetailPage({
             <p className="font-display font-black text-2xl">${vase.price}.00</p>
             <AddToCartButton
               item={{ productId: vase.productId, name: vase.title, price: vase.price, quantity: 1 }}
+              stockCount={stockCount}
             />
           </div>
         </div>

@@ -1,6 +1,7 @@
 import SiteHeader from "@/app/components/SiteHeader";
 import { MothersDayCheckoutForm } from "@/app/components/MothersDayCheckoutForm";
 import { getDictionary } from "@/lib/i18n";
+import { getInventory } from "@/app/lib/inventory";
 
 export default async function MothersDayPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -11,6 +12,10 @@ export default async function MothersDayPage({ params }: { params: Promise<{ loc
     process.env.SQUARE_ENVIRONMENT === 'production'
       ? 'https://web.squarecdn.com/v1/square.js'
       : 'https://sandbox.web.squarecdn.com/v1/square.js'
+
+  const inventory = await getInventory(['mothers-day-bouquet-50', 'mothers-day-bouquet-75'])
+  const soldOut50 = inventory['mothers-day-bouquet-50'] === 0
+  const soldOut75 = inventory['mothers-day-bouquet-75'] === 0
 
   return (
     <div className="flex flex-col flex-1">
@@ -36,6 +41,8 @@ export default async function MothersDayPage({ params }: { params: Promise<{ loc
             locationId={process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID!}
             sdkUrl={sdkUrl}
             t={m.form}
+            soldOut50={soldOut50}
+            soldOut75={soldOut75}
           />
         </section>
       </main>

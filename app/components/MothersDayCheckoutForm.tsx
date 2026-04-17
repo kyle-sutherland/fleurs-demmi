@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { TurnstileWidget } from '@/app/components/TurnstileWidget'
 
 const DELIVERY_PRICE = 10
 const CARD_PRICE = 4
@@ -11,6 +12,8 @@ type Props = {
   applicationId: string
   locationId: string
   sdkUrl: string
+  soldOut50?: boolean
+  soldOut75?: boolean
   t: {
     name: string
     email: string
@@ -32,15 +35,18 @@ type Props = {
   }
 }
 
-export function MothersDayCheckoutForm({ applicationId, locationId, sdkUrl, t }: Props) {
+export function MothersDayCheckoutForm({ applicationId, locationId, sdkUrl, t, soldOut50 = false, soldOut75 = false }: Props) {
   const router = useRouter()
   const cardRef = useRef<any>(null)
   const [sdkReady, setSdkReady] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [fulfillment, setFulfillment] = useState('pickup')
-  const [arrangement, setArrangement] = useState('50')
+  const [arrangement, setArrangement] = useState(() => soldOut50 ? '75' : '50')
   const [showCard, setShowCard] = useState(false)
+  const [turnstileToken, setTurnstileToken] = useState('')
+
+  const onTurnstileToken = useCallback((t: string) => setTurnstileToken(t), [])
 
   const arrangementPrice = ARRANGEMENT_PRICES[arrangement] ?? 0
   const total = arrangementPrice + (fulfillment === 'delivery' ? DELIVERY_PRICE : 0) + (showCard ? CARD_PRICE : 0)
@@ -102,6 +108,7 @@ export function MothersDayCheckoutForm({ applicationId, locationId, sdkUrl, t }:
       arrangement,
       card_to: data.get('card_to') as string,
       card_message: data.get('card_message') as string,
+      turnstile: turnstileToken,
     }
 
     const res = await fetch('/api/checkout/mothers-day', {
@@ -122,6 +129,9 @@ export function MothersDayCheckoutForm({ applicationId, locationId, sdkUrl, t }:
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+      {/* Honeypot */}
+      <input name="website" type="text" tabIndex={-1} autoComplete="off" style={{ display: 'none' }} aria-hidden="true" />
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <Field label={t.name} name="name" type="text" required />
         <Field label={t.email} name="email" type="email" required />
@@ -166,27 +176,29 @@ export function MothersDayCheckoutForm({ applicationId, locationId, sdkUrl, t }:
       <div className="flex flex-col gap-2">
         <label className="font-sans text-xs uppercase tracking-widest font-semibold">{t.arrangement} *</label>
         <div className="flex flex-col gap-2 font-sans text-sm">
-          <label className="flex items-center gap-3 cursor-pointer">
+          <label className={`flex items-center gap-3 ${soldOut50 ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}`}>
             <input
               type="radio"
               name="arrangement"
               value="50"
               checked={arrangement === '50'}
               onChange={() => setArrangement('50')}
+              disabled={soldOut50}
               className="accent-purple"
             />
-            {t.arrangement50}
+            {t.arrangement50}{soldOut50 && ' — Sold out'}
           </label>
-          <label className="flex items-center gap-3 cursor-pointer">
+          <label className={`flex items-center gap-3 ${soldOut75 ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}`}>
             <input
               type="radio"
               name="arrangement"
               value="75"
               checked={arrangement === '75'}
               onChange={() => setArrangement('75')}
+              disabled={soldOut75}
               className="accent-purple"
             />
-            {t.arrangement75}
+            {t.arrangement75}{soldOut75 && ' — Sold out'}
           </label>
         </div>
       </div>
@@ -247,9 +259,11 @@ export function MothersDayCheckoutForm({ applicationId, locationId, sdkUrl, t }:
         </div>
       </div>
 
+      <TurnstileWidget onToken={onTurnstileToken} />
+
       <button
         type="submit"
-        disabled={!sdkReady || submitting}
+        disabled={!sdkReady || submitting || (arrangement === '50' && soldOut50) || (arrangement === '75' && soldOut75)}
         className="self-start font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-10 py-3 hover:bg-foreground hover:text-background transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
       >
         {submitting ? 'Processing…' : `${t.submit} — $${total.toFixed(2)}`}

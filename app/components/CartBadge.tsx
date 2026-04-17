@@ -3,21 +3,32 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
-export function CartBadge() {
+function useCartCount() {
   const [count, setCount] = useState(0)
 
   useEffect(() => {
-    fetch('/api/cart')
-      .then((r) => r.json())
-      .then((cart) => {
-        const total = (cart.items ?? []).reduce(
-          (sum: number, item: { quantity: number }) => sum + item.quantity,
-          0
-        )
-        setCount(total)
-      })
-      .catch(() => {})
+    function fetchCount() {
+      fetch('/api/cart')
+        .then((r) => r.json())
+        .then((cart) => {
+          const total = (cart.items ?? []).reduce(
+            (sum: number, item: { quantity: number }) => sum + item.quantity,
+            0
+          )
+          setCount(total)
+        })
+        .catch(() => {})
+    }
+    fetchCount()
+    window.addEventListener('cart-updated', fetchCount)
+    return () => window.removeEventListener('cart-updated', fetchCount)
   }, [])
+
+  return count
+}
+
+export function CartBadge() {
+  const count = useCartCount()
 
   return (
     <Link href="/cart" className="relative flex items-center gap-1.5 text-xs font-semibold hover:opacity-60 transition-opacity">
@@ -33,20 +44,7 @@ export function CartBadge() {
 }
 
 export function CartBadgeMobile() {
-  const [count, setCount] = useState(0)
-
-  useEffect(() => {
-    fetch('/api/cart')
-      .then((r) => r.json())
-      .then((cart) => {
-        const total = (cart.items ?? []).reduce(
-          (sum: number, item: { quantity: number }) => sum + item.quantity,
-          0
-        )
-        setCount(total)
-      })
-      .catch(() => {})
-  }, [])
+  const count = useCartCount()
 
   return (
     <Link href="/cart" className="relative flex items-center gap-1 hover:opacity-60 transition-opacity">

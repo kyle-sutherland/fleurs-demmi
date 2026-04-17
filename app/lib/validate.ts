@@ -1,0 +1,17 @@
+import { z } from 'zod'
+
+/** Escape user-supplied strings before interpolating into HTML email bodies. */
+export function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;')
+}
+
+export const emailSchema = z.string().email().max(254).trim()
+export const nameSchema  = z.string().min(1).max(200).trim()
+export const phoneSchema = z.string().min(1).max(30).trim()
+export const textSchema  = z.string().max(2000).trim()
+export const dateSchema  = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format')
