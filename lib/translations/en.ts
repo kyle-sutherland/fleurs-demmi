@@ -41,8 +41,8 @@ export const en = {
   shop: {
     heading: "flowers & things",
     products: {
-      bouquetSubscription: { label: "Bouquet Subscription", sublabel: "Bi-weekly seasonal bouquets \u00b7 from $250" },
-      mothersDay: { label: "Mother\u2019s Day Bouquets", sublabel: "Pick up May 9th or delivery May 10th \u00b7 from $60" },
+      bouquetSubscription: { label: "Bouquet Subscription", sublabel: "Bi-weekly seasonal bouquets \u00b7 from $150" },
+      mothersDay: { label: "Mother\u2019s Day Bouquets", sublabel: "Pick up May 9th or delivery May 10th \u00b7 from $50" },
       vases: { label: "Handmade & Vintage Vases", sublabel: "One-of-a-kind vessels" },
       cards: { label: "Cards & Goodies", sublabel: "Little extras to complete your gift" },
     },
@@ -52,8 +52,8 @@ export const en = {
     paragraphs: [
       "fleurs d\u2019emmi is the floral project of Emily Gray, currently based in Montr\u00e9al, Qu\u00e9bec using primarily blooms grown by local farmers and from her own garden. With a background in visual arts (BFA c.2017) and over 10 years of experience working on small scale, organic farms across Canada, her passion for working with flowers emerged naturally and continues to grow.",
       "In 2025, she started a garden on a rooftop in the Mile End and a guerilla garden in the neighbourhood\u2019s beloved \u2018soul patch\u2019. As a self-taught florist, she has created arrangements alongside the team at Fleuriste Sophie Dorval, Flori Flora, and Oursin Fleurs. She currently works with her friend and mentor, Marie-Christine Sullivan at Ferme Bee Balm, located in Boucherville, QC.",
-      "An artist by nature, she views her surroundings as a part of life\u2019s collage. Her multimedia practice includes fibres, ceramics, woodworking, painting, performance art, culinary arts\u2014 all of which inform her sensibility to create with an attention to detail and care. Her artistic language when working with flowers bridges between elegant and rustic. She is eclectic in her taste, often drawn to non-traditional floral arrangements, bold palettes, and vintage or handmade vases.",
-      "She is eager to provide her floral services catering to all kinds of events including weddings, funerals, special events, and everyday life.",
+      "An artist by nature, Emily views her surroundings as a part of life\u2019s collage. With a multimedia practice including fibres, ceramics, woodworking, painting, performance art, culinary arts\u2014 these inform her sensibility to create with an attention to detail and care. With an eclectic taste, she is often drawn to non-traditional floral arrangements, bold palettes, vintage or handmade vases that form an artistic language that bridges between elegant and rustic.",
+      "Emily is eager to provide her floral services catering to all kinds of events including weddings, funerals, special events, and everyday life.",
     ],
     shopBtn: "Shop",
     servicesBtn: "Services",

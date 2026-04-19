@@ -68,7 +68,7 @@ export default function EmailSignupForm() {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="hidden md:block font-sans text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-4 py-2 hover:bg-orange-500 hover:border-orange-500 hover:text-white transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+        className="hidden md:block font-sans text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-4 py-2 hover:bg-orange-500 hover:border-[#E6E6FA] hover:text-[#E6E6FA] transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {isSubmitting ? 'Subscribing…' : 'Subscribe'}
       </button>

@@ -19,7 +19,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
           </h1>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 mt-8 mx-12 md:mx-32">
+        <div className="grid grid-cols-2 gap-4 mt-8 mx-12 md:mx-32 md:w-[80%]">
           <div className="relative aspect-[3/4]">
             <Image src="/60c13257-cae1-486f-b37a-683c0594416b.jpeg" alt="Emily Gray with flower cart" fill sizes="(max-width: 768px) 50vw, 33vw" className="object-cover" priority />
           </div>

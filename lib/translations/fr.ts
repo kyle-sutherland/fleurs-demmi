@@ -43,8 +43,8 @@ export const fr: Dictionary = {
   shop: {
     heading: "fleurs & choses",
     products: {
-      bouquetSubscription: { label: "Abonnement de bouquets", sublabel: "Bouquets saisonniers aux deux semaines \u00b7 \u00e0 partir de 250\u00a0$" },
-      mothersDay: { label: "Bouquets f\u00eate des M\u00e8res", sublabel: "Cueillette le 9 mai ou livraison le 10 mai \u00b7 \u00e0 partir de 60\u00a0$" },
+      bouquetSubscription: { label: "Abonnement de bouquets", sublabel: "Bouquets saisonniers aux deux semaines \u00b7 \u00e0 partir de 150\u00a0$" },
+      mothersDay: { label: "Bouquets f\u00eate des M\u00e8res", sublabel: "Cueillette le 9 mai ou livraison le 10 mai \u00b7 \u00e0 partir de 50\u00a0$" },
       vases: { label: "Vases artisanaux et vintage", sublabel: "Des pi\u00e8ces uniques en leur genre" },
       cards: { label: "Cartes et petits cadeaux", sublabel: "De petits extras pour compl\u00e9ter votre cadeau" },
     },
