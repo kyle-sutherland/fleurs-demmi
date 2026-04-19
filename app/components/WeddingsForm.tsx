@@ -29,6 +29,7 @@ export function WeddingsForm({ t }: Props) {
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [fulfillment, setFulfillment] = useState<'pickup' | 'delivery' | ''>('')
   const [subscribeToNews, setSubscribeToNews] = useState(false)
   const [turnstileToken, setTurnstileToken] = useState('')
 
@@ -105,15 +106,21 @@ export function WeddingsForm({ t }: Props) {
         <label className="font-sans text-xs uppercase tracking-widest font-semibold">{t.fulfillment} *</label>
         <div className="flex gap-4">
           <label className="flex items-center gap-2 font-sans text-sm cursor-pointer">
-            <input type="checkbox" name="fulfillment" value="pickup" className="accent-purple" /> {t.pickUp}
+            <input type="radio" name="fulfillment" value="pickup" className="accent-purple" required
+              checked={fulfillment === 'pickup'}
+              onChange={() => setFulfillment('pickup')}
+            /> {t.pickUp}
           </label>
           <label className="flex items-center gap-2 font-sans text-sm cursor-pointer">
-            <input type="checkbox" name="fulfillment" value="delivery" className="accent-purple" /> {t.delivery}
+            <input type="radio" name="fulfillment" value="delivery" className="accent-purple"
+              checked={fulfillment === 'delivery'}
+              onChange={() => setFulfillment('delivery')}
+            /> {t.delivery}
           </label>
         </div>
       </div>
 
-      <Field label={t.eventLocation} name="event_location" type="text" hint={t.eventLocationHint} />
+      {fulfillment !== 'pickup' && <Field label={t.eventLocation} name="event_location" type="text" hint={t.eventLocationHint} />}
       <Field label={t.guestCount} name="guest_count" type="text" />
 
       <div className="flex flex-col gap-1">
@@ -156,7 +163,7 @@ export function WeddingsForm({ t }: Props) {
       <button
         type="submit"
         disabled={submitting}
-        className="self-start font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-10 py-3 hover:bg-foreground hover:text-background transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        className="self-start font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-10 py-3 hover:bg-orange-500 hover:border-[#E6E6FA] hover:text-[#E6E6FA] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
       >
         {submitting ? 'Sending…' : t.submit}
       </button>

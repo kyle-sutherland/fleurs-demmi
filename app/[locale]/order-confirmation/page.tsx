@@ -38,7 +38,7 @@ export default async function OrderConfirmationPage({
 
         <Link
           href={`/${locale}/shop`}
-          className="mt-10 self-start inline-block font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-8 py-3 hover:bg-foreground hover:text-background transition-colors"
+          className="mt-10 self-start inline-block font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-8 py-3 hover:bg-orange-500 hover:border-[#E6E6FA] hover:text-[#E6E6FA] transition-colors"
         >
           Back to Shop
         </Link>

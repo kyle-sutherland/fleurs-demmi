@@ -59,25 +59,27 @@ export async function getCatalogItemsByCategory(
   categoryName: string,
   locale: string
 ): Promise<CatalogProduct[]> {
-  const client = getSquareClient()
-
   try {
-    // Find the category ID by name
+    const client = getSquareClient()
+
     const catRes = await client.catalog.search({ objectTypes: ['CATEGORY'] })
     const category = (catRes.objects ?? []).find(
       (o) => 'categoryData' in o && o.categoryData?.name === categoryName
     )
     if (!category?.id) return []
 
-    // Search items belonging to that category
     const searchRes = await client.catalog.searchItems({ categoryIds: [category.id] })
     const itemIds = (searchRes.items ?? [])
       .map((i) => i.id)
       .filter((id): id is string => !!id)
     if (!itemIds.length) return []
 
-    // Fetch full objects with related images
     const res = await client.catalog.batchGet({ objectIds: itemIds, includeRelatedObjects: true })
+
+    if (res.errors?.length) {
+      console.error('Catalog fetch error:', res.errors)
+      return []
+    }
 
     const imageUrlMap = new Map<string, string>()
     for (const obj of res.relatedObjects ?? []) {
@@ -99,24 +101,29 @@ export async function getCatalogItem(
   itemId: string,
   locale: string
 ): Promise<CatalogProduct | null> {
-  const client = getSquareClient()
+  try {
+    const client = getSquareClient()
 
-  const res = await client.catalog.batchGet({
-    objectIds: [itemId],
-    includeRelatedObjects: true,
-  })
+    const res = await client.catalog.batchGet({
+      objectIds: [itemId],
+      includeRelatedObjects: true,
+    })
 
-  if (res.errors?.length || !res.objects?.length) return null
+    if (res.errors?.length || !res.objects?.length) return null
 
-  const obj = res.objects[0]
-  if (obj.type !== 'ITEM' || obj.isDeleted) return null
+    const obj = res.objects[0]
+    if (obj.type !== 'ITEM' || obj.isDeleted) return null
 
-  const imageUrlMap = new Map<string, string>()
-  for (const related of res.relatedObjects ?? []) {
-    if (related.type === 'IMAGE' && 'imageData' in related && related.imageData?.url && related.id) {
-      imageUrlMap.set(related.id, related.imageData.url)
+    const imageUrlMap = new Map<string, string>()
+    for (const related of res.relatedObjects ?? []) {
+      if (related.type === 'IMAGE' && 'imageData' in related && related.imageData?.url && related.id) {
+        imageUrlMap.set(related.id, related.imageData.url)
+      }
     }
-  }
 
-  return buildProduct(obj, locale, imageUrlMap)
+    return buildProduct(obj, locale, imageUrlMap)
+  } catch (err) {
+    console.error('getCatalogItem error:', err)
+    return null
+  }
 }

@@ -61,7 +61,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
             </Link>
             <Link
               href={`/${locale}/services`}
-              className="font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground/30 text-foreground px-8 py-3 hover:border-foreground transition-colors"
+              className="font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-8 py-3 hover:bg-orange-500 hover:border-[#E6E6FA] hover:text-[#E6E6FA] transition-colors"
             >
               {t.about.servicesBtn}
             </Link>

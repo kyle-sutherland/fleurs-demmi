@@ -31,7 +31,7 @@ export function AddToCartButton({ item, label, className, stockCount }: Props) {
   }
 
   const defaultClass =
-    'self-start font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-8 py-3 hover:bg-foreground hover:text-background transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
+    'self-start font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-8 py-3 hover:bg-orange-500 hover:border-[#E6E6FA] hover:text-[#E6E6FA] transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
 
   const buttonLabel = soldOut
     ? 'Sold Out'

@@ -148,7 +148,7 @@ export function CheckoutForm({ applicationId, locationId, sdkUrl, total }: Props
       <button
         type="submit"
         disabled={!sdkReady || submitting}
-        className="self-start font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-10 py-3 hover:bg-foreground hover:text-background transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        className="self-start font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-10 py-3 hover:bg-orange-500 hover:border-[#E6E6FA] hover:text-[#E6E6FA] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
       >
         {submitting ? 'Processing…' : `Pay $${total.toFixed(2)}`}
       </button>

@@ -42,7 +42,7 @@ export default async function MothersDayPage({ params }: { params: Promise<{ loc
         </h1>
         <p className="font-sans text-base mt-6 max-w-xl text-foreground/80 leading-relaxed">{m.intro}</p>
 
-        <div className="mt-8 max-w-2xl w-full">
+        <div className="mt-8 max-w-2xl md:max-w-[58.8rem] w-full">
           <ScallopedPhoto src="/Flower Photos/mother_flower.jpg" alt="Mother's Day flowers" />
         </div>
 

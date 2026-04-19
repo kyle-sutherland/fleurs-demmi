@@ -25,7 +25,7 @@ export default function SiteHeader({ locale, active }: { locale: string; active?
             <Link
               key={key}
               href={href}
-              className={`hover:opacity-60 transition-opacity ${active === key ? "underline underline-offset-4" : ""}`}
+              className={`hover:font-bold transition-colors ${active === key ? "underline underline-offset-4" : ""}`}
             >
               {label}
             </Link>

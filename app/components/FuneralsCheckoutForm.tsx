@@ -62,6 +62,7 @@ export function FuneralsCheckoutForm({ applicationId, locationId, sdkUrl, arrang
   const [selectedId, setSelectedId] = useState('')
   const [showCard, setShowCard] = useState(false)
   const [turnstileToken, setTurnstileToken] = useState('')
+  const [fulfillment, setFulfillment] = useState<'pickup' | 'delivery' | ''>('')
 
   const onTurnstileToken = useCallback((t: string) => setTurnstileToken(t), [])
 
@@ -157,20 +158,6 @@ export function FuneralsCheckoutForm({ applicationId, locationId, sdkUrl, arrang
         <Field label={t.email} name="email" type="email" required />
       </div>
       <Field label={t.phone} name="phone" type="tel" required />
-      <Field label={t.funeralDate} name="funeral_date" type="date" hint={t.funeralDateHint} required />
-      <Field label={t.funeralLocation} name="funeral_location" type="text" hint={t.funeralLocationHint} />
-
-      <div className="flex flex-col gap-2">
-        <label className="font-sans text-xs uppercase tracking-widest font-semibold">{t.fulfillment} *</label>
-        <div className="flex gap-4">
-          <label className="flex items-center gap-2 font-sans text-sm cursor-pointer">
-            <input type="checkbox" name="fulfillment" value="pickup" className="accent-purple" /> {t.pickUp}
-          </label>
-          <label className="flex items-center gap-2 font-sans text-sm cursor-pointer">
-            <input type="checkbox" name="fulfillment" value="delivery" className="accent-purple" /> {t.delivery}
-          </label>
-        </div>
-      </div>
 
       <div className="flex flex-col gap-2">
         <label className="font-sans text-xs uppercase tracking-widest font-semibold">{t.arrangement} *</label>
@@ -187,6 +174,7 @@ export function FuneralsCheckoutForm({ applicationId, locationId, sdkUrl, arrang
               {a.name} — ${a.price.toFixed(2)}{a.soldOut ? ' — Sold out' : ''}
             </option>
           ))}
+          <option value="custom">Custom Arrangement (Inquire for pricing)</option>
         </select>
       </div>
 
@@ -210,6 +198,31 @@ export function FuneralsCheckoutForm({ applicationId, locationId, sdkUrl, arrang
           </div>
         )}
       </div>
+
+      <div className="flex flex-col gap-2">
+        <label className="font-sans text-xs uppercase tracking-widest font-semibold">{t.fulfillment} *</label>
+        <div className="flex gap-4">
+          <label className="flex items-center gap-2 font-sans text-sm cursor-pointer">
+            <input type="radio" name="fulfillment" value="pickup" className="accent-purple"
+              checked={fulfillment === 'pickup'}
+              onChange={() => setFulfillment('pickup')}
+            /> {t.pickUp}
+          </label>
+          <label className="flex items-center gap-2 font-sans text-sm cursor-pointer">
+            <input type="radio" name="fulfillment" value="delivery" className="accent-purple"
+              checked={fulfillment === 'delivery'}
+              onChange={() => setFulfillment('delivery')}
+            /> {t.delivery}
+          </label>
+        </div>
+      </div>
+
+      {fulfillment !== 'pickup' && fulfillment !== '' && (
+        <>
+          <Field label={t.funeralDate} name="funeral_date" type="date" hint={t.funeralDateHint} required />
+          <Field label={t.funeralLocation} name="funeral_location" type="text" hint={t.funeralLocationHint} />
+        </>
+      )}
 
       <div className="flex flex-col gap-2">
         <label className="font-sans text-xs uppercase tracking-widest font-semibold">Card Details</label>
@@ -250,7 +263,7 @@ export function FuneralsCheckoutForm({ applicationId, locationId, sdkUrl, arrang
       <button
         type="submit"
         disabled={!sdkReady || submitting || !selected}
-        className="self-start font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-10 py-3 hover:bg-foreground hover:text-background transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        className="self-start font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-10 py-3 hover:bg-orange-500 hover:border-[#E6E6FA] hover:text-[#E6E6FA] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
       >
         {submitting ? 'Processing…' : selected ? `${t.submit} — $${total.toFixed(2)}` : t.submit}
       </button>
