@@ -4,15 +4,14 @@ import { z } from 'zod'
 import { SquareError } from 'square'
 import type { OrderLineItem } from 'square'
 import { getSquareClient, LOCATION_ID } from '@/app/lib/square'
-import { getCatalogItem } from '@/app/lib/catalog'
+import { getCatalogItemsByCategory } from '@/app/lib/catalog'
 import { sendMail } from '@/app/lib/email'
 import { escapeHtml, emailSchema, nameSchema, phoneSchema, textSchema } from '@/app/lib/validate'
 import { verifyTurnstile } from '@/app/lib/turnstile'
 import { appendToCustomerList } from '@/app/lib/sheets'
-import { appendToCustomerList } from '@/app/lib/sheets'
 
-const MD_ITEM_ID = 'WL4TWQBDVWNCTN2O3QJWJ6Z3'
-const CARD_VARIATION_ID = '6Y6ABIYXJAA72P7FTXAV7OB4'
+const MD_CATEGORY = "Mother's Day"
+const CARD_CATEGORY = 'Card Add-On'
 const DELIVERY_PRICE = 10
 const CARD_PRICE = 4
 
@@ -52,9 +51,10 @@ export async function POST(request: Request) {
 
   const { token, name, email, phone, fulfillment, address, delivery_time, variationId, arrangementName, card_to, card_message, subscribe_to_news } = body
 
-  // Validate that variationId actually belongs to the Mother's Day item
-  const mdItem = await getCatalogItem(MD_ITEM_ID, 'en')
-  const validVariation = mdItem?.variations.find((v) => v.variationId === variationId)
+  const mdItems = await getCatalogItemsByCategory(MD_CATEGORY, 'en')
+  const validVariation = mdItems
+    .flatMap((item) => item.variations)
+    .find((v) => v.variationId === variationId)
   if (!validVariation) {
     return NextResponse.json({ error: 'Invalid arrangement selection.' }, { status: 400 })
   }
@@ -81,13 +81,26 @@ export async function POST(request: Request) {
   }
 
   if (hasCard) {
-    lineItems.push({
-      quantity: '1',
-      catalogObjectId: CARD_VARIATION_ID,
-      ...(card_to || card_message
-        ? { note: [card_to && `To: ${card_to}`, card_message].filter(Boolean).join(' — ') }
-        : {}),
-    })
+    const cardItems = await getCatalogItemsByCategory(CARD_CATEGORY, 'en')
+    const cardVariationId = cardItems[0]?.variations[0]?.variationId
+    if (cardVariationId) {
+      lineItems.push({
+        quantity: '1',
+        catalogObjectId: cardVariationId,
+        ...(card_to || card_message
+          ? { note: [card_to && `To: ${card_to}`, card_message].filter(Boolean).join(' — ') }
+          : {}),
+      })
+    } else {
+      lineItems.push({
+        quantity: '1',
+        name: 'Greeting Card',
+        basePriceMoney: { amount: BigInt(CARD_PRICE * 100), currency: 'CAD' as const },
+        ...(card_to || card_message
+          ? { note: [card_to && `To: ${card_to}`, card_message].filter(Boolean).join(' — ') }
+          : {}),
+      })
+    }
   }
 
   const client = getSquareClient()

@@ -4,17 +4,13 @@ import { randomUUID } from 'crypto'
 import { z } from 'zod'
 import { SquareError } from 'square'
 import { parseCart, serializeCart, cartTotal } from '@/app/lib/cart'
-import { getSquareClient, LOCATION_ID, PRODUCT_VARIATION_MAP } from '@/app/lib/square'
-
-// Square variation IDs are 24–26 char uppercase alphanumeric strings
-function isSquareVariationId(s: string) {
-  return /^[A-Z0-9]{20,30}$/.test(s)
-}
+import { getSquareClient, LOCATION_ID } from '@/app/lib/square'
 import { sendMail } from '@/app/lib/email'
 import { escapeHtml, emailSchema, nameSchema } from '@/app/lib/validate'
 import { verifyTurnstile } from '@/app/lib/turnstile'
 import { appendToCustomerList } from '@/app/lib/sheets'
-import { appendToCustomerList } from '@/app/lib/sheets'
+
+const SQUARE_VARIATION_ID = /^[A-Z0-9]{20,30}$/
 
 const COOKIE_NAME = 'cart'
 
@@ -60,22 +56,17 @@ export async function POST(request: Request) {
   const client = getSquareClient()
 
   try {
-    // Build order line items, splitting into catalog and custom line items
     const lineItems = cart.items.map((item) => {
-      // productId is either a Square variation ID directly, or a legacy key in PRODUCT_VARIATION_MAP
-      const variationId = isSquareVariationId(item.productId)
-        ? item.productId
-        : PRODUCT_VARIATION_MAP[item.productId]
+      const note =
+        Object.keys(item.options ?? {}).length > 0
+          ? Object.entries(item.options!).map(([k, v]) => `${k}: ${v}`).join(', ')
+          : undefined
 
-      if (variationId) {
+      if (SQUARE_VARIATION_ID.test(item.productId)) {
         return {
           quantity: String(item.quantity),
-          catalogObjectId: variationId,
-          ...(Object.keys(item.options ?? {}).length > 0 && {
-            note: Object.entries(item.options!)
-              .map(([k, v]) => `${k}: ${v}`)
-              .join(', '),
-          }),
+          catalogObjectId: item.productId,
+          ...(note && { note }),
         }
       }
 
@@ -86,11 +77,7 @@ export async function POST(request: Request) {
           amount: BigInt(Math.round(item.price * 100)),
           currency: 'CAD' as const,
         },
-        ...(Object.keys(item.options ?? {}).length > 0 && {
-          note: Object.entries(item.options!)
-            .map(([k, v]) => `${k}: ${v}`)
-            .join(', '),
-        }),
+        ...(note && { note }),
       }
     })
 

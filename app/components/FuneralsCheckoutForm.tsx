@@ -4,17 +4,20 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { TurnstileWidget } from '@/app/components/TurnstileWidget'
 
-const ARRANGEMENT_PRICES: Record<string, number> = {
-  small: 80,
-  medium: 120,
-  large: 160,
-}
 const CARD_PRICE = 4
+
+export type SympathyArrangement = {
+  variationId: string
+  name: string
+  price: number
+  soldOut: boolean
+}
 
 type Props = {
   applicationId: string
   locationId: string
   sdkUrl: string
+  arrangements: SympathyArrangement[]
   t: {
     name: string
     email: string
@@ -28,7 +31,6 @@ type Props = {
     delivery: string
     arrangement: string
     arrangementPlaceholder: string
-    arrangements: { label: string; value: string }[]
     styleNotes: string
     card: string
     cardRecipient: string
@@ -37,19 +39,20 @@ type Props = {
   }
 }
 
-export function FuneralsCheckoutForm({ applicationId, locationId, sdkUrl, t }: Props) {
+export function FuneralsCheckoutForm({ applicationId, locationId, sdkUrl, arrangements, t }: Props) {
   const router = useRouter()
   const cardRef = useRef<any>(null)
   const [sdkReady, setSdkReady] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [arrangement, setArrangement] = useState('')
+  const [selectedId, setSelectedId] = useState('')
   const [showCard, setShowCard] = useState(false)
   const [turnstileToken, setTurnstileToken] = useState('')
 
   const onTurnstileToken = useCallback((t: string) => setTurnstileToken(t), [])
 
-  const arrangementPrice = ARRANGEMENT_PRICES[arrangement] ?? 0
+  const selected = arrangements.find((a) => a.variationId === selectedId)
+  const arrangementPrice = selected?.price ?? 0
   const total = arrangementPrice + (showCard ? CARD_PRICE : 0)
 
   useEffect(() => {
@@ -84,7 +87,7 @@ export function FuneralsCheckoutForm({ applicationId, locationId, sdkUrl, t }: P
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    if (!cardRef.current || !arrangement) return
+    if (!cardRef.current || !selected) return
     setError(null)
     setSubmitting(true)
 
@@ -106,7 +109,8 @@ export function FuneralsCheckoutForm({ applicationId, locationId, sdkUrl, t }: P
       funeral_date: data.get('funeral_date') as string,
       funeral_location: data.get('funeral_location') as string,
       fulfillment: data.getAll('fulfillment'),
-      arrangement: data.get('arrangement') as string,
+      variationId: selected.variationId,
+      arrangementName: selected.name,
       style_notes: data.get('style_notes') as string,
       card_name: data.get('card_name') as string,
       card_message: data.get('card_message') as string,
@@ -159,13 +163,15 @@ export function FuneralsCheckoutForm({ applicationId, locationId, sdkUrl, t }: P
         <select
           name="arrangement"
           required
-          value={arrangement}
-          onChange={(e) => setArrangement(e.target.value)}
+          value={selectedId}
+          onChange={(e) => setSelectedId(e.target.value)}
           className="border-2 border-foreground bg-background font-sans text-sm px-4 py-3 focus:outline-none focus:border-purple appearance-none"
         >
           <option value="">{t.arrangementPlaceholder}</option>
-          {t.arrangements.map(({ label, value }) => (
-            <option key={value} value={value}>{label}</option>
+          {arrangements.map((a) => (
+            <option key={a.variationId} value={a.variationId} disabled={a.soldOut}>
+              {a.name} — ${a.price.toFixed(2)}{a.soldOut ? ' — Sold out' : ''}
+            </option>
           ))}
         </select>
       </div>
@@ -206,10 +212,10 @@ export function FuneralsCheckoutForm({ applicationId, locationId, sdkUrl, t }: P
         <p className="font-sans text-sm text-red-600 border-2 border-red-200 bg-red-50 px-4 py-3">{error}</p>
       )}
 
-      {arrangement && (
+      {selected && (
         <div className="border-t-2 border-foreground/10 pt-4 flex flex-col gap-1">
           <div className="flex justify-between font-sans text-sm text-foreground/60">
-            <span>{t.arrangements.find((a) => a.value === arrangement)?.label.split(' —')[0]}</span>
+            <span>{selected.name}</span>
             <span>${arrangementPrice.toFixed(2)}</span>
           </div>
           {showCard && (
@@ -229,10 +235,10 @@ export function FuneralsCheckoutForm({ applicationId, locationId, sdkUrl, t }: P
 
       <button
         type="submit"
-        disabled={!sdkReady || submitting || !arrangement}
+        disabled={!sdkReady || submitting || !selected}
         className="self-start font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-10 py-3 hover:bg-foreground hover:text-background transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
       >
-        {submitting ? 'Processing…' : arrangement ? `${t.submit} — $${total.toFixed(2)}` : t.submit}
+        {submitting ? 'Processing…' : selected ? `${t.submit} — $${total.toFixed(2)}` : t.submit}
       </button>
     </form>
   )

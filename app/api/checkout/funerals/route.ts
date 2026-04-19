@@ -4,32 +4,31 @@ import { z } from 'zod'
 import { SquareError } from 'square'
 import type { OrderLineItem } from 'square'
 import { getSquareClient, LOCATION_ID } from '@/app/lib/square'
+import { getCatalogItemsByCategory } from '@/app/lib/catalog'
 import { sendMail } from '@/app/lib/email'
 import { escapeHtml, emailSchema, nameSchema, phoneSchema, dateSchema, textSchema } from '@/app/lib/validate'
 import { verifyTurnstile } from '@/app/lib/turnstile'
 import { appendToCustomerList } from '@/app/lib/sheets'
 
-const ARRANGEMENT_PRICES: Record<string, { label: string; price: number }> = {
-  small:  { label: 'Small Vase Arrangement',  price: 80  },
-  medium: { label: 'Medium Vase Arrangement', price: 120 },
-  large:  { label: 'Large Vase Arrangement',  price: 160 },
-}
+const SYMPATHY_CATEGORY = 'Sympathy'
+const CARD_CATEGORY = 'Card Add-On'
 const CARD_ADDON_PRICE = 4
 
 const bodySchema = z.object({
-  token:           z.string().min(1).max(512),
-  name:            nameSchema,
-  email:           emailSchema,
-  phone:           phoneSchema,
-  funeral_date:    dateSchema,
+  token:            z.string().min(1).max(512),
+  name:             nameSchema,
+  email:            emailSchema,
+  phone:            phoneSchema,
+  funeral_date:     dateSchema,
   funeral_location: textSchema.optional(),
-  fulfillment:     z.union([z.string(), z.array(z.string())]).optional(),
-  arrangement:     z.enum(['small', 'medium', 'large']),
-  style_notes:     textSchema.optional(),
-  card_name:       textSchema.optional(),
-  card_message:    textSchema.optional(),
-  turnstile:       z.string().optional(),
-  website:         z.string().max(0, 'Honeypot').optional(),
+  fulfillment:      z.union([z.string(), z.array(z.string())]).optional(),
+  variationId:      z.string().min(1).max(64),
+  arrangementName:  z.string().min(1).max(255),
+  style_notes:      textSchema.optional(),
+  card_name:        textSchema.optional(),
+  card_message:     textSchema.optional(),
+  turnstile:        z.string().optional(),
+  website:          z.string().max(0, 'Honeypot').optional(),
 })
 
 export async function POST(request: Request) {
@@ -49,29 +48,49 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Bot verification failed. Please try again.' }, { status: 403 })
   }
 
-  const { token, name, email, phone, funeral_date, funeral_location, fulfillment, arrangement, style_notes, card_name, card_message } = body
-  const arrangementInfo = ARRANGEMENT_PRICES[arrangement]
+  const { token, name, email, phone, funeral_date, funeral_location, fulfillment, variationId, arrangementName, style_notes, card_name, card_message } = body
+
+  const sympathyItems = await getCatalogItemsByCategory(SYMPATHY_CATEGORY, 'en')
+  const validVariation = sympathyItems
+    .flatMap((item) => item.variations)
+    .find((v) => v.variationId === variationId)
+  if (!validVariation) {
+    return NextResponse.json({ error: 'Invalid arrangement selection.' }, { status: 400 })
+  }
+
+  const arrangementPrice = Number(validVariation.priceMoney) / 100
   const hasCard = !!(card_name || card_message)
-  const total = arrangementInfo.price + (hasCard ? CARD_ADDON_PRICE : 0)
+  const total = arrangementPrice + (hasCard ? CARD_ADDON_PRICE : 0)
 
   const lineItems: OrderLineItem[] = [
     {
       quantity: '1',
-      name: arrangementInfo.label,
-      basePriceMoney: { amount: BigInt(arrangementInfo.price * 100), currency: 'CAD' as const },
+      catalogObjectId: variationId,
       ...(style_notes ? { note: style_notes } : {}),
     },
   ]
 
   if (hasCard) {
-    lineItems.push({
-      quantity: '1',
-      name: 'Greeting Card',
-      basePriceMoney: { amount: BigInt(CARD_ADDON_PRICE * 100), currency: 'CAD' as const },
-      ...(card_name || card_message
-        ? { note: [card_name && `To: ${card_name}`, card_message].filter(Boolean).join(' — ') }
-        : {}),
-    })
+    const cardItems = await getCatalogItemsByCategory(CARD_CATEGORY, 'en')
+    const cardVariationId = cardItems[0]?.variations[0]?.variationId
+    if (cardVariationId) {
+      lineItems.push({
+        quantity: '1',
+        catalogObjectId: cardVariationId,
+        ...(card_name || card_message
+          ? { note: [card_name && `To: ${card_name}`, card_message].filter(Boolean).join(' — ') }
+          : {}),
+      })
+    } else {
+      lineItems.push({
+        quantity: '1',
+        name: 'Greeting Card',
+        basePriceMoney: { amount: BigInt(CARD_ADDON_PRICE * 100), currency: 'CAD' as const },
+        ...(card_name || card_message
+          ? { note: [card_name && `To: ${card_name}`, card_message].filter(Boolean).join(' — ') }
+          : {}),
+      })
+    }
   }
 
   const client = getSquareClient()
@@ -121,7 +140,7 @@ export async function POST(request: Request) {
         <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Funeral Date</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${sDate}</td></tr>
         ${sLoc ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Location</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${sLoc}</td></tr>` : ''}
         <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Fulfillment</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${fulfillmentList.join(', ') || '—'}</td></tr>
-        <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Arrangement</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${arrangementInfo.label} — $${arrangementInfo.price.toFixed(2)}</td></tr>
+        <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Arrangement</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${escapeHtml(arrangementName)} — $${arrangementPrice.toFixed(2)}</td></tr>
         ${hasCard ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Card</td><td style="padding:6px 12px;border-bottom:1px solid #eee">To: ${sCardName || '—'}<br/>${sCardMsg}</td></tr>` : ''}
         ${sNotes ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Style Notes</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${sNotes}</td></tr>` : ''}
         <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Total Paid</td><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:700">$${total.toFixed(2)} CAD</td></tr>
@@ -137,7 +156,7 @@ export async function POST(request: Request) {
         </p>
         <h2 style="font-size:16px;font-weight:700;margin-top:32px;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em">Order Summary</h2>
         <table style="font-size:14px;border-collapse:collapse;width:100%">
-          <tr><td style="padding:6px 12px;border-bottom:1px solid #eee">${arrangementInfo.label}</td><td style="padding:6px 12px;border-bottom:1px solid #eee;text-align:right">$${arrangementInfo.price.toFixed(2)}</td></tr>
+          <tr><td style="padding:6px 12px;border-bottom:1px solid #eee">${escapeHtml(arrangementName)}</td><td style="padding:6px 12px;border-bottom:1px solid #eee;text-align:right">$${arrangementPrice.toFixed(2)}</td></tr>
           ${hasCard ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee">Greeting Card</td><td style="padding:6px 12px;border-bottom:1px solid #eee;text-align:right">$${CARD_ADDON_PRICE.toFixed(2)}</td></tr>` : ''}
           <tr><td style="padding:6px 12px;font-weight:700">Total</td><td style="padding:6px 12px;font-weight:700;text-align:right">$${total.toFixed(2)} CAD</td></tr>
         </table>

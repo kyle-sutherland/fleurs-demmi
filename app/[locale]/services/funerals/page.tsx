@@ -1,6 +1,12 @@
 import SiteHeader from "@/app/components/SiteHeader";
-import { FuneralsCheckoutForm } from "@/app/components/FuneralsCheckoutForm";
+import { FuneralsCheckoutForm, type SympathyArrangement } from "@/app/components/FuneralsCheckoutForm";
 import { getDictionary } from "@/lib/i18n";
+import { getCatalogItemsByCategory } from "@/app/lib/catalog";
+import { getInventoryByVariationId } from "@/app/lib/inventory";
+
+export const revalidate = 3600
+
+const SYMPATHY_CATEGORY = "Sympathy"
 
 export default async function FuneralsPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -11,6 +17,19 @@ export default async function FuneralsPage({ params }: { params: Promise<{ local
     process.env.SQUARE_ENVIRONMENT === 'production'
       ? 'https://web.squarecdn.com/v1/square.js'
       : 'https://sandbox.web.squarecdn.com/v1/square.js'
+
+  const items = await getCatalogItemsByCategory(SYMPATHY_CATEGORY, locale)
+  const variationIds = items.flatMap((item) => item.variations.map((v) => v.variationId))
+  const inventory = variationIds.length > 0 ? await getInventoryByVariationId(variationIds) : {}
+
+  const arrangements: SympathyArrangement[] = items.flatMap((item) =>
+    item.variations.map((v) => ({
+      variationId: v.variationId,
+      name: v.name,
+      price: Number(v.priceMoney) / 100,
+      soldOut: inventory[v.variationId] === 0,
+    }))
+  )
 
   return (
     <div className="flex flex-col flex-1">
@@ -37,6 +56,7 @@ export default async function FuneralsPage({ params }: { params: Promise<{ local
             applicationId={process.env.NEXT_PUBLIC_SQUARE_APPLICATION_ID!}
             locationId={process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID!}
             sdkUrl={sdkUrl}
+            arrangements={arrangements}
             t={f.form}
           />
         </section>

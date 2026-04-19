@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 type Props = {
-  tierId: string
+  variationId: string
   tierLabel: string
   tierPrice: number
   tierBouquets: number
@@ -17,7 +17,7 @@ type Props = {
 }
 
 export function BouquetSubscribeButton({
-  tierId,
+  variationId,
   tierLabel,
   tierPrice,
   tierBouquets,
@@ -40,12 +40,11 @@ export function BouquetSubscribeButton({
   async function handleClick() {
     setState('adding')
 
-    // Add the subscription itself
     await fetch('/api/cart', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        productId: `subscription-${tierId}`,
+        productId: variationId,
         name: tierLabel,
         price: tierPrice,
         quantity: 1,
@@ -55,13 +54,12 @@ export function BouquetSubscribeButton({
       }),
     })
 
-    // Add delivery surcharge if applicable
     if (isDelivery) {
       await fetch('/api/cart', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          productId: `delivery-surcharge-${tierId}`,
+          productId: `delivery-surcharge:${variationId}`,
           name: 'Home Delivery',
           price: 10 * tierBouquets,
           quantity: 1,

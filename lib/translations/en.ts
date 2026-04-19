@@ -132,11 +132,6 @@ export const en = {
       delivery: "Delivery",
       arrangement: "Arrangement",
       arrangementPlaceholder: "Select an option\u2026",
-      arrangements: [
-        { label: "Small vase arrangement \u2014 $80", value: "small" },
-        { label: "Medium vase arrangement \u2014 $120", value: "medium" },
-        { label: "Large vase arrangement \u2014 $160", value: "large" },
-      ],
       styleNotes: "Notes on Style / Colour",
       card: "Card ($4) \u2014 optional",
       cardRecipient: "Indicate name of those receiving.",

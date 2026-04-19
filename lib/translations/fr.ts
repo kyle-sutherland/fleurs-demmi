@@ -134,11 +134,6 @@ export const fr: Dictionary = {
       delivery: "Livraison",
       arrangement: "Arrangement",
       arrangementPlaceholder: "S\u00e9lectionnez une option\u2026",
-      arrangements: [
-        { label: "Petit arrangement en vase \u2014 80\u00a0$", value: "small" },
-        { label: "Arrangement moyen en vase \u2014 120\u00a0$", value: "medium" },
-        { label: "Grand arrangement en vase \u2014 160\u00a0$", value: "large" },
-      ],
       styleNotes: "Notes sur le style / la couleur",
       card: "Carte (4\u00a0$) \u2014 optionnel",
       cardRecipient: "Indiquer le nom du destinataire.",

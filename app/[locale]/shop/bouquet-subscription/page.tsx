@@ -59,7 +59,7 @@ export default async function BouquetSubscriptionPage({ params }: { params: Prom
                   </div>
 
                   <BouquetSubscribeButton
-                    tierId={variation.variationId}
+                    variationId={variation.variationId}
                     tierLabel={variation.name}
                     tierPrice={price}
                     tierBouquets={variation.bouquets ?? 1}
