@@ -23,9 +23,10 @@ type Props = {
   locationId: string
   sdkUrl: string
   total: number
+  subscribeLabel: string
 }
 
-export function CheckoutForm({ applicationId, locationId, sdkUrl, total }: Props) {
+export function CheckoutForm({ applicationId, locationId, sdkUrl, total, subscribeLabel }: Props) {
   const router = useRouter()
   const cardRef = useRef<SquareCard | null>(null)
   const [sdkReady, setSdkReady] = useState(false)
@@ -140,7 +141,7 @@ export function CheckoutForm({ applicationId, locationId, sdkUrl, total }: Props
           onChange={(e) => setSubscribeToNews(e.target.checked)}
           className="accent-purple"
         />
-        Subscribe to our newsletter
+        {subscribeLabel}
       </label>
 
       <TurnstileWidget onToken={onTurnstileToken} />

@@ -21,6 +21,8 @@ type Props = {
     styleNotes: string
     additionalInfo: string
     images: string
+    imagesNote: string
+    subscribeLabel: string
     submit: string
   }
 }
@@ -141,7 +143,7 @@ export function WeddingsForm({ t }: Props) {
       <div className="flex flex-col gap-1">
         <label className="font-sans text-xs uppercase tracking-widest font-semibold">{t.images}</label>
         <input type="file" name="images" multiple accept="image/*" className="font-sans text-sm file:mr-4 file:py-2 file:px-4 file:border-2 file:border-foreground file:bg-transparent file:font-sans file:font-semibold file:text-xs file:uppercase file:tracking-widest cursor-pointer" />
-        <p className="font-sans text-xs text-foreground/40 mt-1">Image attachments are not sent with this form — you can share them during your consultation.</p>
+        <p className="font-sans text-xs text-foreground/40 mt-1">{t.imagesNote}</p>
       </div>
 
       {error && (
@@ -155,7 +157,7 @@ export function WeddingsForm({ t }: Props) {
           onChange={(e) => setSubscribeToNews(e.target.checked)}
           className="accent-purple"
         />
-        Subscribe to our newsletter
+        {t.subscribeLabel}
       </label>
 
       <TurnstileWidget onToken={onTurnstileToken} />

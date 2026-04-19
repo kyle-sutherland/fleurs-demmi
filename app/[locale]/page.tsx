@@ -71,6 +71,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
             label={t.home.products.cards.label}
             sublabel={t.home.products.cards.sublabel}
             bg="bg-purple/15"
+            image="/card.jpg"
           />
         </div>
 

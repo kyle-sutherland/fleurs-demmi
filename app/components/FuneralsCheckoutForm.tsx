@@ -59,16 +59,21 @@ export function FuneralsCheckoutForm({ applicationId, locationId, sdkUrl, arrang
   const [sdkReady, setSdkReady] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [selectedId, setSelectedId] = useState('')
+  const [selectedIds, setSelectedIds] = useState<string[]>([])
   const [showCard, setShowCard] = useState(false)
   const [turnstileToken, setTurnstileToken] = useState('')
   const [fulfillment, setFulfillment] = useState<'pickup' | 'delivery' | ''>('')
 
   const onTurnstileToken = useCallback((t: string) => setTurnstileToken(t), [])
 
-  const selected = arrangements.find((a) => a.variationId === selectedId)
-  const arrangementPrice = selected?.price ?? 0
+  const selectedArrangements = arrangements.filter((a) => selectedIds.includes(a.variationId))
+  const hasCustom = selectedIds.includes('custom')
+  const arrangementPrice = selectedArrangements.reduce((sum, a) => sum + a.price, 0)
   const total = arrangementPrice + (showCard ? CARD_PRICE : 0)
+
+  function toggleId(id: string) {
+    setSelectedIds((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id])
+  }
 
   useEffect(() => {
     let cancelled = false
@@ -102,7 +107,7 @@ export function FuneralsCheckoutForm({ applicationId, locationId, sdkUrl, arrang
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    if (!cardRef.current || !selected) return
+    if (!cardRef.current || (selectedIds.length === 0)) return
     setError(null)
     setSubmitting(true)
 
@@ -124,8 +129,8 @@ export function FuneralsCheckoutForm({ applicationId, locationId, sdkUrl, arrang
       funeral_date: data.get('funeral_date') as string,
       funeral_location: data.get('funeral_location') as string,
       fulfillment: data.getAll('fulfillment'),
-      variationId: selected.variationId,
-      arrangementName: selected.name,
+      variationIds: selectedIds,
+      arrangementNames: selectedArrangements.map((a) => a.name).concat(hasCustom ? ['Custom Arrangement'] : []),
       style_notes: data.get('style_notes') as string,
       card_name: data.get('card_name') as string,
       card_message: data.get('card_message') as string,
@@ -161,21 +166,29 @@ export function FuneralsCheckoutForm({ applicationId, locationId, sdkUrl, arrang
 
       <div className="flex flex-col gap-2">
         <label className="font-sans text-xs uppercase tracking-widest font-semibold">{t.arrangement} *</label>
-        <select
-          name="arrangement"
-          required
-          value={selectedId}
-          onChange={(e) => setSelectedId(e.target.value)}
-          className="border-2 border-foreground bg-background font-sans text-sm px-4 py-3 focus:outline-none focus:border-purple appearance-none"
-        >
-          <option value="">{t.arrangementPlaceholder}</option>
+        <div className="flex flex-col gap-3">
           {arrangements.map((a) => (
-            <option key={a.variationId} value={a.variationId} disabled={a.soldOut}>
-              {a.name} — ${a.price.toFixed(2)}{a.soldOut ? ' — Sold out' : ''}
-            </option>
+            <label key={a.variationId} className={`flex items-center gap-3 font-sans text-sm cursor-pointer ${a.soldOut ? 'opacity-40 cursor-not-allowed' : ''}`}>
+              <input
+                type="checkbox"
+                className="accent-purple"
+                checked={selectedIds.includes(a.variationId)}
+                disabled={a.soldOut}
+                onChange={() => toggleId(a.variationId)}
+              />
+              <span className="capitalize">{a.name} — ${a.price.toFixed(2)}{a.soldOut ? ' — Sold out' : ''}</span>
+            </label>
           ))}
-          <option value="custom">Custom Arrangement (Inquire for pricing)</option>
-        </select>
+          <label className="flex items-center gap-3 font-sans text-sm cursor-pointer">
+            <input
+              type="checkbox"
+              className="accent-purple"
+              checked={selectedIds.includes('custom')}
+              onChange={() => toggleId('custom')}
+            />
+            <span>Custom Arrangement — Inquire for pricing</span>
+          </label>
+        </div>
       </div>
 
       <Textarea label={t.styleNotes} name="style_notes" rows={3} />
@@ -239,22 +252,32 @@ export function FuneralsCheckoutForm({ applicationId, locationId, sdkUrl, arrang
         <p className="font-sans text-sm text-red-600 border-2 border-red-200 bg-red-50 px-4 py-3">{error}</p>
       )}
 
-      {selected && (
+      {(selectedIds.length > 0 || showCard) && (
         <div className="border-t-2 border-foreground/10 pt-4 flex flex-col gap-1">
-          <div className="flex justify-between font-sans text-sm text-foreground/60">
-            <span>{selected.name}</span>
-            <span>${arrangementPrice.toFixed(2)}</span>
-          </div>
+          {selectedArrangements.map((a) => (
+            <div key={a.variationId} className="flex justify-between font-sans text-sm text-foreground/60">
+              <span>{a.name}</span>
+              <span>${a.price.toFixed(2)}</span>
+            </div>
+          ))}
+          {hasCustom && (
+            <div className="flex justify-between font-sans text-sm text-foreground/60">
+              <span>Custom Arrangement</span>
+              <span>TBD</span>
+            </div>
+          )}
           {showCard && (
             <div className="flex justify-between font-sans text-sm text-foreground/60">
               <span>Greeting card</span>
               <span>${CARD_PRICE.toFixed(2)}</span>
             </div>
           )}
-          <div className="flex justify-between font-display font-black text-lg mt-2">
-            <span>Total</span>
-            <span>${total.toFixed(2)} CAD</span>
-          </div>
+          {!hasCustom && (
+            <div className="flex justify-between font-display font-black text-lg mt-2">
+              <span>Total</span>
+              <span>${total.toFixed(2)} CAD</span>
+            </div>
+          )}
         </div>
       )}
 
@@ -262,10 +285,10 @@ export function FuneralsCheckoutForm({ applicationId, locationId, sdkUrl, arrang
 
       <button
         type="submit"
-        disabled={!sdkReady || submitting || !selected}
+        disabled={!sdkReady || submitting || selectedIds.length === 0}
         className="self-start font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-10 py-3 hover:bg-orange-500 hover:border-[#E6E6FA] hover:text-[#E6E6FA] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
       >
-        {submitting ? 'Processing…' : selected ? `${t.submit} — $${total.toFixed(2)}` : t.submit}
+        {submitting ? 'Processing…' : selectedIds.length > 0 && !hasCustom ? `${t.submit} — $${total.toFixed(2)}` : t.submit}
       </button>
     </form>
   )

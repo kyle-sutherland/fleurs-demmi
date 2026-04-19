@@ -48,6 +48,7 @@ type Props = {
     card: string
     cardName: string
     cardMessage: string
+    subscribeLabel: string
     submit: string
   }
 }
@@ -278,7 +279,7 @@ export function MothersDayCheckoutForm({ applicationId, locationId, sdkUrl, arra
           onChange={(e) => setSubscribeToNews(e.target.checked)}
           className="accent-purple"
         />
-        Subscribe to our newsletter
+        {t.subscribeLabel}
       </label>
 
       <TurnstileWidget onToken={onTurnstileToken} />

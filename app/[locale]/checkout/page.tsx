@@ -3,6 +3,7 @@ import { cookies } from 'next/headers'
 import SiteHeader from '@/app/components/SiteHeader'
 import { CheckoutForm } from '@/app/components/CheckoutForm'
 import { parseCart, cartTotal, type CartItem } from '@/app/lib/cart'
+import { getDictionary } from '@/lib/i18n'
 
 export const metadata = {
   title: "Checkout — Fleurs d'Emmi",
@@ -14,6 +15,7 @@ export default async function CheckoutPage({
   params: Promise<{ locale: string }>
 }) {
   const { locale } = await params
+  const t = getDictionary(locale)
   const cookieStore = await cookies()
   const cart = parseCart(cookieStore.get('cart')?.value)
 
@@ -40,6 +42,7 @@ export default async function CheckoutPage({
               locationId={process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID!}
               sdkUrl={sdkUrl}
               total={cartTotal(cart)}
+              subscribeLabel={t.footer.subscribeLabel}
             />
           </div>
 
