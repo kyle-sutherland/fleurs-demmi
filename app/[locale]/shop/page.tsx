@@ -34,6 +34,7 @@ export default async function ShopPage({ params }: { params: Promise<{ locale: s
       name: t.shop.products.cards.label,
       desc: t.shop.products.cards.sublabel,
       href: `/${locale}/shop/cards`,
+      image: "/card.jpg",
     },
   ];
 

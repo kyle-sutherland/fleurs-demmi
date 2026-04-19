@@ -1,5 +1,6 @@
 import SiteHeader from "@/app/components/SiteHeader";
 import { MothersDayCheckoutForm, type MDArrangement } from "@/app/components/MothersDayCheckoutForm";
+import ScallopedPhoto from "@/app/components/ScallopedPhoto";
 import { getDictionary } from "@/lib/i18n";
 import { getCatalogItemsByCategory } from "@/app/lib/catalog";
 import { getInventoryByVariationId } from "@/app/lib/inventory";
@@ -39,15 +40,11 @@ export default async function MothersDayPage({ params }: { params: Promise<{ loc
         <h1 className="font-display font-black text-[10.4vw] md:text-[5.5vw] leading-none">
           {m.heading.split("\n").map((line, i) => <span key={i}>{line}{i === 0 && <br />}</span>)}
         </h1>
-
         <p className="font-sans text-base mt-6 max-w-xl text-foreground/80 leading-relaxed">{m.intro}</p>
 
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/Flower Photos/mother_flower.jpg"
-          alt="Mother's Day flowers"
-          className="mt-8 max-w-2xl w-full h-auto"
-        />
+        <div className="mt-8 max-w-2xl w-full">
+          <ScallopedPhoto src="/Flower Photos/mother_flower.jpg" alt="Mother's Day flowers" />
+        </div>
 
         <section className="mt-12 max-w-2xl">
           <MothersDayCheckoutForm

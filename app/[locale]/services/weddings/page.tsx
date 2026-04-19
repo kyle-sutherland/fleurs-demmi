@@ -12,7 +12,7 @@ export default async function WeddingsPage({ params }: { params: Promise<{ local
     <div className="flex flex-col flex-1">
       <SiteHeader locale={locale} active="services" />
 
-      <main className="mx-12 md:w-[80%] md:mx-auto mt-10 md:mt-16">
+      <main className="mx-12 md:mx-32 mt-10 md:mt-16">
         <h1 className="font-display font-black text-[10.4vw] md:text-[6vw] leading-none">
           {w.heading.split("\n").map((line, i) => <span key={i}>{line}{i === 0 && <br />}</span>)}
         </h1>

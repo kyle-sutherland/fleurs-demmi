@@ -15,7 +15,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         {/* Hero */}
         <div className="relative mt-4 md:mt-16">
           <h1 className="relative z-10 font-display font-black text-foreground text-[13vw] md:text-[11vw] leading-none text-center pb-0 px-[3.75rem] md:px-2 mb-12 md:mb-0">
-            fleurs d&apos;emmi
+            Fleurs D&apos;Emmi
           </h1>
           <div className="clip-bowtie relative mx-12 md:mx-32 aspect-square -mt-[12vw] md:-mt-[6vw]">
             <Image
@@ -33,7 +33,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         <div className="flex justify-center mt-0 md:-mt-4">
           <Link
             href={`/${locale}/shop`}
-            className="font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-10 py-3 hover:bg-foreground hover:text-background transition-colors"
+            className="font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-10 py-3 hover:bg-orange-500 hover:border-[#E6E6FA] hover:text-[#E6E6FA] transition-colors"
           >
             {t.home.shopNow}
           </Link>

@@ -1,3 +1,4 @@
+import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import SiteHeader from "@/app/components/SiteHeader";
@@ -28,15 +29,33 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
         </div>
 
         <div className="mx-12 md:mx-32 mt-12 md:mt-16 max-w-2xl md:max-w-none">
-          {t.about.paragraphs.map((para, i) => (
-            <p key={i} className="font-sans text-base leading-relaxed text-foreground/80 mt-6 first:mt-0">
-              {para}
-            </p>
-          ))}
+          {t.about.paragraphs.map((para, i) => {
+            let content: React.ReactNode = para;
+            if (i === 0) {
+              const withBold = para.split("Emily Gray");
+              if (withBold.length > 1) {
+                const withItalic = withBold[0].split("fleurs d\u2019emmi");
+                content = (
+                  <>
+                    {withItalic.length > 1 ? (
+                      <><em>fleurs d&apos;emmi</em>{withItalic[1]}</>
+                    ) : withBold[0]}
+                    <strong>Emily Gray</strong>
+                    {withBold[1]}
+                  </>
+                );
+              }
+            }
+            return (
+              <p key={i} className="font-sans text-base leading-relaxed text-foreground/80 mt-6 first:mt-0">
+                {content}
+              </p>
+            );
+          })}
           <div className="flex gap-4 mt-10">
             <Link
               href={`/${locale}/shop`}
-              className="font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-8 py-3 hover:bg-foreground hover:text-background transition-colors"
+              className="font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-8 py-3 hover:bg-orange-500 hover:border-[#E6E6FA] hover:text-[#E6E6FA] transition-colors"
             >
               {t.about.shopBtn}
             </Link>
