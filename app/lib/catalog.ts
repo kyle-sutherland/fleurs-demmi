@@ -61,38 +61,38 @@ export async function getCatalogItemsByCategory(
 ): Promise<CatalogProduct[]> {
   const client = getSquareClient()
 
-  // Find the category ID by name
-  const catRes = await client.catalog.search({ objectTypes: ['CATEGORY'] })
-  const category = (catRes.objects ?? []).find(
-    (o) => 'categoryData' in o && o.categoryData?.name === categoryName
-  )
-  if (!category?.id) return []
+  try {
+    // Find the category ID by name
+    const catRes = await client.catalog.search({ objectTypes: ['CATEGORY'] })
+    const category = (catRes.objects ?? []).find(
+      (o) => 'categoryData' in o && o.categoryData?.name === categoryName
+    )
+    if (!category?.id) return []
 
-  // Search items belonging to that category
-  const searchRes = await client.catalog.searchItems({ categoryIds: [category.id] })
-  const itemIds = (searchRes.items ?? [])
-    .map((i) => i.id)
-    .filter((id): id is string => !!id)
-  if (!itemIds.length) return []
+    // Search items belonging to that category
+    const searchRes = await client.catalog.searchItems({ categoryIds: [category.id] })
+    const itemIds = (searchRes.items ?? [])
+      .map((i) => i.id)
+      .filter((id): id is string => !!id)
+    if (!itemIds.length) return []
 
-  // Fetch full objects with related images
-  const res = await client.catalog.batchGet({ objectIds: itemIds, includeRelatedObjects: true })
+    // Fetch full objects with related images
+    const res = await client.catalog.batchGet({ objectIds: itemIds, includeRelatedObjects: true })
 
-  if (res.errors?.length) {
-    console.error('Catalog fetch error:', res.errors)
+    const imageUrlMap = new Map<string, string>()
+    for (const obj of res.relatedObjects ?? []) {
+      if (obj.type === 'IMAGE' && 'imageData' in obj && obj.imageData?.url && obj.id) {
+        imageUrlMap.set(obj.id, obj.imageData.url)
+      }
+    }
+
+    return (res.objects ?? [])
+      .filter((obj): obj is CatalogObject => obj.type === 'ITEM' && !obj.isDeleted)
+      .map((obj) => buildProduct(obj, locale, imageUrlMap))
+  } catch (err) {
+    console.error(`getCatalogItemsByCategory(${categoryName}) failed:`, err)
     return []
   }
-
-  const imageUrlMap = new Map<string, string>()
-  for (const obj of res.relatedObjects ?? []) {
-    if (obj.type === 'IMAGE' && 'imageData' in obj && obj.imageData?.url && obj.id) {
-      imageUrlMap.set(obj.id, obj.imageData.url)
-    }
-  }
-
-  return (res.objects ?? [])
-    .filter((obj): obj is CatalogObject => obj.type === 'ITEM' && !obj.isDeleted)
-    .map((obj) => buildProduct(obj, locale, imageUrlMap))
 }
 
 export async function getCatalogItem(
