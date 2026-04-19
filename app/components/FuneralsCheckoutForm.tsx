@@ -4,6 +4,20 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { TurnstileWidget } from '@/app/components/TurnstileWidget'
 
+interface SquareCard {
+  attach(selector: string): Promise<void>
+  tokenize(): Promise<{ status: string; token?: string; errors?: Array<{ message: string }> }>
+  destroy(): void
+}
+
+declare global {
+  interface Window {
+    Square?: {
+      payments(appId: string, locationId: string): Promise<{ card(): Promise<SquareCard> }>
+    }
+  }
+}
+
 const CARD_PRICE = 4
 
 export type SympathyArrangement = {
@@ -41,7 +55,7 @@ type Props = {
 
 export function FuneralsCheckoutForm({ applicationId, locationId, sdkUrl, arrangements, t }: Props) {
   const router = useRouter()
-  const cardRef = useRef<any>(null)
+  const cardRef = useRef<SquareCard | null>(null)
   const [sdkReady, setSdkReady] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -63,7 +77,7 @@ export function FuneralsCheckoutForm({ applicationId, locationId, sdkUrl, arrang
     script.onload = async () => {
       if (cancelled) return
       try {
-        const payments = await (window as any).Square.payments(applicationId, locationId)
+        const payments = await window.Square!.payments(applicationId, locationId)
         if (cancelled) return
         const card = await payments.card()
         if (cancelled) return

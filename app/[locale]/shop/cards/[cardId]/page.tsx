@@ -1,29 +1,33 @@
-"use client";
-
-import Image from "next/image";
 import Link from "next/link";
-import { use } from "react";
 import SiteHeader from "@/app/components/SiteHeader";
+import { VaseSlideshow } from "@/app/[locale]/shop/vases/[vaseId]/VaseSlideshow";
 import { AddToCartButton } from "@/app/components/AddToCartButton";
+import { getCatalogItem } from "@/app/lib/catalog";
+import { getInventoryByVariationId } from "@/app/lib/inventory";
 
-const cardItems: Record<string, { title: Record<string, string>; description: Record<string, string>; price: number; src: string }> = {
-  "1": {
-    title: { en: "Candy Flowers Gift Card", fr: "Carte cadeau Candy Flowers" },
-    description: { en: "Blank inside", fr: "Intérieur vierge" },
-    price: 4,
-    src: "/card.jpg",
-  },
-};
+export const revalidate = 3600
 
-export default function CardDetailPage({
+export default async function CardDetailPage({
   params,
 }: {
   params: Promise<{ locale: string; cardId: string }>;
 }) {
-  const { locale, cardId } = use(params);
-  const card = cardItems[cardId];
+  const { locale, cardId } = await params;
 
-  if (!card) {
+  const card = await getCatalogItem(cardId, locale);
+  const variation = card?.variations[0];
+
+  const inventory = variation ? await getInventoryByVariationId([variation.variationId]) : {};
+  const stockCount = variation ? (inventory[variation.variationId] ?? null) : null;
+
+  const price = variation ? Number(variation.priceMoney) / 100 : 0;
+  const slides = card && card.imageUrls.length > 0
+    ? card.imageUrls.map((src) => ({ src }))
+    : [];
+
+  const backLabel = locale === "fr" ? "← Retour" : "← Back";
+
+  if (!card || !variation) {
     return (
       <div className="flex flex-col flex-1">
         <SiteHeader locale={locale} active="shop" />
@@ -36,12 +40,6 @@ export default function CardDetailPage({
       </div>
     );
   }
-
-  const title = card.title[locale] ?? card.title.en;
-  const description = card.description[locale] ?? card.description.en;
-  const addLabel = locale === "fr" ? "Ajouter au panier" : "Add to Cart";
-  const backLabel = locale === "fr" ? "← Retour" : "← Back";
-  const paymentSoon = locale === "fr" ? "Intégration de paiement à venir" : "Payment integration coming soon";
 
   return (
     <div className="flex flex-col flex-1">
@@ -56,33 +54,22 @@ export default function CardDetailPage({
         </Link>
 
         <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-start">
-          {/* Image */}
-          <div className="relative aspect-square w-full overflow-hidden bg-purple/10">
-            <Image
-              src={card.src}
-              alt={title}
-              fill
-              className="object-cover object-center"
-              priority
-            />
-          </div>
+          <VaseSlideshow slides={slides} title={card.name} />
 
-          {/* Info */}
           <div className="flex flex-col gap-4">
             <h1 className="font-display font-black text-[8.8vw] md:text-[3vw] leading-none">
-              {title}
+              {card.name}
             </h1>
-            <p className="font-sans text-sm text-foreground/60 uppercase tracking-widest">
-              {description}
-            </p>
-            <p className="font-display font-black text-2xl">${card.price}.00</p>
+            {card.description && (
+              <p className="font-sans text-sm text-foreground/60 uppercase tracking-widest">
+                {card.description}
+              </p>
+            )}
+            <p className="font-display font-black text-2xl">${price}.00</p>
             <AddToCartButton
-              item={{ productId: `card-${cardId}`, name: title, price: card.price, quantity: 1 }}
-              label={addLabel}
+              item={{ productId: variation.variationId, name: card.name, price, quantity: 1 }}
+              stockCount={stockCount}
             />
-            <div className="mt-2 p-4 border-2 border-dashed border-foreground/30 font-sans text-sm text-foreground/50 text-center">
-              {paymentSoon}
-            </div>
           </div>
         </div>
       </main>

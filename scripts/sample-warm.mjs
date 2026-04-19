@@ -3,7 +3,7 @@ import { resolve } from 'path';
 
 async function findWarmTones(filename) {
   const img = sharp(resolve('public/Flower Photos/' + filename));
-  const { width, height, channels } = await img.metadata();
+  const { channels } = await img.metadata();
   const raw = await img.raw().toBuffer();
   const ch = channels ?? 3;
 

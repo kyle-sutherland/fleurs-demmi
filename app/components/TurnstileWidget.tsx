@@ -2,6 +2,18 @@
 
 import { useEffect, useRef } from 'react'
 
+interface TurnstileInstance {
+  render(container: HTMLElement, options: Record<string, unknown>): string
+  reset(widgetId: string): void
+  remove(widgetId: string): void
+}
+
+declare global {
+  interface Window {
+    turnstile?: TurnstileInstance
+  }
+}
+
 type Props = {
   onToken: (token: string) => void
   onError?: () => void
@@ -31,7 +43,7 @@ export function TurnstileWidget({ onToken, onError }: Props) {
       if (cancelled || !containerRef.current) return
       if (widgetId.current !== null) return // already rendered
 
-      const turnstile = (window as any).turnstile
+      const turnstile = window.turnstile
       if (!turnstile) return
 
       widgetId.current = turnstile.render(containerRef.current, {
@@ -46,12 +58,12 @@ export function TurnstileWidget({ onToken, onError }: Props) {
         'expired-callback': () => {
           // Reset token so it's re-verified on next submit
           if (!cancelled) onToken('')
-          widgetId.current && (window as any).turnstile?.reset(widgetId.current)
+          if (widgetId.current) window.turnstile?.reset(widgetId.current)
         },
       })
     }
 
-    if ((window as any).turnstile) {
+    if (window.turnstile) {
       renderWidget()
     } else {
       const script = document.createElement('script')
@@ -64,7 +76,7 @@ export function TurnstileWidget({ onToken, onError }: Props) {
       return () => {
         cancelled = true
         if (widgetId.current !== null) {
-          ;(window as any).turnstile?.remove(widgetId.current)
+          ;window.turnstile?.remove(widgetId.current)
           widgetId.current = null
         }
         if (document.head.contains(script)) document.head.removeChild(script)
@@ -74,7 +86,7 @@ export function TurnstileWidget({ onToken, onError }: Props) {
     return () => {
       cancelled = true
       if (widgetId.current !== null) {
-        ;(window as any).turnstile?.remove(widgetId.current)
+        ;window.turnstile?.remove(widgetId.current)
         widgetId.current = null
       }
     }

@@ -121,22 +121,7 @@ async function upsertDefinitions() {
   return defs
 }
 
-// ── Step 2: Fetch current versions of all items/variations we need ────────────
-
-async function fetchVersions(ids: string[]) {
-  const res = await client.catalog.batchGet({ objectIds: ids, includeRelatedObjects: false })
-  if (res.errors?.length) {
-    console.error('Fetch errors:', res.errors)
-    process.exit(1)
-  }
-  const versions: Record<string, bigint> = {}
-  for (const obj of res.objects ?? []) {
-    if (obj.id && obj.version != null) versions[obj.id] = obj.version
-  }
-  return versions
-}
-
-// ── Step 3: Upsert attribute values onto items and variations ─────────────────
+// ── Step 2: Upsert attribute values onto items and variations ────────────────
 // Strategy: fetch each object fully, merge custom attributes, then re-upsert
 // the complete object so Square doesn't complain about missing required fields.
 
@@ -219,10 +204,10 @@ async function seedValues() {
   // Items — merge item-level attrs; also merge any variation-level attrs into
   // the nested variation objects inside itemData so they travel together.
   for (const [id, attrs] of Object.entries(ITEM_ATTRS)) {
-    const orig = fetched.get(id) as any
+    const orig = fetched.get(id)
     if (!orig) { console.warn(`Item ${id} not found, skipping`); continue }
 
-    const variations = orig.itemData?.variations?.map((v: any) => {
+    const variations = orig.itemData?.variations?.map((v) => {
       const vAttrs = VARIATION_ATTRS[v.id]
       return vAttrs ? mergeAttrs(v, vAttrs) : v
     })

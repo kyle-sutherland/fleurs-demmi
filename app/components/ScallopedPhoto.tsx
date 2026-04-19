@@ -1,7 +1,7 @@
 export default function ScallopedPhoto({ src, alt }: { src: string; alt: string }) {
   return (
     <div className="mt-8 md:mt-0 w-full mx-auto md:mx-0">
-      <svg viewBox="-12 -12 124 124" style={{ display: "block", width: "100%", height: "auto" }}>
+      <svg viewBox="-12 -12 124 124" role="img" aria-label={alt} style={{ display: "block", width: "100%", height: "auto" }}>
         <image
           href={src}
           x="0" y="0" width="100" height="100"

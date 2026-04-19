@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import SiteHeader from "@/app/components/SiteHeader";
 import { getDictionary } from "@/lib/i18n";
 import { getCatalogItemsByCategory } from "@/app/lib/catalog";
@@ -38,17 +39,23 @@ export default async function CardsPage({ params }: { params: Promise<{ locale: 
               const price = Number(item.variations[0]?.priceMoney ?? 0) / 100
               const imageUrl = item.imageUrls[0]
               return (
-                <div key={item.id} className="flex flex-col gap-2">
+                <Link key={item.id} href={`/${locale}/shop/cards/${item.id}`} className="group flex flex-col">
                   <div className="relative aspect-square bg-purple/10 overflow-hidden">
                     {imageUrl ? (
-                      <Image src={imageUrl} alt={item.name} fill sizes="(max-width: 768px) 50vw, 25vw" className="object-cover" />
+                      <Image src={imageUrl} alt={item.name} fill sizes="(max-width: 768px) 50vw, 25vw" className="object-cover group-hover:scale-105 transition-transform duration-300" />
                     ) : (
                       <div className="w-full h-full bg-foreground/5" />
                     )}
+                    <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/40 transition-colors duration-300 flex flex-col items-center justify-center gap-1">
+                      <span className="font-display font-black text-background text-lg leading-tight opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-center px-4">
+                        {item.name}
+                      </span>
+                      <span className="font-sans text-background text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        ${price}
+                      </span>
+                    </div>
                   </div>
-                  <p className="font-display font-black text-base leading-tight">{item.name}</p>
-                  <p className="font-display font-black text-sm text-foreground/60">${price}.00</p>
-                </div>
+                </Link>
               )
             })}
           </div>

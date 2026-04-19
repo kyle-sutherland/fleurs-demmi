@@ -4,6 +4,20 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { TurnstileWidget } from '@/app/components/TurnstileWidget'
 
+interface SquareCard {
+  attach(selector: string): Promise<void>
+  tokenize(): Promise<{ status: string; token?: string; errors?: Array<{ message: string }> }>
+  destroy(): void
+}
+
+declare global {
+  interface Window {
+    Square?: {
+      payments(appId: string, locationId: string): Promise<{ card(): Promise<SquareCard> }>
+    }
+  }
+}
+
 type Props = {
   applicationId: string
   locationId: string
@@ -13,7 +27,7 @@ type Props = {
 
 export function CheckoutForm({ applicationId, locationId, sdkUrl, total }: Props) {
   const router = useRouter()
-  const cardRef = useRef<any>(null)
+  const cardRef = useRef<SquareCard | null>(null)
   const [sdkReady, setSdkReady] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -30,7 +44,7 @@ export function CheckoutForm({ applicationId, locationId, sdkUrl, total }: Props
     script.onload = async () => {
       if (cancelled) return
       try {
-        const payments = await (window as any).Square.payments(applicationId, locationId)
+        const payments = await window.Square!.payments(applicationId, locationId)
         if (cancelled) return
         const card = await payments.card()
         if (cancelled) return
