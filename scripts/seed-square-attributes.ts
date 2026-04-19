@@ -204,11 +204,12 @@ async function seedValues() {
   // Items — merge item-level attrs; also merge any variation-level attrs into
   // the nested variation objects inside itemData so they travel together.
   for (const [id, attrs] of Object.entries(ITEM_ATTRS)) {
-    const orig = fetched.get(id)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const orig = fetched.get(id) as any
     if (!orig) { console.warn(`Item ${id} not found, skipping`); continue }
 
-    const variations = orig.itemData?.variations?.map((v) => {
-      const vAttrs = VARIATION_ATTRS[v.id]
+    const variations = orig.itemData?.variations?.map((v: CatalogObject) => {
+      const vAttrs = v.id ? VARIATION_ATTRS[v.id] : undefined
       return vAttrs ? mergeAttrs(v, vAttrs) : v
     })
 
