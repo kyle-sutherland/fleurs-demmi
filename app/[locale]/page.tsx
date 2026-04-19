@@ -22,6 +22,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
               src="/Flower Photos/HOME.jpg"
               alt="Fleurs d'Emmi hero"
               fill
+              sizes="100vw"
               className="object-cover object-center scale-[1.08]"
               priority
             />
@@ -132,7 +133,7 @@ function ProductCard({
   return (
     <Link href={href} className="group flex flex-col overflow-hidden border-2 border-foreground/10 hover:border-foreground/30 transition-colors">
       <div className={`${bg} aspect-[4/3] w-full relative`}>
-        {image && <Image src={image} alt={label} fill className="object-cover" style={imageStyle} />}
+        {image && <Image src={image} alt={label} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" style={imageStyle} />}
       </div>
       <div className="p-5">
         <p className="font-display font-black text-xl md:text-2xl leading-tight group-hover:underline">{label}</p>
@@ -151,7 +152,7 @@ function ServiceCard({
     <Link href={href} className="group flex flex-col overflow-hidden border-2 border-foreground/10 hover:border-foreground/30 transition-colors">
       {image && (
         <div className="relative aspect-[4/3] w-full overflow-hidden">
-          <Image src={image} alt={label} fill className={`object-cover ${imagePosition ?? "object-center"} ${imageClass ?? ""}`} />
+          <Image src={image} alt={label} fill sizes="(max-width: 768px) 100vw, 50vw" className={`object-cover ${imagePosition ?? "object-center"} ${imageClass ?? ""}`} />
         </div>
       )}
       <div className="flex flex-col gap-3 p-6">

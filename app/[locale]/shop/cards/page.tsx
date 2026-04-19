@@ -41,7 +41,7 @@ export default async function CardsPage({ params }: { params: Promise<{ locale: 
                 <div key={item.id} className="flex flex-col gap-2">
                   <div className="relative aspect-square bg-purple/10 overflow-hidden">
                     {imageUrl ? (
-                      <Image src={imageUrl} alt={item.name} fill className="object-cover" />
+                      <Image src={imageUrl} alt={item.name} fill sizes="(max-width: 768px) 50vw, 25vw" className="object-cover" />
                     ) : (
                       <div className="w-full h-full bg-foreground/5" />
                     )}

@@ -29,6 +29,7 @@ export default function BouquetSlideshow({ className }: { className?: string }) 
         src={photos[index]}
         alt={`Bouquet ${index + 1}`}
         fill
+        sizes="(max-width: 768px) 100vw, 420px"
         className="object-cover"
       />
       <button

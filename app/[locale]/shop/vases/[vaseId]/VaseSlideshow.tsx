@@ -17,6 +17,7 @@ export function VaseSlideshow({ slides, title }: { slides: Slide[]; title: strin
           src={slides[index].src}
           alt={`${title} — photo ${index + 1}`}
           fill
+          sizes="(max-width: 768px) 100vw, 50vw"
           className={`${slides[index].fit ?? 'object-cover'} transition-opacity duration-300 ${slides[index].position ?? 'object-center'}`}
           priority
         />

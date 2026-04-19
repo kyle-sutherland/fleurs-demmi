@@ -38,6 +38,7 @@ export default async function VasesPage({ params }: { params: Promise<{ locale: 
                       src={imageUrl}
                       alt={vase.name}
                       fill
+                      sizes="(max-width: 768px) 50vw, 25vw"
                       className="object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                   ) : (

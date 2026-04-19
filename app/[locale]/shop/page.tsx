@@ -51,7 +51,7 @@ export default async function ShopPage({ params }: { params: Promise<{ locale: s
             <Link key={p.id} href={p.href} className="group flex flex-col overflow-hidden border-2 border-foreground/10 hover:border-foreground/30 transition-colors">
               <div className="relative aspect-[4/3] w-full bg-purple/20">
                 {p.image && (
-                  <Image src={p.image} alt={p.name} fill className="object-cover object-center" />
+                  <Image src={p.image} alt={p.name} fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover object-center" />
                 )}
               </div>
               <div className="p-5">

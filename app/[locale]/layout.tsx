@@ -21,7 +21,7 @@ export default async function LocaleLayout({
       {children}
       <div className="mx-12 md:mx-32 mt-16 md:mt-24">
         <div className="w-1/2 md:w-80 aspect-square relative overflow-hidden">
-          <Image src="/Flower Photos/contact.jpg" alt="Flowers" fill className="object-cover object-center" />
+          <Image src="/Flower Photos/contact.jpg" alt="Flowers" fill sizes="(max-width: 768px) 50vw, 320px" className="object-cover object-center" />
         </div>
       </div>
       <footer id="contact">

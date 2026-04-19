@@ -19,7 +19,7 @@ export default async function ServicesPage({ params }: { params: Promise<{ local
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
           <Link href={`/${locale}/services/weddings`} className="group flex flex-col overflow-hidden border-2 border-foreground/10 hover:border-foreground/30 transition-colors">
             <div className="relative aspect-[4/3] bg-purple/20 overflow-hidden">
-              <Image src="/Flower Photos/Wedding Flowers 3.jpg" alt={t.services.weddings.label.replace("\n", " ")} fill className="object-cover object-top" />
+              <Image src="/Flower Photos/Wedding Flowers 3.jpg" alt={t.services.weddings.label.replace("\n", " ")} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover object-top" />
             </div>
             <div className="p-6">
               <p className="font-display font-black text-2xl md:text-3xl leading-tight group-hover:underline">
@@ -36,7 +36,7 @@ export default async function ServicesPage({ params }: { params: Promise<{ local
 
           <Link href={`/${locale}/services/funerals`} className="group flex flex-col overflow-hidden border-2 border-foreground/10 hover:border-foreground/30 transition-colors">
             <div className="relative aspect-[4/3] bg-foreground/5 overflow-hidden">
-              <Image src="/Flower Photos/sympathy.jpeg" alt={t.services.sympathy.label.replace("\n", " ")} fill className="object-cover object-center scale-[1.5625] [filter:brightness(1.0)_contrast(1.04)_saturate(1.15)_sepia(0.18)]" />
+              <Image src="/Flower Photos/sympathy.jpeg" alt={t.services.sympathy.label.replace("\n", " ")} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover object-center scale-[1.5625] [filter:brightness(1.0)_contrast(1.04)_saturate(1.15)_sepia(0.18)]" />
             </div>
             <div className="p-6">
               <p className="font-display font-black text-2xl md:text-3xl leading-tight group-hover:underline">
