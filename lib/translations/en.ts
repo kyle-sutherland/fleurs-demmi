@@ -133,7 +133,7 @@ export const en = {
       arrangementPlaceholder: "Select an option\u2026",
       styleNotes: "Notes on Style / Colour",
       card: "$4 Card with note",
-      cardName: "To:",
+      cardRecipient: "To:",
       cardMessage: "Message:",
       paymentSoon: "Payment integration coming soon",
       submit: "Place Order",

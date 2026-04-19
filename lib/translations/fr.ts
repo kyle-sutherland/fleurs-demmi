@@ -135,7 +135,7 @@ export const fr: Dictionary = {
       arrangementPlaceholder: "S\u00e9lectionnez une option\u2026",
       styleNotes: "Notes sur le style / la couleur",
       card: "Carte 4\u00a0$ avec note",
-      cardName: "À :",
+      cardRecipient: "À :",
       cardMessage: "Message :",
       paymentSoon: "Int\u00e9gration de paiement \u00e0 venir",
       submit: "Passer la commande",
