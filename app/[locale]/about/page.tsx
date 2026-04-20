@@ -19,7 +19,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
           </h1>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 mt-8 mx-12 md:mx-32">
+        <div className="grid grid-cols-2 gap-4 mt-8 mx-12 md:mx-32 md:w-[80%]">
           <div className="relative aspect-[3/4]">
             <Image src="/60c13257-cae1-486f-b37a-683c0594416b.jpeg" alt="Emily Gray with flower cart" fill sizes="(max-width: 768px) 50vw, 33vw" className="object-cover" priority />
           </div>
@@ -61,7 +61,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
             </Link>
             <Link
               href={`/${locale}/services`}
-              className="font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground/30 text-foreground px-8 py-3 hover:border-foreground transition-colors"
+              className="font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-8 py-3 hover:bg-orange-500 hover:border-[#E6E6FA] hover:text-[#E6E6FA] transition-colors"
             >
               {t.about.servicesBtn}
             </Link>

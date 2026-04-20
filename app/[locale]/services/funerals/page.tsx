@@ -36,7 +36,7 @@ export default async function FuneralsPage({ params }: { params: Promise<{ local
         </h1>
         <p className="font-sans text-base mt-6 max-w-xl text-foreground/80 leading-relaxed">{f.intro}</p>
 
-        <div className="mt-8 max-w-2xl w-full border-[24px] border-[#E6E6FA]">
+        <div className="mt-8 max-w-2xl md:max-w-[58.8rem] w-full border-[24px] border-[#E6E6FA]">
           <div className="overflow-hidden">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -49,7 +49,7 @@ export default async function FuneralsPage({ params }: { params: Promise<{ local
 
         <section className="mt-12 max-w-2xl md:max-w-7xl">
           <h2 className="font-display font-black text-2xl md:text-3xl">{f.form.heading}</h2>
-          <p className="font-sans text-xs mt-2 text-foreground/50">{f.form.hint}</p>
+          <p className="font-sans text-base mt-2 text-foreground/50">{f.form.hint}</p>
 
           <FuneralsForm
             arrangements={arrangements}

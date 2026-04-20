@@ -97,7 +97,7 @@ export function BouquetSubscribeButton({
         type="button"
         onClick={handleClick}
         disabled={soldOut || state === 'adding'}
-        className="self-start font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-4 py-2 hover:bg-foreground hover:text-background transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className="self-start font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-4 py-2 hover:bg-orange-500 hover:border-[#E6E6FA] hover:text-[#E6E6FA] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {soldOut ? 'Sold Out' : state === 'adding' ? 'Adding…' : state === 'added' ? 'Added!' : `${subscribeBtn}${total}.00`}
       </button>

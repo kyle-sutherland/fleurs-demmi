@@ -21,6 +21,8 @@ type Props = {
     styleNotes: string
     additionalInfo: string
     images: string
+    imagesNote: string
+    subscribeLabel: string
     submit: string
   }
 }
@@ -29,10 +31,9 @@ export function WeddingsForm({ t }: Props) {
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [fulfillment, setFulfillment] = useState<'pickup' | 'delivery' | ''>('')
   const [subscribeToNews, setSubscribeToNews] = useState(false)
   const [turnstileToken, setTurnstileToken] = useState('')
-  const [fulfillment, setFulfillment] = useState('pickup')
-
 
   const onTurnstileToken = useCallback((t: string) => setTurnstileToken(t), [])
 
@@ -69,6 +70,7 @@ export function WeddingsForm({ t }: Props) {
       if (!res.ok) {
         const d = await res.json()
         setError(d.error ?? 'Something went wrong. Please try again.')
+      
         setSubmitting(false)
         return
       }
@@ -111,7 +113,7 @@ export function WeddingsForm({ t }: Props) {
               type="radio"
               name="fulfillment"
               value="pickup"
-              checked={t.fulfillment === 'pickup'}
+              checked={fulfillment === 'pickup'}
               onChange={() => setFulfillment('pickup')}
               className="accent-purple"
             />
@@ -122,7 +124,7 @@ export function WeddingsForm({ t }: Props) {
               type="radio"
               name="fulfillment"
               value="delivery"
-              checked={t.fulfillment === 'delivery'}
+              checked={fulfillment === 'delivery'}
               onChange={() => setFulfillment('delivery')}
               className="accent-purple"
             />
@@ -131,7 +133,7 @@ export function WeddingsForm({ t }: Props) {
         </div>
       </div>
 
-      <Field label={t.eventLocation} name="event_location" type="text" hint={t.eventLocationHint} />
+      {fulfillment !== 'pickup' && <Field label={t.eventLocation} name="event_location" type="text" hint={t.eventLocationHint} />}
       <Field label={t.guestCount} name="guest_count" type="text" />
 
       <div className="flex flex-col gap-1">
@@ -152,7 +154,7 @@ export function WeddingsForm({ t }: Props) {
       <div className="flex flex-col gap-1">
         <label className="font-sans text-xs uppercase tracking-widest font-semibold">{t.images}</label>
         <input type="file" name="images" multiple accept="image/*" className="font-sans text-sm file:mr-4 file:py-2 file:px-4 file:border-2 file:border-foreground file:bg-transparent file:font-sans file:font-semibold file:text-xs file:uppercase file:tracking-widest cursor-pointer" />
-        <p className="font-sans text-xs text-foreground/40 mt-1">Image attachments are not sent with this form — you can share them during your consultation.</p>
+        <p className="font-sans text-xs text-foreground/40 mt-1">{t.imagesNote}</p>
       </div>
 
       {error && (
@@ -166,7 +168,7 @@ export function WeddingsForm({ t }: Props) {
           onChange={(e) => setSubscribeToNews(e.target.checked)}
           className="accent-purple"
         />
-        Subscribe to our newsletter
+        {t.subscribeLabel}
       </label>
 
       <TurnstileWidget onToken={onTurnstileToken} />
@@ -174,7 +176,7 @@ export function WeddingsForm({ t }: Props) {
       <button
         type="submit"
         disabled={submitting}
-        className="self-start font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-10 py-3 hover:bg-foreground hover:text-background transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        className="self-start font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-10 py-3 hover:bg-orange-500 hover:border-[#E6E6FA] hover:text-[#E6E6FA] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
       >
         {submitting ? 'Sending…' : t.submit}
       </button>

@@ -48,6 +48,7 @@ type Props = {
     card: string
     cardName: string
     cardMessage: string
+    subscribeLabel: string
     submit: string
   }
 }
@@ -278,7 +279,7 @@ export function MothersDayCheckoutForm({ applicationId, locationId, sdkUrl, arra
           onChange={(e) => setSubscribeToNews(e.target.checked)}
           className="accent-purple"
         />
-        Subscribe to our newsletter
+        {t.subscribeLabel}
       </label>
 
       <TurnstileWidget onToken={onTurnstileToken} />
@@ -286,7 +287,7 @@ export function MothersDayCheckoutForm({ applicationId, locationId, sdkUrl, arra
       <button
         type="submit"
         disabled={!sdkReady || submitting || (selected?.soldOut ?? true)}
-        className="self-start font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-10 py-3 hover:bg-foreground hover:text-background transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        className="self-start font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-10 py-3 hover:bg-orange-500 hover:border-[#E6E6FA] hover:text-[#E6E6FA] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
       >
         {submitting ? 'Processing…' : `${t.submit} — $${total.toFixed(2)}`}
       </button>

@@ -37,17 +37,25 @@ export function FuneralsForm({ arrangements, t }: Props) {
   const [submitted, setSubmitted] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [selectedId, setSelectedId] = useState('')
+  const [selectedIds, setSelectedIds] = useState<string[]>([])
   const [showCard, setShowCard] = useState(false)
   const [turnstileToken, setTurnstileToken] = useState('')
   const [fulfillment, setFulfillment] = useState('pickup')
 
   const onTurnstileToken = useCallback((t: string) => setTurnstileToken(t), [])
 
-  const selected = arrangements.find((a) => a.variationId === selectedId)
+  const toggleId = (id: string) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    )
+  }
+
+  const selectedArrangements = arrangements.filter((a) => selectedIds.includes(a.variationId))
+  const hasCustom = selectedIds.includes('custom')
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
+    if (selectedIds.length === 0) return
     setError(null)
     setSubmitting(true)
 
@@ -61,7 +69,8 @@ export function FuneralsForm({ arrangements, t }: Props) {
       funeral_date: data.get('funeral_date') as string,
       funeral_location: data.get('funeral_location') as string,
       fulfillment,
-      arrangementName: selected?.name,
+      variationIds: selectedIds,
+      arrangementNames: selectedArrangements.map((a) => a.name).concat(hasCustom ? ['Custom Arrangement'] : []),
       style_notes: data.get('style_notes') as string,
       card_name: data.get('card_name') as string,
       card_message: data.get('card_message') as string,
@@ -142,20 +151,30 @@ export function FuneralsForm({ arrangements, t }: Props) {
       </div>
 
       <div className="flex flex-col gap-2">
-        <label className="font-sans text-xs uppercase tracking-widest font-semibold">{t.arrangement}</label>
-        <select
-          name="arrangement"
-          value={selectedId}
-          onChange={(e) => setSelectedId(e.target.value)}
-          className="border-2 border-foreground bg-background font-sans text-sm px-4 py-3 focus:outline-none focus:border-purple appearance-none"
-        >
-          <option value="">{t.arrangementPlaceholder}</option>
+        <label className="font-sans text-xs uppercase tracking-widest font-semibold">{t.arrangement} *</label>
+        <div className="flex flex-col gap-3">
           {arrangements.map((a) => (
-            <option key={a.variationId} value={a.variationId} disabled={a.soldOut}>
-              {a.name} — ${a.price.toFixed(2)}{a.soldOut ? ' — Sold out' : ''}
-            </option>
+            <label key={a.variationId} className={`flex items-center gap-3 font-sans text-sm cursor-pointer ${a.soldOut ? 'opacity-40 cursor-not-allowed' : ''}`}>
+              <input
+                type="checkbox"
+                className="accent-purple"
+                checked={selectedIds.includes(a.variationId)}
+                disabled={a.soldOut}
+                onChange={() => toggleId(a.variationId)}
+              />
+              <span className="capitalize">{a.name} — ${a.price.toFixed(2)}{a.soldOut ? ' — Sold out' : ''}</span>
+            </label>
           ))}
-        </select>
+          <label className="flex items-center gap-3 font-sans text-sm cursor-pointer">
+            <input
+              type="checkbox"
+              className="accent-purple"
+              checked={selectedIds.includes('custom')}
+              onChange={() => toggleId('custom')}
+            />
+            <span>Custom Arrangement — Inquire for pricing</span>
+          </label>
+        </div>
       </div>
 
       <Textarea label={t.styleNotes} name="style_notes" rows={3} />

@@ -14,10 +14,10 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       <main className="flex flex-col">
         {/* Hero */}
         <div className="relative mt-4 md:mt-16">
-          <h1 className="relative z-10 font-display font-black text-foreground text-[13vw] md:text-[11vw] leading-none text-center pb-0 px-[3.75rem] md:px-2 mb-12 md:mb-0">
+          <h1 className="relative z-10 font-display font-black text-foreground text-[13vw] md:text-[7.425vw] leading-none text-center pb-0 px-[3.75rem] md:px-2 mb-12 md:mb-0">
             Fleurs D&apos;Emmi
           </h1>
-          <div className="clip-bowtie relative mx-12 md:mx-32 aspect-square -mt-[12vw] md:-mt-[6vw]">
+          <div className="clip-bowtie relative mx-12 md:mx-auto md:w-[calc(67.5vw-10.8rem)] aspect-square -mt-[12vw] md:-mt-[4.05vw]">
             <Image
               src="/Flower Photos/HOME.jpg"
               alt="Fleurs d'Emmi hero"
@@ -71,6 +71,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
             label={t.home.products.cards.label}
             sublabel={t.home.products.cards.sublabel}
             bg="bg-purple/15"
+            image="/card.jpg"
           />
         </div>
 
@@ -131,7 +132,7 @@ function ProductCard({
   href: string; label: string; sublabel: string; bg: string; image?: string; imageStyle?: React.CSSProperties;
 }) {
   return (
-    <Link href={href} className="group flex flex-col overflow-hidden border-2 border-foreground/10 hover:border-foreground/30 transition-colors">
+    <Link href={href} className="group flex flex-col overflow-hidden border-2 border-foreground/10 transition-colors">
       <div className={`${bg} aspect-[4/3] w-full relative`}>
         {image && <Image src={image} alt={label} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" style={imageStyle} />}
       </div>
@@ -149,7 +150,7 @@ function ServiceCard({
   href: string; label: string; body: string; image?: string; imagePosition?: string; imageClass?: string;
 }) {
   return (
-    <Link href={href} className="group flex flex-col overflow-hidden border-2 border-foreground/10 hover:border-foreground/30 transition-colors">
+    <Link href={href} className="group flex flex-col overflow-hidden border-2 border-foreground/10 transition-colors">
       {image && (
         <div className="relative aspect-[4/3] w-full overflow-hidden">
           <Image src={image} alt={label} fill sizes="(max-width: 768px) 100vw, 50vw" className={`object-cover ${imagePosition ?? "object-center"} ${imageClass ?? ""}`} />

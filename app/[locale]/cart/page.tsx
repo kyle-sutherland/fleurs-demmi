@@ -32,7 +32,7 @@ export default async function CartPage({
             <p className="font-sans text-base text-foreground/60">Your cart is empty.</p>
             <Link
               href={`/${locale}/shop`}
-              className="self-start font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-8 py-3 hover:bg-foreground hover:text-background transition-colors"
+              className="self-start font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-8 py-3 hover:bg-orange-500 hover:border-[#E6E6FA] hover:text-[#E6E6FA] transition-colors"
             >
               Browse the Shop
             </Link>
@@ -83,7 +83,7 @@ export default async function CartPage({
 
               <Link
                 href="/checkout"
-                className="font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-8 py-3 text-center hover:bg-foreground hover:text-background transition-colors"
+                className="font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-8 py-3 text-center hover:bg-orange-500 hover:border-[#E6E6FA] hover:text-[#E6E6FA] transition-colors"
               >
                 Proceed to Checkout
               </Link>

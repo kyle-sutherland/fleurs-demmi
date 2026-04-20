@@ -23,9 +23,10 @@ type Props = {
   locationId: string
   sdkUrl: string
   total: number
+  subscribeLabel: string
 }
 
-export function CheckoutForm({ applicationId, locationId, sdkUrl, total }: Props) {
+export function CheckoutForm({ applicationId, locationId, sdkUrl, total, subscribeLabel }: Props) {
   const router = useRouter()
   const cardRef = useRef<SquareCard | null>(null)
   const [sdkReady, setSdkReady] = useState(false)
@@ -140,7 +141,7 @@ export function CheckoutForm({ applicationId, locationId, sdkUrl, total }: Props
           onChange={(e) => setSubscribeToNews(e.target.checked)}
           className="accent-purple"
         />
-        Subscribe to our newsletter
+        {subscribeLabel}
       </label>
 
       <TurnstileWidget onToken={onTurnstileToken} />
@@ -148,7 +149,7 @@ export function CheckoutForm({ applicationId, locationId, sdkUrl, total }: Props
       <button
         type="submit"
         disabled={!sdkReady || submitting}
-        className="self-start font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-10 py-3 hover:bg-foreground hover:text-background transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        className="self-start font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-10 py-3 hover:bg-orange-500 hover:border-[#E6E6FA] hover:text-[#E6E6FA] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
       >
         {submitting ? 'Processing…' : `Pay $${total.toFixed(2)}`}
       </button>
