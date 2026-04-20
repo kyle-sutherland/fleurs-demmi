@@ -4,14 +4,21 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { CartItem } from '@/app/lib/cart'
 
+type Labels = {
+  default: string
+  adding: string
+  added: string
+  soldOut: string
+}
+
 type Props = {
   item: Omit<CartItem, 'id'>
-  label?: string
+  labels: Labels
   className?: string
   stockCount?: number | null  // null = untracked, 0 = sold out, >0 = in stock
 }
 
-export function AddToCartButton({ item, label, className, stockCount }: Props) {
+export function AddToCartButton({ item, labels, className, stockCount }: Props) {
   const router = useRouter()
   const [state, setState] = useState<'idle' | 'adding' | 'added'>('idle')
 
@@ -34,12 +41,12 @@ export function AddToCartButton({ item, label, className, stockCount }: Props) {
     'self-start font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-8 py-3 hover:bg-foreground hover:text-background transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
 
   const buttonLabel = soldOut
-    ? 'Sold Out'
+    ? labels.soldOut
     : state === 'adding'
-    ? 'Adding…'
+    ? labels.adding
     : state === 'added'
-    ? 'Added!'
-    : (label ?? 'Add to Cart')
+    ? labels.added
+    : labels.default
 
   return (
     <div className="flex flex-col gap-2">

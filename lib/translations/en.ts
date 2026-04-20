@@ -1,4 +1,10 @@
 export const en = {
+  addToCart: {
+    default: "Add to Cart",
+    adding: "Adding…",
+    added: "Added!",
+    soldOut: "Sold Out",
+  },
   nav: {
     shop: "Shop",
     services: "Services",
@@ -136,18 +142,13 @@ export const en = {
       cardRecipient: "To:",
       cardMessage: "Message:",
       paymentSoon: "Payment integration coming soon",
-      submit: "Place Order",
+      submit: "Submit Request",
     },
   },
   bouquetSubscription: {
     heading: "Bouquet\nSubscription",
     intro:
       "Subscribe to regularly receive seasonal bouquet arrangements made with local flowers. Pick up on Saturdays at Caf\u00e9 Replika (252 Rue Rachel E, Montr\u00e9al) or D\u00e9panneur Le Pick-Up (7032 Rue Waverly) between 11am\u20134pm. Home delivery available for an extra $10.00 per bouquet.",
-    tiers: [
-      { id: "12weeks", label: "Bi-weekly bouquets for 12 weeks", dates: "May 23rd to Oct 24th", price: 350, available: 20, bouquets: 12 },
-      { id: "8weeks", label: "Bi-weekly bouquets for 8 weeks", dates: "June 20th to Sept 26th", price: 250, available: 20, bouquets: 8 },
-      { id: "monthly", label: "Monthly bouquets for 4 months", dates: "July 18th, Aug 29th, Sept 26th, Oct 24th", price: 150, available: 20, bouquets: 4 },
-    ],
     from: "From",
     available: "available",
     deliveryLabel: "Delivery option",
@@ -172,8 +173,6 @@ export const en = {
       deliveryTime: "Preferred Delivery Time",
       deliveryTimeHint: "e.g. Morning, Afternoon",
       arrangement: "Arrangement",
-      arrangement50: "$50 arrangement (in 490mL mason jar)",
-      arrangement75: "$75 arrangement (in 750mL mason jar)",
       card: "$4 Card with note",
       cardName: "To:",
       cardMessage: "Message:",
@@ -185,20 +184,18 @@ export const en = {
     heading: "Cards &\nGoodies",
     intro: "Little extras to complete your gift. Cards, small gifts, and seasonal surprises.",
     comingSoon: "Coming soon",
-    items: [
-      { id: 1, title: "Candy Flowers Gift Card", description: "Blank inside", price: 4 },
-    ],
+    back: "← Back",
+    backToCards: "← Back to Cards & Goodies",
+    notFound: "Item not found.",
   },
   vases: {
     heading: "Handmade &\nVintage Vases",
     intro: "Unique vessels for your home & floral arrangements. Find here our collection of locally handmade ceramics and vintage finds.",
     comingSoon: "Coming soon",
     oneOfAKind: "One-of-a-kind",
-    items: [
-      { id: 1, title: "Sgraffito Vase" },
-      { id: 2, title: "Butter Yellow Vase" },
-      { id: 3, title: "Seafoam Loop Vase" },
-    ],
+    back: "← Back",
+    backToVases: "← Back to Vases",
+    notFound: "Vase not found.",
   },
 };
 

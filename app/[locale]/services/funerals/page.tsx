@@ -1,5 +1,5 @@
 import SiteHeader from "@/app/components/SiteHeader";
-import { FuneralsCheckoutForm, type SympathyArrangement } from "@/app/components/FuneralsCheckoutForm";
+import { FuneralsForm, type SympathyArrangement } from "@/app/components/FuneralsForm";
 import { getDictionary } from "@/lib/i18n";
 import { getCatalogItemsByCategory } from "@/app/lib/catalog";
 import { getInventoryByVariationId } from "@/app/lib/inventory";
@@ -12,11 +12,6 @@ export default async function FuneralsPage({ params }: { params: Promise<{ local
   const { locale } = await params;
   const t = getDictionary(locale);
   const f = t.funerals;
-
-  const sdkUrl =
-    process.env.SQUARE_ENVIRONMENT === 'production'
-      ? 'https://web.squarecdn.com/v1/square.js'
-      : 'https://sandbox.web.squarecdn.com/v1/square.js'
 
   const items = await getCatalogItemsByCategory(SYMPATHY_CATEGORY, locale)
   const variationIds = items.flatMap((item) => item.variations.map((v) => v.variationId))
@@ -56,10 +51,7 @@ export default async function FuneralsPage({ params }: { params: Promise<{ local
           <h2 className="font-display font-black text-2xl md:text-3xl">{f.form.heading}</h2>
           <p className="font-sans text-xs mt-2 text-foreground/50">{f.form.hint}</p>
 
-          <FuneralsCheckoutForm
-            applicationId={process.env.NEXT_PUBLIC_SQUARE_APPLICATION_ID!}
-            locationId={process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID!}
-            sdkUrl={sdkUrl}
+          <FuneralsForm
             arrangements={arrangements}
             t={f.form}
           />

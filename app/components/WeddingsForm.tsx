@@ -31,6 +31,8 @@ export function WeddingsForm({ t }: Props) {
   const [error, setError] = useState<string | null>(null)
   const [subscribeToNews, setSubscribeToNews] = useState(false)
   const [turnstileToken, setTurnstileToken] = useState('')
+  const [fulfillment, setFulfillment] = useState('pickup')
+
 
   const onTurnstileToken = useCallback((t: string) => setTurnstileToken(t), [])
 
@@ -47,7 +49,7 @@ export function WeddingsForm({ t }: Props) {
       email: data.get('email') as string,
       phone: data.get('phone') as string,
       event_date: data.get('event_date') as string,
-      fulfillment: data.getAll('fulfillment'),
+      fulfillment,
       event_location: data.get('event_location') as string,
       guest_count: data.get('guest_count') as string,
       items: data.getAll('items'),
@@ -103,12 +105,28 @@ export function WeddingsForm({ t }: Props) {
 
       <div className="flex flex-col gap-2">
         <label className="font-sans text-xs uppercase tracking-widest font-semibold">{t.fulfillment} *</label>
-        <div className="flex gap-4">
-          <label className="flex items-center gap-2 font-sans text-sm cursor-pointer">
-            <input type="checkbox" name="fulfillment" value="pickup" className="accent-purple" /> {t.pickUp}
+        <div className="flex flex-col gap-2 font-sans text-sm">
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input
+              type="radio"
+              name="fulfillment"
+              value="pickup"
+              checked={t.fulfillment === 'pickup'}
+              onChange={() => setFulfillment('pickup')}
+              className="accent-purple"
+            />
+            {t.pickUp}
           </label>
-          <label className="flex items-center gap-2 font-sans text-sm cursor-pointer">
-            <input type="checkbox" name="fulfillment" value="delivery" className="accent-purple" /> {t.delivery}
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input
+              type="radio"
+              name="fulfillment"
+              value="delivery"
+              checked={t.fulfillment === 'delivery'}
+              onChange={() => setFulfillment('delivery')}
+              className="accent-purple"
+            />
+            {t.delivery}
           </label>
         </div>
       </div>

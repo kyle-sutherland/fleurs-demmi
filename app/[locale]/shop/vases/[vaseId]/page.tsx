@@ -31,9 +31,9 @@ export default async function VaseDetailPage({
       <div className="flex flex-col flex-1">
         <SiteHeader locale={locale} active="shop" />
         <main className="mx-12 md:mx-32 mt-10 md:mt-16">
-          <p className="font-sans text-base text-foreground/60">Vase not found.</p>
+          <p className="font-sans text-base text-foreground/60">{v.notFound}</p>
           <Link href={`/${locale}/shop/vases`} className="font-sans text-sm underline mt-4 inline-block">
-            ← Back to Vases
+            {v.backToVases}
           </Link>
         </main>
       </div>
@@ -49,7 +49,7 @@ export default async function VaseDetailPage({
           href={`/${locale}/shop/vases`}
           className="font-sans text-xs uppercase tracking-widest font-semibold hover:opacity-60 transition-opacity"
         >
-          ← Back
+          {v.back}
         </Link>
 
         <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-start">
@@ -65,6 +65,7 @@ export default async function VaseDetailPage({
             <p className="font-display font-black text-2xl">${price}.00</p>
             <AddToCartButton
               item={{ productId: variation.variationId, name: vase.name, price, quantity: 1 }}
+              labels={t.addToCart}
               stockCount={stockCount}
             />
           </div>

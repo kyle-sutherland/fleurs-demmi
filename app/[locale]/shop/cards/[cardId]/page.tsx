@@ -4,6 +4,7 @@ import { VaseSlideshow } from "@/app/[locale]/shop/vases/[vaseId]/VaseSlideshow"
 import { AddToCartButton } from "@/app/components/AddToCartButton";
 import { getCatalogItem } from "@/app/lib/catalog";
 import { getInventoryByVariationId } from "@/app/lib/inventory";
+import { getDictionary } from "@/lib/i18n";
 
 export const revalidate = 3600
 
@@ -13,6 +14,8 @@ export default async function CardDetailPage({
   params: Promise<{ locale: string; cardId: string }>;
 }) {
   const { locale, cardId } = await params;
+  const t = getDictionary(locale);
+  const c = t.cards;
 
   const card = await getCatalogItem(cardId, locale);
   const variation = card?.variations[0];
@@ -25,16 +28,14 @@ export default async function CardDetailPage({
     ? card.imageUrls.map((src) => ({ src }))
     : [];
 
-  const backLabel = locale === "fr" ? "← Retour" : "← Back";
-
   if (!card || !variation) {
     return (
       <div className="flex flex-col flex-1">
         <SiteHeader locale={locale} active="shop" />
         <main className="mx-12 md:mx-32 mt-10 md:mt-16">
-          <p className="font-sans text-base text-foreground/60">Item not found.</p>
+          <p className="font-sans text-base text-foreground/60">{c.notFound}</p>
           <Link href={`/${locale}/shop/cards`} className="font-sans text-sm underline mt-4 inline-block">
-            ← Back to Cards &amp; Goodies
+            {c.backToCards}
           </Link>
         </main>
       </div>
@@ -50,7 +51,7 @@ export default async function CardDetailPage({
           href={`/${locale}/shop/cards`}
           className="font-sans text-xs uppercase tracking-widest font-semibold hover:opacity-60 transition-opacity"
         >
-          {backLabel}
+          {c.back}
         </Link>
 
         <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-start">
@@ -68,6 +69,7 @@ export default async function CardDetailPage({
             <p className="font-display font-black text-2xl">${price}.00</p>
             <AddToCartButton
               item={{ productId: variation.variationId, name: card.name, price, quantity: 1 }}
+              labels={t.addToCart}
               stockCount={stockCount}
             />
           </div>

@@ -1,24 +1,7 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useCallback, useState } from 'react'
 import { TurnstileWidget } from '@/app/components/TurnstileWidget'
-
-interface SquareCard {
-  attach(selector: string): Promise<void>
-  tokenize(): Promise<{ status: string; token?: string; errors?: Array<{ message: string }> }>
-  destroy(): void
-}
-
-declare global {
-  interface Window {
-    Square?: {
-      payments(appId: string, locationId: string): Promise<{ card(): Promise<SquareCard> }>
-    }
-  }
-}
-
-const CARD_PRICE = 4
 
 export type SympathyArrangement = {
   variationId: string
@@ -28,9 +11,6 @@ export type SympathyArrangement = {
 }
 
 type Props = {
-  applicationId: string
-  locationId: string
-  sdkUrl: string
   arrangements: SympathyArrangement[]
   t: {
     name: string
@@ -53,98 +33,71 @@ type Props = {
   }
 }
 
-export function FuneralsCheckoutForm({ applicationId, locationId, sdkUrl, arrangements, t }: Props) {
-  const router = useRouter()
-  const cardRef = useRef<SquareCard | null>(null)
-  const [sdkReady, setSdkReady] = useState(false)
+export function FuneralsForm({ arrangements, t }: Props) {
+  const [submitted, setSubmitted] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [selectedId, setSelectedId] = useState('')
   const [showCard, setShowCard] = useState(false)
   const [turnstileToken, setTurnstileToken] = useState('')
+  const [fulfillment, setFulfillment] = useState('pickup')
 
   const onTurnstileToken = useCallback((t: string) => setTurnstileToken(t), [])
 
   const selected = arrangements.find((a) => a.variationId === selectedId)
-  const arrangementPrice = selected?.price ?? 0
-  const total = arrangementPrice + (showCard ? CARD_PRICE : 0)
-
-  useEffect(() => {
-    let cancelled = false
-    const script = document.createElement('script')
-    script.src = sdkUrl
-    script.async = true
-    script.onload = async () => {
-      if (cancelled) return
-      try {
-        const payments = await window.Square!.payments(applicationId, locationId)
-        if (cancelled) return
-        const card = await payments.card()
-        if (cancelled) return
-        await card.attach('#funerals-card-container')
-        if (cancelled) { card.destroy(); return }
-        cardRef.current = card
-        setSdkReady(true)
-      } catch {
-        if (!cancelled) setError('Failed to load payment form. Please refresh and try again.')
-      }
-    }
-    script.onerror = () => { if (!cancelled) setError('Failed to load payment form. Please refresh and try again.') }
-    document.head.appendChild(script)
-    return () => {
-      cancelled = true
-      cardRef.current?.destroy()
-      cardRef.current = null
-      if (document.head.contains(script)) document.head.removeChild(script)
-    }
-  }, [applicationId, locationId, sdkUrl])
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    if (!cardRef.current || !selected) return
     setError(null)
     setSubmitting(true)
 
     const form = e.currentTarget
     const data = new FormData(form)
 
-    const tokenResult = await cardRef.current.tokenize()
-    if (tokenResult.status !== 'OK') {
-      setError(tokenResult.errors?.[0]?.message ?? 'Card tokenization failed.')
-      setSubmitting(false)
-      return
-    }
-
     const body = {
-      token: tokenResult.token,
       name: data.get('name') as string,
       email: data.get('email') as string,
       phone: data.get('phone') as string,
       funeral_date: data.get('funeral_date') as string,
       funeral_location: data.get('funeral_location') as string,
-      fulfillment: data.getAll('fulfillment'),
-      variationId: selected.variationId,
-      arrangementName: selected.name,
+      fulfillment,
+      arrangementName: selected?.name,
       style_notes: data.get('style_notes') as string,
       card_name: data.get('card_name') as string,
       card_message: data.get('card_message') as string,
       turnstile: turnstileToken,
     }
 
-    const res = await fetch('/api/checkout/funerals', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    })
+    try {
+      const res = await fetch('/api/inquire/funerals', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
 
-    const resData = await res.json()
-    if (!res.ok) {
-      setError(resData.error ?? 'Payment failed. Please try again.')
+      if (!res.ok) {
+        const d = await res.json()
+        setError(d.error ?? 'Something went wrong. Please try again.')
+        setSubmitting(false)
+        return
+      }
+
+      setSubmitted(true)
+    } catch {
+      setError('Something went wrong. Please try again.')
       setSubmitting(false)
-      return
     }
+  }
 
-    router.push(`/order-confirmation?orderId=${resData.orderId}`)
+  if (submitted) {
+    return (
+      <div className="mt-8 p-8 border-2 border-foreground/20 flex flex-col gap-3 max-w-lg">
+        <p className="font-display font-black text-2xl">Request received!</p>
+        <p className="font-sans text-sm text-foreground/70 leading-relaxed">
+          Thank you! Emmi will be in touch shortly to discuss the details of your sympathy arrangement.
+        </p>
+      </div>
+    )
   }
 
   return (
@@ -162,21 +115,36 @@ export function FuneralsCheckoutForm({ applicationId, locationId, sdkUrl, arrang
 
       <div className="flex flex-col gap-2">
         <label className="font-sans text-xs uppercase tracking-widest font-semibold">{t.fulfillment} *</label>
-        <div className="flex gap-4">
-          <label className="flex items-center gap-2 font-sans text-sm cursor-pointer">
-            <input type="checkbox" name="fulfillment" value="pickup" className="accent-purple" /> {t.pickUp}
+        <div className="flex flex-col gap-2 font-sans text-sm">
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input
+              type="radio"
+              name="fulfillment"
+              value="pickup"
+              checked={fulfillment === 'pickup'}
+              onChange={() => setFulfillment('pickup')}
+              className="accent-purple"
+            />
+            {t.pickUp}
           </label>
-          <label className="flex items-center gap-2 font-sans text-sm cursor-pointer">
-            <input type="checkbox" name="fulfillment" value="delivery" className="accent-purple" /> {t.delivery}
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input
+              type="radio"
+              name="fulfillment"
+              value="delivery"
+              checked={fulfillment === 'delivery'}
+              onChange={() => setFulfillment('delivery')}
+              className="accent-purple"
+            />
+            {t.delivery}
           </label>
         </div>
       </div>
 
       <div className="flex flex-col gap-2">
-        <label className="font-sans text-xs uppercase tracking-widest font-semibold">{t.arrangement} *</label>
+        <label className="font-sans text-xs uppercase tracking-widest font-semibold">{t.arrangement}</label>
         <select
           name="arrangement"
-          required
           value={selectedId}
           onChange={(e) => setSelectedId(e.target.value)}
           className="border-2 border-foreground bg-background font-sans text-sm px-4 py-3 focus:outline-none focus:border-purple appearance-none"
@@ -211,48 +179,18 @@ export function FuneralsCheckoutForm({ applicationId, locationId, sdkUrl, arrang
         )}
       </div>
 
-      <div className="flex flex-col gap-2">
-        <label className="font-sans text-xs uppercase tracking-widest font-semibold">Card Details</label>
-        <div
-          id="funerals-card-container"
-          className="bg-transparent px-1 py-1 min-h-[56px]"
-        />
-        {!sdkReady && !error && (
-          <p className="font-sans text-xs text-foreground/40">Loading payment form…</p>
-        )}
-      </div>
-
       {error && (
         <p className="font-sans text-sm text-red-600 border-2 border-red-200 bg-red-50 px-4 py-3">{error}</p>
-      )}
-
-      {selected && (
-        <div className="border-t-2 border-foreground/10 pt-4 flex flex-col gap-1">
-          <div className="flex justify-between font-sans text-sm text-foreground/60">
-            <span>{selected.name}</span>
-            <span>${arrangementPrice.toFixed(2)}</span>
-          </div>
-          {showCard && (
-            <div className="flex justify-between font-sans text-sm text-foreground/60">
-              <span>Greeting card</span>
-              <span>${CARD_PRICE.toFixed(2)}</span>
-            </div>
-          )}
-          <div className="flex justify-between font-display font-black text-lg mt-2">
-            <span>Total</span>
-            <span>${total.toFixed(2)} CAD</span>
-          </div>
-        </div>
       )}
 
       <TurnstileWidget onToken={onTurnstileToken} />
 
       <button
         type="submit"
-        disabled={!sdkReady || submitting || !selected}
+        disabled={submitting}
         className="self-start font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-10 py-3 hover:bg-foreground hover:text-background transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
       >
-        {submitting ? 'Processing…' : selected ? `${t.submit} — $${total.toFixed(2)}` : t.submit}
+        {submitting ? 'Sending…' : t.submit}
       </button>
     </form>
   )
@@ -273,8 +211,8 @@ function Field({ label, name, type, hint, required }: { label: string; name: str
 function Textarea({ label, name, rows }: { label: string; name: string; rows: number }) {
   return (
     <div className="flex flex-col gap-1">
-      {label && <label className="font-sans text-xs uppercase tracking-widest font-semibold">{label}</label>}
-      <textarea name={name} rows={rows} className="border-2 border-foreground bg-transparent font-sans text-sm px-4 py-3 focus:outline-none focus:border-purple resize-none" />
+      {label && <label htmlFor={name} className="font-sans text-xs uppercase tracking-widest font-semibold">{label}</label>}
+      <textarea id={name} name={name} rows={rows} aria-label={label || name} className="border-2 border-foreground bg-transparent font-sans text-sm px-4 py-3 focus:outline-none focus:border-purple resize-none" />
     </div>
   )
 }

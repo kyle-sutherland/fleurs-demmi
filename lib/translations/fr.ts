@@ -1,6 +1,12 @@
 import type { Dictionary } from "./en";
 
 export const fr: Dictionary = {
+  addToCart: {
+    default: "Ajouter au panier",
+    adding: "Ajout…",
+    added: "Ajouté !",
+    soldOut: "Épuisé",
+  },
   nav: {
     shop: "Boutique",
     services: "Services",
@@ -138,18 +144,13 @@ export const fr: Dictionary = {
       cardRecipient: "À :",
       cardMessage: "Message :",
       paymentSoon: "Int\u00e9gration de paiement \u00e0 venir",
-      submit: "Passer la commande",
+      submit: "Soumettre la demande",
     },
   },
   bouquetSubscription: {
     heading: "Abonnement de\nbouquets",
     intro:
       "Abonnez-vous pour recevoir r\u00e9guli\u00e8rement des bouquets saisonniers r\u00e9alis\u00e9s avec des fleurs locales. Cueillette le samedi au Caf\u00e9 Replika (252 Rue Rachel E, Montr\u00e9al) ou au D\u00e9panneur Le Pick-Up (7032 Rue Waverly) entre 11h et 16h. Livraison \u00e0 domicile disponible pour un suppl\u00e9ment de 10,00\u00a0$ par bouquet.",
-    tiers: [
-      { id: "12weeks", label: "Bouquets aux deux semaines pour 12 semaines", dates: "23 mai au 24 oct.", price: 350, available: 20, bouquets: 12 },
-      { id: "8weeks", label: "Bouquets aux deux semaines pour 8 semaines", dates: "20 juin au 26 sept.", price: 250, available: 20, bouquets: 8 },
-      { id: "monthly", label: "Bouquets mensuels pour 4 mois", dates: "18 juill., 29 août, 26 sept., 24 oct.", price: 150, available: 20, bouquets: 4 },
-    ],
     from: "Du",
     available: "disponibles",
     deliveryLabel: "Option de livraison",
@@ -174,8 +175,6 @@ export const fr: Dictionary = {
       deliveryTime: "Heure de livraison pr\u00e9f\u00e9r\u00e9e",
       deliveryTimeHint: "Ex. Matin, apr\u00e8s-midi",
       arrangement: "Arrangement",
-      arrangement50: "Arrangement à 50\u00a0$ (pot Mason 490\u00a0mL)",
-      arrangement75: "Arrangement à 75\u00a0$ (pot Mason 750\u00a0mL)",
       card: "Carte 4\u00a0$ avec note",
       cardName: "À :",
       cardMessage: "Message :",
@@ -183,23 +182,22 @@ export const fr: Dictionary = {
       submit: "Commander",
     },
   },
+
   cards: {
     heading: "Cartes &\nPetits cadeaux",
-    intro: "De petits extras pour compl\u00e9ter votre cadeau. Cartes, petits cadeaux et surprises saisonni\u00e8res.",
-    comingSoon: "\u00c0 venir",
-    items: [
-      { id: 1, title: "Carte cadeau Candy Flowers", description: "Intérieur vierge", price: 4 },
-    ],
+    intro: "De petits extras pour compléter votre cadeau. Cartes, petits cadeaux et surprises saisonnières.",
+    comingSoon: "À venir",
+    back: "← Retour",
+    backToCards: "← Retour aux cartes et cadeaux",
+    notFound: "Article introuvable.",
   },
   vases: {
     heading: "Vases artisanaux\net vintage",
-    intro: "Des contenants uniques pour votre maison et vos arrangements floraux. D\u00e9couvrez ici notre collection de c\u00e9ramiques artisanales locales et de trouvailles vintage.",
-    comingSoon: "\u00c0 venir",
-    oneOfAKind: "Pi\u00e8ce unique",
-    items: [
-      { id: 1, title: "Vase sgraffito" },
-      { id: 2, title: "Vase jaune beurre" },
-      { id: 3, title: "Vase boucle bleu vert" },
-    ],
+    intro: "Des contenants uniques pour votre maison et vos arrangements floraux. Découvrez ici notre collection de céramiques artisanales locales et de trouvailles vintage.",
+    comingSoon: "À venir",
+    oneOfAKind: "Pièce unique",
+    back: "← Retour",
+    backToVases: "← Retour aux vases",
+    notFound: "Vase introuvable.",
   },
 };
