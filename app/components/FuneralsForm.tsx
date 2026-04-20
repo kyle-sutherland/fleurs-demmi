@@ -25,6 +25,9 @@ type Props = {
     delivery: string
     arrangement: string
     arrangementPlaceholder: string
+    customArrangement: string
+    inquireForPricing: string
+    soldOut: string
     styleNotes: string
     card: string
     cardRecipient: string
@@ -37,25 +40,25 @@ export function FuneralsForm({ arrangements, t }: Props) {
   const [submitted, setSubmitted] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [selectedIds, setSelectedIds] = useState<string[]>([])
+  const [selectedId, setSelectedId] = useState<string | null>(null)
   const [showCard, setShowCard] = useState(false)
   const [turnstileToken, setTurnstileToken] = useState('')
   const [fulfillment, setFulfillment] = useState('pickup')
-
+  
   const onTurnstileToken = useCallback((t: string) => setTurnstileToken(t), [])
 
   const toggleId = (id: string) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    setSelectedId((prev) =>
+      prev === id ? null : id
     )
   }
 
-  const selectedArrangements = arrangements.filter((a) => selectedIds.includes(a.variationId))
-  const hasCustom = selectedIds.includes('custom')
+  const selectedArrangements = arrangements.filter((a) => selectedId === a.variationId)
+  const hasCustom = selectedId === 'custom'
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    if (selectedIds.length === 0) return
+    if (selectedId === null) return
     setError(null)
     setSubmitting(true)
 
@@ -69,7 +72,7 @@ export function FuneralsForm({ arrangements, t }: Props) {
       funeral_date: data.get('funeral_date') as string,
       funeral_location: data.get('funeral_location') as string,
       fulfillment,
-      variationIds: selectedIds,
+      variationIds: selectedId,
       arrangementNames: selectedArrangements.map((a) => a.name).concat(hasCustom ? ['Custom Arrangement'] : []),
       style_notes: data.get('style_notes') as string,
       card_name: data.get('card_name') as string,
@@ -154,25 +157,27 @@ export function FuneralsForm({ arrangements, t }: Props) {
         <label className="font-sans text-xs uppercase tracking-widest font-semibold">{t.arrangement} *</label>
         <div className="flex flex-col gap-3">
           {arrangements.map((a) => (
-            <label key={a.variationId} className={`flex items-center gap-3 font-sans text-sm cursor-pointer ${a.soldOut ? 'opacity-40 cursor-not-allowed' : ''}`}>
+            <label key={a.name} className={`flex items-center gap-3 font-sans text-sm cursor-pointer ${a.soldOut ? 'opacity-40 cursor-not-allowed' : ''}`}>
               <input
-                type="checkbox"
+                type="radio"
+                name="arrangement"
                 className="accent-purple"
-                checked={selectedIds.includes(a.variationId)}
+                checked={selectedId === a.variationId}
                 disabled={a.soldOut}
                 onChange={() => toggleId(a.variationId)}
               />
-              <span className="capitalize">{a.name} — ${a.price.toFixed(2)}{a.soldOut ? ' — Sold out' : ''}</span>
+              <span className="capitalize">{a.name} — ${a.price.toFixed(2)}{a.soldOut ? ` — ${t.soldOut}` : ''}</span>
             </label>
           ))}
           <label className="flex items-center gap-3 font-sans text-sm cursor-pointer">
             <input
-              type="checkbox"
+              type="radio"
+              name="arrangement"
               className="accent-purple"
-              checked={selectedIds.includes('custom')}
+              checked={selectedId === 'custom'}
               onChange={() => toggleId('custom')}
             />
-            <span>Custom Arrangement — Inquire for pricing</span>
+            <span>{t.customArrangement} — {t.inquireForPricing}</span>
           </label>
         </div>
       </div>

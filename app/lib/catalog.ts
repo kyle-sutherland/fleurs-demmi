@@ -40,7 +40,7 @@ function buildProduct(obj: CatalogObject, locale: string, imageUrlMap: Map<strin
     const vData = 'itemVariationData' in v ? v.itemVariationData : undefined
     const vAttrs = ('customAttributeValues' in v ? v.customAttributeValues : undefined) as AttrMap | undefined
     const vName =
-      (isFr ? localizedString(vAttrs, 'variation_name_fr') : null) ??
+      (isFr ? localizedString(vAttrs, 'name_fr') : null) ??
       vData?.name ??
       ''
     const bouquetsRaw = vAttrs?.['bouquets']?.numberValue
