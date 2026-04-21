@@ -125,6 +125,27 @@ export async function getCatalogItemsByCategory(
   }
 }
 
+export async function getAppointmentServiceVariationId(serviceName: string): Promise<string | null> {
+  try {
+    const client = getSquareClient()
+    for await (const obj of await client.catalog.list({ types: 'ITEM' })) {
+      if (
+        obj.type !== 'ITEM' ||
+        obj.isDeleted ||
+        !('itemData' in obj) ||
+        obj.itemData?.productType !== 'APPOINTMENTS_SERVICE'
+      ) continue
+      if (obj.itemData?.name !== serviceName) continue
+      const variationId = obj.itemData?.variations?.[0]?.id
+      return variationId ?? null
+    }
+    return null
+  } catch (err) {
+    console.error('getAppointmentServiceVariationId error:', err)
+    return null
+  }
+}
+
 export async function getCatalogItem(
   itemId: string,
   locale: string

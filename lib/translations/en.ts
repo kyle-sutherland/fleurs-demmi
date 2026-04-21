@@ -206,6 +206,32 @@ export const en = {
     backToVases: "← Back to Vases",
     notFound: "Vase not found.",
   },
+  checkout: {
+    heading: "Checkout",
+    orderSummary: "Order Summary",
+    form: {
+      nameLabel: "Name",
+      emailLabel: "Email",
+      total: "Total",
+      cardDetails: "Card Details",
+      loadingPayment: "Loading payment form…",
+      processing: "Processing…",
+      pay: "Pay",
+      sdkError: "Failed to load payment form. Please refresh and try again.",
+      tokenizeError: "Card tokenization failed.",
+      paymentError: "Payment failed. Please try again.",
+    },
+    scheduler: {
+      heading: "Pickup Time",
+      selectDate: "Select a date",
+      selectTime: "Select a pickup time *",
+      loadingSlots: "Loading available times…",
+      noSlots: "No pickup times available in the next 2 weeks.",
+      fetchError: "Could not load pickup times. Please try again.",
+      noSlotError: "Please select a pickup time before continuing.",
+      pickupAround: "Your pickup will be scheduled around",
+    },
+  },
 };
 
 export type Dictionary = typeof en;

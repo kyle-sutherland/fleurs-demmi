@@ -9,6 +9,7 @@ import { sendMail } from '@/app/lib/email'
 import { escapeHtml, emailSchema, nameSchema } from '@/app/lib/validate'
 import { verifyTurnstile } from '@/app/lib/turnstile'
 import { appendToCustomerList } from '@/app/lib/sheets'
+import { createPickupBooking } from '@/app/lib/appointments'
 
 const SQUARE_VARIATION_ID = /^[A-Z0-9]{20,30}$/
 
@@ -21,6 +22,14 @@ const bodySchema = z.object({
   subscribe_to_news:  z.boolean().optional(),
   turnstile:          z.string().optional(),
   website:            z.string().max(0, 'Honeypot').optional(), // must be empty
+  pickupStartAt:      z.string().datetime(),
+  pickupSegments:     z.array(z.object({
+    startAt:                 z.string(),
+    durationMinutes:         z.number().int().positive(),
+    serviceVariationId:      z.string().min(1).max(64),
+    serviceVariationVersion: z.string().regex(/^\d+$/),
+    teamMemberId:            z.string().min(1).max(64),
+  })).min(1).max(1),
 })
 
 export async function POST(request: Request) {
@@ -126,7 +135,23 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Payment failed. Please try again.' }, { status: 402 })
     }
 
-    // Step 4: Send confirmation emails (HTML-escaped)
+    // Step 4: Create pickup booking (non-fatal — payment already captured)
+    let bookingId: string | null = null
+    try {
+      const customerNote = `Order ${order.id}${name ? ` — ${name}` : ''}`
+      bookingId = await createPickupBooking(body.pickupSegments[0], customerNote)
+    } catch (err) {
+      console.error('Booking creation failed after payment:', err)
+    }
+
+    // Step 5: Send confirmation emails (HTML-escaped)
+    const pickupFormatted = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/Toronto',
+      weekday: 'long', month: 'long', day: 'numeric',
+      hour: 'numeric', minute: '2-digit', hour12: true,
+    }).format(new Date(body.pickupStartAt))
+    const safePickup = escapeHtml(pickupFormatted)
+
     const totalFormatted = (orderTotalCents / 100).toFixed(2)
     const safeName = escapeHtml(name ?? '')
     const safeEmail = escapeHtml(email ?? '')
@@ -145,6 +170,7 @@ export async function POST(request: Request) {
       <table style="font-family:sans-serif;font-size:14px;border-collapse:collapse;width:100%;max-width:600px">
         <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;width:160px">Name</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${safeName || '—'}</td></tr>
         <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Email</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${safeEmail ? `<a href="mailto:${safeEmail}">${safeEmail}</a>` : '—'}</td></tr>
+        <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Pickup</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${safePickup}${bookingId ? ` <span style="color:#888;font-size:12px">(Booking: ${escapeHtml(bookingId)})</span>` : ''}</td></tr>
       </table>
       <h3 style="font-family:sans-serif;margin-top:24px">Items</h3>
       <table style="font-family:sans-serif;font-size:14px;border-collapse:collapse;width:100%;max-width:600px">
@@ -159,7 +185,7 @@ export async function POST(request: Request) {
       <div style="font-family:sans-serif;max-width:600px;color:#1a1a1a">
         <h1 style="font-size:28px;font-weight:900;margin-bottom:8px">Order confirmed</h1>
         <p style="font-size:15px;line-height:1.6;color:#444">
-          Thank you${safeName ? `, ${safeName}` : ''}! Your order has been received and your payment is confirmed. Emmi will be in touch soon with pickup or delivery details.
+          Thank you${safeName ? `, ${safeName}` : ''}! Your order has been received and your payment is confirmed. Your pickup is booked for ${safePickup} in the Mile End.
         </p>
         <h2 style="font-size:16px;font-weight:700;margin-top:32px;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em">Order Summary</h2>
         <table style="font-size:14px;border-collapse:collapse;width:100%">
@@ -188,7 +214,7 @@ export async function POST(request: Request) {
       console.error('Email error (shop checkout):', err)
     }
 
-    // Step 5: Clear the cart cookie
+    // Step 6: Clear the cart cookie
     const res = NextResponse.json({ orderId: order.id, paymentId: payment.id })
     res.cookies.set(COOKIE_NAME, serializeCart({ items: [] }), {
       path: '/',

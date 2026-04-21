@@ -3,6 +3,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { TurnstileWidget } from '@/app/components/TurnstileWidget'
+import { PickupScheduler } from '@/app/components/PickupScheduler'
+import type { PickupSlotSerialized } from '@/app/lib/appointments'
+import type { Dictionary } from '@/lib/translations/en'
 
 interface SquareCard {
   attach(selector: string): Promise<void>
@@ -24,9 +27,12 @@ type Props = {
   sdkUrl: string
   total: number
   subscribeLabel: string
+  locale: string
+  formT: Dictionary['checkout']['form']
+  schedulerT: Dictionary['checkout']['scheduler']
 }
 
-export function CheckoutForm({ applicationId, locationId, sdkUrl, total, subscribeLabel }: Props) {
+export function CheckoutForm({ applicationId, locationId, sdkUrl, total, subscribeLabel, locale, formT, schedulerT }: Props) {
   const router = useRouter()
   const cardRef = useRef<SquareCard | null>(null)
   const [sdkReady, setSdkReady] = useState(false)
@@ -34,6 +40,7 @@ export function CheckoutForm({ applicationId, locationId, sdkUrl, total, subscri
   const [error, setError] = useState<string | null>(null)
   const [subscribeToNews, setSubscribeToNews] = useState(false)
   const [turnstileToken, setTurnstileToken] = useState('')
+  const [selectedSlot, setSelectedSlot] = useState<PickupSlotSerialized | null>(null)
 
   const onTurnstileToken = useCallback((t: string) => setTurnstileToken(t), [])
 
@@ -54,10 +61,10 @@ export function CheckoutForm({ applicationId, locationId, sdkUrl, total, subscri
         cardRef.current = card
         setSdkReady(true)
       } catch {
-        if (!cancelled) setError('Failed to load payment form. Please refresh and try again.')
+        if (!cancelled) setError(formT.sdkError)
       }
     }
-    script.onerror = () => { if (!cancelled) setError('Failed to load payment form. Please refresh and try again.') }
+    script.onerror = () => { if (!cancelled) setError(formT.sdkError) }
     document.head.appendChild(script)
     return () => {
       cancelled = true
@@ -70,6 +77,12 @@ export function CheckoutForm({ applicationId, locationId, sdkUrl, total, subscri
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     if (!cardRef.current) return
+
+    if (!selectedSlot) {
+      setError(schedulerT.noSlotError)
+      return
+    }
+
     setError(null)
     setSubmitting(true)
 
@@ -79,7 +92,7 @@ export function CheckoutForm({ applicationId, locationId, sdkUrl, total, subscri
 
     const tokenResult = await cardRef.current.tokenize()
     if (tokenResult.status !== 'OK') {
-      setError(tokenResult.errors?.[0]?.message ?? 'Card tokenization failed.')
+      setError(tokenResult.errors?.[0]?.message ?? formT.tokenizeError)
       setSubmitting(false)
       return
     }
@@ -87,12 +100,20 @@ export function CheckoutForm({ applicationId, locationId, sdkUrl, total, subscri
     const res = await fetch('/api/checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token: tokenResult.token, name, email, subscribe_to_news: subscribeToNews, turnstile: turnstileToken }),
+      body: JSON.stringify({
+        token: tokenResult.token,
+        name,
+        email,
+        subscribe_to_news: subscribeToNews,
+        turnstile: turnstileToken,
+        pickupStartAt: selectedSlot.startAt,
+        pickupSegments: [selectedSlot],
+      }),
     })
 
     const data = await res.json()
     if (!res.ok) {
-      setError(data.error ?? 'Payment failed. Please try again.')
+      setError(data.error ?? formT.paymentError)
       setSubmitting(false)
       return
     }
@@ -106,20 +127,27 @@ export function CheckoutForm({ applicationId, locationId, sdkUrl, total, subscri
       <input name="website" type="text" tabIndex={-1} autoComplete="off" style={{ display: 'none' }} aria-hidden="true" />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <Field label="Name" name="name" type="text" required />
-        <Field label="Email" name="email" type="email" required />
+        <Field label={formT.nameLabel} name="name" type="text" required />
+        <Field label={formT.emailLabel} name="email" type="email" required />
       </div>
+
+      <PickupScheduler
+        onSlotSelect={setSelectedSlot}
+        selectedSlot={selectedSlot}
+        locale={locale}
+        t={schedulerT}
+      />
 
       <div className="flex flex-col gap-2">
         <label className="font-sans text-xs uppercase tracking-widest font-semibold">
-          Card Details
+          {formT.cardDetails}
         </label>
         <div
           id="card-container"
           className="bg-transparent px-1 py-1 min-h-[56px]"
         />
         {!sdkReady && !error && (
-          <p className="font-sans text-xs text-foreground/40">Loading payment form…</p>
+          <p className="font-sans text-xs text-foreground/40">{formT.loadingPayment}</p>
         )}
       </div>
 
@@ -130,7 +158,7 @@ export function CheckoutForm({ applicationId, locationId, sdkUrl, total, subscri
       )}
 
       <div className="border-t-2 border-foreground/10 pt-5 flex justify-between items-center font-display font-black text-lg">
-        <span>Total</span>
+        <span>{formT.total}</span>
         <span>${total.toFixed(2)} CAD</span>
       </div>
 
@@ -148,10 +176,10 @@ export function CheckoutForm({ applicationId, locationId, sdkUrl, total, subscri
 
       <button
         type="submit"
-        disabled={!sdkReady || submitting}
+        disabled={!sdkReady || submitting || !selectedSlot}
         className="self-start font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-10 py-3 hover:bg-orange-500 hover:border-[#E6E6FA] hover:text-[#E6E6FA] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
       >
-        {submitting ? 'Processing…' : `Pay $${total.toFixed(2)}`}
+        {submitting ? formT.processing : `${formT.pay} $${total.toFixed(2)}`}
       </button>
     </form>
   )

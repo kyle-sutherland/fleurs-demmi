@@ -32,7 +32,7 @@ export default async function CheckoutPage({
 
       <main className="mx-8 md:mx-32 mt-10 md:mt-16 pb-24">
         <h1 className="font-display font-black text-[11vw] md:text-[5vw] leading-none">
-          Checkout
+          {t.checkout.heading}
         </h1>
 
         <div className="mt-10 flex flex-col md:flex-row gap-12 md:gap-16 items-start">
@@ -43,11 +43,14 @@ export default async function CheckoutPage({
               sdkUrl={sdkUrl}
               total={cartTotal(cart)}
               subscribeLabel={t.footer.subscribeLabel}
+              locale={locale}
+              formT={t.checkout.form}
+              schedulerT={t.checkout.scheduler}
             />
           </div>
 
           <aside className="w-full md:w-72 border-2 border-foreground/20 p-6 md:sticky md:top-8">
-            <h2 className="font-display font-black text-base mb-4">Order Summary</h2>
+            <h2 className="font-display font-black text-base mb-4">{t.checkout.orderSummary}</h2>
             <ul className="flex flex-col gap-3">
               {cart.items.map((item: CartItem) => (
                 <li key={item.id} className="flex justify-between items-start gap-4">
@@ -69,7 +72,7 @@ export default async function CheckoutPage({
               ))}
             </ul>
             <div className="border-t-2 border-foreground/10 mt-4 pt-4 flex justify-between items-center font-display font-black text-base">
-              <span>Total</span>
+              <span>{t.checkout.form.total}</span>
               <span>${cartTotal(cart).toFixed(2)} CAD</span>
             </div>
           </aside>
