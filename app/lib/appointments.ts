@@ -2,6 +2,41 @@
 import { getSquareClient, LOCATION_ID } from '@/app/lib/square'
 import { getAppointmentServiceVariationId } from '@/app/lib/catalog'
 
+export async function getPickupLocation(): Promise<string | null> {
+  try {
+    const client = getSquareClient()
+
+    let defKey: string | null = null
+    for await (const obj of await client.catalog.list({ types: 'CUSTOM_ATTRIBUTE_DEFINITION' })) {
+      if (obj.type !== 'CUSTOM_ATTRIBUTE_DEFINITION' || !('customAttributeDefinitionData' in obj)) continue
+      const def = (obj as { customAttributeDefinitionData?: { key?: string; name?: string } }).customAttributeDefinitionData
+      const k = def?.key
+      if (!k) continue
+      if (k === 'pickup_location' || def?.name?.toLowerCase() === 'pickup_location') {
+        defKey = k
+        break
+      }
+    }
+
+    for await (const obj of await client.catalog.list({ types: 'ITEM' })) {
+      if (obj.type !== 'ITEM' || obj.isDeleted || !('itemData' in obj)) continue
+      if (obj.itemData?.productType !== 'APPOINTMENTS_SERVICE' || obj.itemData?.name !== 'Pickup') continue
+      const attrs = ('customAttributeValues' in obj ? obj.customAttributeValues : undefined) as Record<string, { stringValue?: string | null }> | undefined
+      const direct = attrs?.['pickup_location']?.stringValue
+      if (direct) return direct
+      if (defKey) {
+        const squareKeyed = attrs?.[`Square:${defKey}`]?.stringValue
+        if (squareKeyed) return squareKeyed
+      }
+      return null
+    }
+    return null
+  } catch (err) {
+    console.error('getPickupLocation error:', err)
+    return null
+  }
+}
+
 export type PickupSlotSerialized = {
   startAt: string
   durationMinutes: number

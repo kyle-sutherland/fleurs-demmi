@@ -9,7 +9,7 @@ import { sendMail } from '@/app/lib/email'
 import { escapeHtml, emailSchema, nameSchema } from '@/app/lib/validate'
 import { verifyTurnstile } from '@/app/lib/turnstile'
 import { appendToCustomerList } from '@/app/lib/sheets'
-import { createPickupBooking } from '@/app/lib/appointments'
+import { createPickupBooking, getPickupLocation } from '@/app/lib/appointments'
 
 const SQUARE_VARIATION_ID = /^[A-Z0-9]{20,30}$/
 
@@ -145,12 +145,46 @@ export async function POST(request: Request) {
     }
 
     // Step 5: Send confirmation emails (HTML-escaped)
+    const receiptUrl = payment.receiptUrl ?? null
+
+    async function fetchReceiptAttachment(url: string): Promise<Buffer | null> {
+      try {
+        const res = await fetch(url, { headers: { 'Accept': 'text/html' } })
+        if (!res.ok) return null
+        return Buffer.from(await res.arrayBuffer())
+      } catch {
+        return null
+      }
+    }
+
+    const [pickupLocationResult, receiptBufferResult] = await Promise.allSettled([
+      getPickupLocation(),
+      receiptUrl ? fetchReceiptAttachment(receiptUrl) : Promise.resolve(null),
+    ])
+    const safePickupLocation = escapeHtml(
+      (pickupLocationResult.status === 'fulfilled' && pickupLocationResult.value)
+        ? pickupLocationResult.value
+        : 'Mile End'
+    )
+
+    const receiptBuffer = receiptBufferResult.status === 'fulfilled' ? receiptBufferResult.value : null
+    const receiptAttachments = receiptBuffer
+      ? [{ filename: 'receipt.html', content: receiptBuffer, contentType: 'text/html' }]
+      : []
+
     const pickupFormatted = new Intl.DateTimeFormat('en-CA', {
       timeZone: 'America/Toronto',
       weekday: 'long', month: 'long', day: 'numeric',
       hour: 'numeric', minute: '2-digit', hour12: true,
     }).format(new Date(body.pickupStartAt))
     const safePickup = escapeHtml(pickupFormatted)
+
+    const pickupFormattedFr = new Intl.DateTimeFormat('fr-CA', {
+      timeZone: 'America/Toronto',
+      weekday: 'long', month: 'long', day: 'numeric',
+      hour: 'numeric', minute: '2-digit', hour12: false,
+    }).format(new Date(body.pickupStartAt))
+    const safePickupFr = escapeHtml(pickupFormattedFr)
 
     const totalFormatted = (orderTotalCents / 100).toFixed(2)
     const safeName = escapeHtml(name ?? '')
@@ -170,7 +204,7 @@ export async function POST(request: Request) {
       <table style="font-family:sans-serif;font-size:14px;border-collapse:collapse;width:100%;max-width:600px">
         <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;width:160px">Name</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${safeName || '—'}</td></tr>
         <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Email</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${safeEmail ? `<a href="mailto:${safeEmail}">${safeEmail}</a>` : '—'}</td></tr>
-        <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Pickup</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${safePickup}${bookingId ? ` <span style="color:#888;font-size:12px">(Booking: ${escapeHtml(bookingId)})</span>` : ''}</td></tr>
+        <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Pickup</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${safePickup} — ${safePickupLocation}${bookingId ? ` <span style="color:#888;font-size:12px">(Booking: ${escapeHtml(bookingId)})</span>` : ''}</td></tr>
       </table>
       <h3 style="font-family:sans-serif;margin-top:24px">Items</h3>
       <table style="font-family:sans-serif;font-size:14px;border-collapse:collapse;width:100%;max-width:600px">
@@ -182,18 +216,33 @@ export async function POST(request: Request) {
 
     const customerHtml = email
       ? `
+      <div style="font-family:sans-serif;max-width:600px;color:#1a1a1a;padding-bottom:32px;border-bottom:2px solid #eee;margin-bottom:32px">
+        <h1 style="font-size:28px;font-weight:900;margin-bottom:8px">Commande confirm&#233;e</h1>
+        <p style="font-size:15px;line-height:1.6;color:#444">
+          Merci${safeName ? `, ${safeName}` : ''}&nbsp;! Votre commande a &#233;t&#233; re&#231;ue et votre paiement est confirm&#233;. Votre cueillette est pr&#233;vue le ${safePickupFr} &#8212; ${safePickupLocation}.
+        </p>
+        <h2 style="font-size:16px;font-weight:700;margin-top:32px;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em">R&#233;sum&#233; de la commande</h2>
+        <table style="font-size:14px;border-collapse:collapse;width:100%">
+          ${itemRows}
+          <tr><td style="padding:6px 12px;font-weight:700">Total</td><td style="padding:6px 12px;font-weight:700;text-align:right">$${totalFormatted} CAD</td></tr>
+        </table>
+        ${receiptUrl ? `<p style="margin-top:24px"><a href="${escapeHtml(receiptUrl)}" style="display:inline-block;padding:10px 20px;background:#1a1a1a;color:#fff;text-decoration:none;font-size:13px;font-weight:600">Voir le re&#231;u Square</a></p>` : ''}
+        <p style="font-size:12px;color:#aaa;margin-top:32px">R&#233;f&#233;rence&nbsp;: ${order.id}</p>
+        <p style="font-size:13px;color:#888;margin-top:4px">Fleurs d&#39;Emmi &middot; Montr&#233;al, QC</p>
+      </div>
       <div style="font-family:sans-serif;max-width:600px;color:#1a1a1a">
         <h1 style="font-size:28px;font-weight:900;margin-bottom:8px">Order confirmed</h1>
         <p style="font-size:15px;line-height:1.6;color:#444">
-          Thank you${safeName ? `, ${safeName}` : ''}! Your order has been received and your payment is confirmed. Your pickup is booked for ${safePickup} in the Mile End.
+          Thank you${safeName ? `, ${safeName}` : ''}! Your order has been received and your payment is confirmed. Your pickup is booked for ${safePickup} &#8212; ${safePickupLocation}.
         </p>
         <h2 style="font-size:16px;font-weight:700;margin-top:32px;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em">Order Summary</h2>
         <table style="font-size:14px;border-collapse:collapse;width:100%">
           ${itemRows}
           <tr><td style="padding:6px 12px;font-weight:700">Total</td><td style="padding:6px 12px;font-weight:700;text-align:right">$${totalFormatted} CAD</td></tr>
         </table>
+        ${receiptUrl ? `<p style="margin-top:24px"><a href="${escapeHtml(receiptUrl)}" style="display:inline-block;padding:10px 20px;background:#1a1a1a;color:#fff;text-decoration:none;font-size:13px;font-weight:600">View Square receipt</a></p>` : ''}
         <p style="font-size:12px;color:#aaa;margin-top:32px">Order ref: ${order.id}</p>
-        <p style="font-size:13px;color:#888;margin-top:4px">Fleurs d'Emmi · Montréal, QC</p>
+        <p style="font-size:13px;color:#888;margin-top:4px">Fleurs d&#39;Emmi &middot; Montr&#233;al, QC</p>
       </div>
     `
       : null
@@ -206,7 +255,7 @@ export async function POST(request: Request) {
           html: ownerHtml,
         }),
         ...(customerHtml && email
-          ? [sendMail({ to: email, subject: `Your order is confirmed — Fleurs d'Emmi`, html: customerHtml })]
+          ? [sendMail({ to: email, subject: `Your order is confirmed — Fleurs d'Emmi`, html: customerHtml, attachments: receiptAttachments })]
           : []),
         appendToCustomerList({ name, email, source: 'checkout', subscribed: subscribe_to_news ? 'subscribed' : 'unknown' }),
       ])
