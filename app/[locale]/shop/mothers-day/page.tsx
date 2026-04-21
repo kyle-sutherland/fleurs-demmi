@@ -52,7 +52,7 @@ export default async function MothersDayPage({ params }: { params: Promise<{ loc
             locationId={process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID!}
             sdkUrl={sdkUrl}
             arrangements={arrangements}
-            t={m.form}
+            t={{ ...m.form, ...t.checkout.form }}
           />
         </section>
       </main>

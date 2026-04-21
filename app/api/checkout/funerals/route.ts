@@ -29,6 +29,8 @@ const bodySchema = z.object({
   card_message:     textSchema.optional(),
   turnstile:        z.string().optional(),
   website:          z.string().max(0, 'Honeypot').optional(),
+  giftCardToken: z.string().min(1).max(512).optional(),
+  discountCode:  z.string().max(50).optional(),
 })
 
 export async function POST(request: Request) {
@@ -48,7 +50,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Bot verification failed. Please try again.' }, { status: 403 })
   }
 
-  const { token, name, email, phone, funeral_date, funeral_location, fulfillment, variationId, arrangementName, style_notes, card_name, card_message } = body
+  const { token, name, email, phone, funeral_date, funeral_location, fulfillment, variationId, arrangementName, style_notes, card_name, card_message, giftCardToken } = body
 
   const sympathyItems = await getCatalogItemsByCategory(SYMPATHY_CATEGORY, 'en')
   const validVariation = sympathyItems
@@ -106,16 +108,89 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Failed to create order.' }, { status: 500 })
     }
 
-    const paymentResponse = await client.payments.create({
-      sourceId: token,
-      idempotencyKey: randomUUID(),
-      amountMoney: { amount: BigInt(total * 100), currency: 'CAD' },
-      orderId: order.id,
-      locationId: LOCATION_ID,
-      buyerEmailAddress: email,
-    })
+    const orderTotalCents = Math.round(total * 100)
+    let payment: { id?: string } | null = null
+    let giftCardAmountCents = 0
 
-    const payment = paymentResponse.payment
+    if (giftCardToken) {
+      let gcPaymentId: string | null = null
+      try {
+        const gcPaymentRes = await client.payments.create({
+          sourceId: giftCardToken,
+          idempotencyKey: randomUUID(),
+          amountMoney: { amount: BigInt(orderTotalCents), currency: 'CAD' },
+          orderId: order.id,
+          locationId: LOCATION_ID,
+          buyerEmailAddress: email,
+        })
+        if (gcPaymentRes.payment?.id) {
+          giftCardAmountCents = orderTotalCents
+          payment = gcPaymentRes.payment
+        }
+      } catch (gcErr) {
+        if (gcErr instanceof SquareError) {
+          const insufficientErr = gcErr.errors?.find(
+            (e) => e.code === 'INSUFFICIENT_FUNDS' || e.code === 'GIFT_CARD_BALANCE_INSUFFICIENT'
+          )
+          const availableCents = insufficientErr
+            ? Number((insufficientErr as { detail?: string }).detail?.match(/(\d+)/)?.[1] ?? 0)
+            : 0
+
+          if (availableCents > 0) {
+            const gcSplitRes = await client.payments.create({
+              sourceId: giftCardToken,
+              idempotencyKey: randomUUID(),
+              amountMoney: { amount: BigInt(availableCents), currency: 'CAD' },
+              orderId: order.id,
+              locationId: LOCATION_ID,
+              buyerEmailAddress: email,
+            })
+            if (!gcSplitRes.payment?.id) {
+              return NextResponse.json({ error: 'Gift card payment failed. Please try again.' }, { status: 402 })
+            }
+            gcPaymentId = gcSplitRes.payment.id
+            giftCardAmountCents = availableCents
+
+            const remainderCents = orderTotalCents - availableCents
+            const cardPaymentRes = await client.payments.create({
+              sourceId: token,
+              idempotencyKey: randomUUID(),
+              amountMoney: { amount: BigInt(remainderCents), currency: 'CAD' },
+              orderId: order.id,
+              locationId: LOCATION_ID,
+              buyerEmailAddress: email,
+            })
+            if (!cardPaymentRes.payment?.id) {
+              try {
+                await client.refunds.refundPayment({
+                  paymentId: gcPaymentId,
+                  idempotencyKey: randomUUID(),
+                  amountMoney: { amount: BigInt(availableCents), currency: 'CAD' },
+                  reason: 'Card payment failed — split payment rollback',
+                })
+              } catch (refundErr) {
+                console.error('Gift card refund failed after card payment error:', refundErr)
+              }
+              return NextResponse.json({ error: 'Card payment failed. Please try again.' }, { status: 402 })
+            }
+            payment = cardPaymentRes.payment
+          }
+        }
+      }
+    }
+
+    if (!payment) {
+      const paymentResponse = await client.payments.create({
+        sourceId: token,
+        idempotencyKey: randomUUID(),
+        amountMoney: { amount: BigInt(orderTotalCents), currency: 'CAD' },
+        orderId: order.id,
+        locationId: LOCATION_ID,
+        buyerEmailAddress: email,
+      })
+      payment = paymentResponse.payment ?? null
+    }
+
     if (!payment?.id) {
       return NextResponse.json({ error: 'Payment failed. Please try again.' }, { status: 402 })
     }
@@ -131,6 +206,10 @@ export async function POST(request: Request) {
     const sCardMsg  = card_message ? escapeHtml(card_message) : ''
     const fulfillmentList = (Array.isArray(fulfillment) ? fulfillment : fulfillment ? [fulfillment] : []).map(escapeHtml)
 
+    const gcDisplay = giftCardAmountCents > 0
+      ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;color:#888">Gift Card</td><td style="padding:6px 12px;border-bottom:1px solid #eee;text-align:right;color:#888">−$${(giftCardAmountCents / 100).toFixed(2)}</td></tr>`
+      : ''
+
     const ownerHtml = `
       <h2 style="font-family:sans-serif">New Sympathy Order — ${sName}</h2>
       <table style="font-family:sans-serif;font-size:14px;border-collapse:collapse;width:100%;max-width:600px">
@@ -143,6 +222,7 @@ export async function POST(request: Request) {
         <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Arrangement</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${escapeHtml(arrangementName)} — $${arrangementPrice.toFixed(2)}</td></tr>
         ${hasCard ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Card</td><td style="padding:6px 12px;border-bottom:1px solid #eee">To: ${sCardName || '—'}<br/>${sCardMsg}</td></tr>` : ''}
         ${sNotes ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Style Notes</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${sNotes}</td></tr>` : ''}
+        ${gcDisplay}
         <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Total Paid</td><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:700">$${total.toFixed(2)} CAD</td></tr>
         <tr><td style="padding:6px 12px;font-weight:600">Square Order ID</td><td style="padding:6px 12px">${order.id}</td></tr>
       </table>
@@ -158,6 +238,7 @@ export async function POST(request: Request) {
         <table style="font-size:14px;border-collapse:collapse;width:100%">
           <tr><td style="padding:6px 12px;border-bottom:1px solid #eee">${escapeHtml(arrangementName)}</td><td style="padding:6px 12px;border-bottom:1px solid #eee;text-align:right">$${arrangementPrice.toFixed(2)}</td></tr>
           ${hasCard ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee">Greeting Card</td><td style="padding:6px 12px;border-bottom:1px solid #eee;text-align:right">$${CARD_ADDON_PRICE.toFixed(2)}</td></tr>` : ''}
+          ${gcDisplay}
           <tr><td style="padding:6px 12px;font-weight:700">Total</td><td style="padding:6px 12px;font-weight:700;text-align:right">$${total.toFixed(2)} CAD</td></tr>
         </table>
         <table style="font-size:14px;border-collapse:collapse;width:100%;margin-top:24px">
