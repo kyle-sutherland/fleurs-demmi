@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import SiteHeader from "@/app/components/SiteHeader";
+import GiftCardBanner from "@/app/components/GiftCardBanner";
 import { getDictionary } from "@/lib/i18n";
 
 export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
@@ -72,6 +73,10 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
             sublabel={t.home.products.cards.sublabel}
             bg="bg-purple/15"
             image="/card.jpg"
+          />
+          <GiftCardBanner
+            label={t.home.products.giftCard.label}
+            sublabel={t.home.products.giftCard.sublabel}
           />
         </div>
 

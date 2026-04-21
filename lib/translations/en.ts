@@ -32,6 +32,7 @@ export const en = {
       mothersDay: { label: "Mother\u2019s Day Bouquets", sublabel: "Order now \u00b7 Pick up May 9th or delivery May 10th" },
       vases: { label: "Handmade & Vintage Vases", sublabel: "Unique vessels for your home & flower arrangements" },
       cards: { label: "Cards & Goodies", sublabel: "Little extras to complete your gift" },
+      giftCard: { label: "E-Gift Card", sublabel: "Give the gift of flowers · Redeemable online" },
     },
     serviceCards: {
       weddings: {
@@ -51,6 +52,7 @@ export const en = {
       mothersDay: { label: "Mother\u2019s Day Bouquets", sublabel: "Pick up May 9th or delivery May 10th \u00b7 from $50" },
       vases: { label: "Handmade & Vintage Vases", sublabel: "One-of-a-kind vessels" },
       cards: { label: "Cards & Goodies", sublabel: "Little extras to complete your gift" },
+      giftCard: { label: "E-Gift Card", sublabel: "Give the gift of flowers · Redeemable online" },
     },
   },
   about: {

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import SiteHeader from "@/app/components/SiteHeader";
+import GiftCardBanner from "@/app/components/GiftCardBanner";
 import { getDictionary } from "@/lib/i18n";
 
 export default async function ShopPage({ params }: { params: Promise<{ locale: string }> }) {
@@ -61,6 +62,13 @@ export default async function ShopPage({ params }: { params: Promise<{ locale: s
               </div>
             </Link>
           ))}
+        </div>
+
+        <div className="mt-6">
+          <GiftCardBanner
+            label={t.shop.products.giftCard.label}
+            sublabel={t.shop.products.giftCard.sublabel}
+          />
         </div>
       </main>
     </div>

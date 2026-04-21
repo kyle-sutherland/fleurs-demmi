@@ -34,6 +34,7 @@ export const fr: Dictionary = {
       mothersDay: { label: "Bouquets f\u00eate des M\u00e8res", sublabel: "Commandez maintenant \u00b7 Cueillette le 9 mai ou livraison le 10 mai" },
       vases: { label: "Vases artisanaux et vintage", sublabel: "Des contenants uniques pour votre maison et vos arrangements floraux" },
       cards: { label: "Cartes et petits cadeaux", sublabel: "De petits extras pour compl\u00e9ter votre cadeau" },
+      giftCard: { label: "Carte-cadeau num\u00e9rique", sublabel: "Offrez des fleurs \u00b7 Utilisable en ligne" },
     },
     serviceCards: {
       weddings: {
@@ -53,6 +54,7 @@ export const fr: Dictionary = {
       mothersDay: { label: "Bouquets f\u00eate des M\u00e8res", sublabel: "Cueillette le 9 mai ou livraison le 10 mai \u00b7 \u00e0 partir de 50\u00a0$" },
       vases: { label: "Vases artisanaux et vintage", sublabel: "Des pi\u00e8ces uniques en leur genre" },
       cards: { label: "Cartes et petits cadeaux", sublabel: "De petits extras pour compl\u00e9ter votre cadeau" },
+      giftCard: { label: "Carte-cadeau num\u00e9rique", sublabel: "Offrez des fleurs \u00b7 Utilisable en ligne" },
     },
   },
   about: {
