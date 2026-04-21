@@ -198,6 +198,7 @@ export const en = {
     back: "← Back",
     backToCards: "← Back to Cards & Goodies",
     notFound: "Item not found.",
+    pickupAt: "Available for pickup at Emily's ceramics studio at",
   },
   vases: {
     heading: "Handmade &\nVintage Vases",
@@ -207,6 +208,7 @@ export const en = {
     back: "← Back",
     backToVases: "← Back to Vases",
     notFound: "Vase not found.",
+    pickupAt: "Available for pickup at Emily's ceramics studio at",
   },
   checkout: {
     heading: "Checkout",
@@ -225,6 +227,7 @@ export const en = {
     },
     scheduler: {
       heading: "Pickup Time",
+      pickupAt: "Available for pickup at Emily's ceramics studio at",
       selectDate: "Select a date",
       selectTime: "Select a pickup time *",
       loadingSlots: "Loading available times…",

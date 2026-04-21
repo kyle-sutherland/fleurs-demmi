@@ -3,6 +3,7 @@ import { cookies } from 'next/headers'
 import SiteHeader from '@/app/components/SiteHeader'
 import { CheckoutForm } from '@/app/components/CheckoutForm'
 import { parseCart, cartTotal, type CartItem } from '@/app/lib/cart'
+import { getPickupLocation } from '@/app/lib/appointments'
 import { getDictionary } from '@/lib/i18n'
 
 export const metadata = {
@@ -21,10 +22,12 @@ export default async function CheckoutPage({
 
   if (cart.items.length === 0) redirect(`/${locale}/cart`)
 
-  const sdkUrl =
+  const [sdkUrl, pickupLocation] = [
     process.env.SQUARE_ENVIRONMENT === 'production'
       ? 'https://web.squarecdn.com/v1/square.js'
-      : 'https://sandbox.web.squarecdn.com/v1/square.js'
+      : 'https://sandbox.web.squarecdn.com/v1/square.js',
+    await getPickupLocation(),
+  ]
 
   return (
     <div className="flex flex-col flex-1">
@@ -46,6 +49,7 @@ export default async function CheckoutPage({
               locale={locale}
               formT={t.checkout.form}
               schedulerT={t.checkout.scheduler}
+              pickupLocation={pickupLocation}
             />
           </div>
 

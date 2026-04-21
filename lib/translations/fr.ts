@@ -201,6 +201,7 @@ export const fr: Dictionary = {
     back: "← Retour",
     backToCards: "← Retour aux cartes et cadeaux",
     notFound: "Article introuvable.",
+    pickupAt: "Disponible pour la cueillette au studio de céramique d'Emmi au",
   },
   vases: {
     heading: "Vases artisanaux\net vintage",
@@ -210,6 +211,7 @@ export const fr: Dictionary = {
     back: "← Retour",
     backToVases: "← Retour aux vases",
     notFound: "Vase introuvable.",
+    pickupAt: "Disponible pour la cueillette au studio de céramique d'Emmi au",
   },
   checkout: {
     heading: "Paiement",
@@ -228,6 +230,7 @@ export const fr: Dictionary = {
     },
     scheduler: {
       heading: "Heure de cueillette",
+      pickupAt: "Disponible pour la cueillette au studio de céramique d'Emmi au",
       selectDate: "Choisir une date",
       selectTime: "Choisir une heure de cueillette *",
       loadingSlots: "Chargement des disponibilités…",

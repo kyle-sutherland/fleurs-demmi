@@ -4,6 +4,7 @@ import { VaseSlideshow } from "./VaseSlideshow";
 import { AddToCartButton } from "@/app/components/AddToCartButton";
 import { getCatalogItem } from "@/app/lib/catalog";
 import { getInventoryByVariationId } from "@/app/lib/inventory";
+import { getPickupLocation } from "@/app/lib/appointments";
 import { getDictionary } from "@/lib/i18n";
 
 export default async function VaseDetailPage({
@@ -15,16 +16,24 @@ export default async function VaseDetailPage({
   const t = getDictionary(locale);
   const v = t.vases;
 
-  const vase = await getCatalogItem(vaseId, locale)
-  const variation = vase?.variations[0]
+  const vase = await getCatalogItem(vaseId, locale);
+  const variation = vase?.variations[0];
 
-  const inventory = variation ? await getInventoryByVariationId([variation.variationId]) : {}
-  const stockCount = variation ? (inventory[variation.variationId] ?? null) : null
+  const [inventory, pickupLocation] = await Promise.all([
+    variation
+      ? getInventoryByVariationId([variation.variationId])
+      : Promise.resolve({} as Record<string, number | null>),
+    getPickupLocation(),
+  ]);
+  const stockCount = variation
+    ? (inventory[variation.variationId] ?? null)
+    : null;
 
-  const price = variation ? Number(variation.priceMoney) / 100 : 0
-  const slides = vase && vase.imageUrls.length > 0
-    ? vase.imageUrls.map((src) => ({ src }))
-    : []
+  const price = variation ? Number(variation.priceMoney) / 100 : 0;
+  const slides =
+    vase && vase.imageUrls.length > 0
+      ? vase.imageUrls.map((src) => ({ src }))
+      : [];
 
   if (!vase || !variation) {
     return (
@@ -32,7 +41,10 @@ export default async function VaseDetailPage({
         <SiteHeader locale={locale} active="shop" />
         <main className="mx-12 md:mx-32 mt-10 md:mt-16">
           <p className="font-sans text-base text-foreground/60">{v.notFound}</p>
-          <Link href={`/${locale}/shop/vases`} className="font-sans text-sm underline mt-4 inline-block">
+          <Link
+            href={`/${locale}/shop/vases`}
+            className="font-sans text-sm underline mt-4 inline-block"
+          >
             {v.backToVases}
           </Link>
         </main>
@@ -62,9 +74,19 @@ export default async function VaseDetailPage({
             <p className="font-sans text-sm text-foreground/60 uppercase tracking-widest">
               {v.oneOfAKind}
             </p>
+            {pickupLocation && (
+              <p className="font-sans text-sm text-foreground/60">
+                {v.pickupAt} {pickupLocation}
+              </p>
+            )}
             <p className="font-display font-black text-2xl">${price}.00</p>
             <AddToCartButton
-              item={{ productId: variation.variationId, name: vase.name, price, quantity: 1 }}
+              item={{
+                productId: variation.variationId,
+                name: vase.name,
+                price,
+                quantity: 1,
+              }}
               labels={t.addToCart}
               stockCount={stockCount}
             />

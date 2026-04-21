@@ -9,6 +9,7 @@ type Props = {
   selectedSlot: PickupSlotSerialized | null
   locale: string
   t: Dictionary['checkout']['scheduler']
+  pickupLocation: string | null
 }
 
 type LoadState =
@@ -67,7 +68,7 @@ function formatTime(startAt: string, locale: string): string {
   }).format(new Date(startAt))
 }
 
-export function PickupScheduler({ onSlotSelect, selectedSlot, locale, t }: Props) {
+export function PickupScheduler({ onSlotSelect, selectedSlot, locale, t, pickupLocation }: Props) {
   const [loadState, setLoadState] = useState<LoadState>({ status: 'loading' })
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const [selectedBlock, setSelectedBlock] = useState<number | null>(null)
@@ -129,6 +130,11 @@ export function PickupScheduler({ onSlotSelect, selectedSlot, locale, t }: Props
   return (
     <div className="flex flex-col gap-4">
       <p className="font-sans text-xs uppercase tracking-widest font-semibold">{t.heading}</p>
+      {pickupLocation && (
+        <p className="font-sans text-sm text-foreground/60">
+          {t.pickupAt} {pickupLocation}
+        </p>
+      )}
 
       {loadState.status === 'loading' && (
         <p className="font-sans text-xs text-foreground/40">{t.loadingSlots}</p>

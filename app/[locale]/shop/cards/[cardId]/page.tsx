@@ -4,9 +4,10 @@ import { VaseSlideshow } from "@/app/[locale]/shop/vases/[vaseId]/VaseSlideshow"
 import { AddToCartButton } from "@/app/components/AddToCartButton";
 import { getCatalogItem } from "@/app/lib/catalog";
 import { getInventoryByVariationId } from "@/app/lib/inventory";
+import { getPickupLocation } from "@/app/lib/appointments";
 import { getDictionary } from "@/lib/i18n";
 
-export const revalidate = 3600
+export const revalidate = 3600;
 
 export default async function CardDetailPage({
   params,
@@ -20,13 +21,21 @@ export default async function CardDetailPage({
   const card = await getCatalogItem(cardId, locale);
   const variation = card?.variations[0];
 
-  const inventory = variation ? await getInventoryByVariationId([variation.variationId]) : {};
-  const stockCount = variation ? (inventory[variation.variationId] ?? null) : null;
+  const [inventory, pickupLocation] = await Promise.all([
+    variation
+      ? getInventoryByVariationId([variation.variationId])
+      : Promise.resolve({} as Record<string, number | null>),
+    getPickupLocation(),
+  ]);
+  const stockCount = variation
+    ? (inventory[variation.variationId] ?? null)
+    : null;
 
   const price = variation ? Number(variation.priceMoney) / 100 : 0;
-  const slides = card && card.imageUrls.length > 0
-    ? card.imageUrls.map((src) => ({ src }))
-    : [];
+  const slides =
+    card && card.imageUrls.length > 0
+      ? card.imageUrls.map((src) => ({ src }))
+      : [];
 
   if (!card || !variation) {
     return (
@@ -34,7 +43,10 @@ export default async function CardDetailPage({
         <SiteHeader locale={locale} active="shop" />
         <main className="mx-12 md:mx-32 mt-10 md:mt-16">
           <p className="font-sans text-base text-foreground/60">{c.notFound}</p>
-          <Link href={`/${locale}/shop/cards`} className="font-sans text-sm underline mt-4 inline-block">
+          <Link
+            href={`/${locale}/shop/cards`}
+            className="font-sans text-sm underline mt-4 inline-block"
+          >
             {c.backToCards}
           </Link>
         </main>
@@ -66,9 +78,19 @@ export default async function CardDetailPage({
                 {card.description}
               </p>
             )}
+            {pickupLocation && (
+              <p className="font-sans text-sm text-foreground/60">
+                {c.pickupAt} {pickupLocation}
+              </p>
+            )}
             <p className="font-display font-black text-2xl">${price}.00</p>
             <AddToCartButton
-              item={{ productId: variation.variationId, name: card.name, price, quantity: 1 }}
+              item={{
+                productId: variation.variationId,
+                name: card.name,
+                price,
+                quantity: 1,
+              }}
               labels={t.addToCart}
               stockCount={stockCount}
             />

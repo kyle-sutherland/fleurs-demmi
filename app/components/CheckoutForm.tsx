@@ -30,9 +30,10 @@ type Props = {
   locale: string
   formT: Dictionary['checkout']['form']
   schedulerT: Dictionary['checkout']['scheduler']
+  pickupLocation: string | null
 }
 
-export function CheckoutForm({ applicationId, locationId, sdkUrl, total, subscribeLabel, locale, formT, schedulerT }: Props) {
+export function CheckoutForm({ applicationId, locationId, sdkUrl, total, subscribeLabel, locale, formT, schedulerT, pickupLocation }: Props) {
   const router = useRouter()
   const cardRef = useRef<SquareCard | null>(null)
   const [sdkReady, setSdkReady] = useState(false)
@@ -136,6 +137,7 @@ export function CheckoutForm({ applicationId, locationId, sdkUrl, total, subscri
         selectedSlot={selectedSlot}
         locale={locale}
         t={schedulerT}
+        pickupLocation={pickupLocation}
       />
 
       <div className="flex flex-col gap-2">
