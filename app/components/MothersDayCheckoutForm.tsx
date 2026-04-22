@@ -90,8 +90,6 @@ export function MothersDayCheckoutForm({ applicationId, locationId, sdkUrl, arra
   const [giftCardLoading, setGiftCardLoading] = useState(false)
   const [giftCardReady, setGiftCardReady] = useState(false)
 
-  const displayTotal = giftCard ? Math.max(0, total - giftCard.balance) : total
-
   // Discount code state (stubbed — always invalid)
   const [discountInput, setDiscountInput] = useState('')
   const [discountError, setDiscountError] = useState<string | null>(null)
@@ -101,6 +99,8 @@ export function MothersDayCheckoutForm({ applicationId, locationId, sdkUrl, arra
   const selected = arrangements.find((a) => a.variationId === selectedId)
   const arrangementPrice = selected?.price ?? 0
   const total = arrangementPrice + (fulfillment === 'delivery' ? DELIVERY_PRICE : 0) + (showCard ? CARD_PRICE : 0)
+
+  const displayTotal = giftCard ? Math.max(0, total - giftCard.balance) : total
 
   useEffect(() => {
     let cancelled = false
