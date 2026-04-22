@@ -18,6 +18,7 @@ function cartResponse(cart: ReturnType<typeof parseCart>) {
     maxAge: COOKIE_MAX_AGE,
     sameSite: 'lax',
     httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
   })
   return res
 }

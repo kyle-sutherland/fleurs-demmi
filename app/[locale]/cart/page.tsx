@@ -18,6 +18,12 @@ export default async function CartPage({
   const cart = parseCart(cookieStore.get('cart')?.value)
   const total = cartTotal(cart)
 
+  const surchargeIdByVariation = new Map(
+    cart.items
+      .filter((i) => i.productId.startsWith('delivery-surcharge:'))
+      .map((i) => [i.productId.slice('delivery-surcharge:'.length), i.id])
+  )
+
   return (
     <div className="flex flex-col flex-1">
       <SiteHeader locale={locale} active="shop" />
@@ -62,7 +68,15 @@ export default async function CartPage({
                     ${item.price.toFixed(2)} each
                   </p>
 
-                  <CartItemControls id={item.id} quantity={item.quantity} />
+                  {item.productId.startsWith('delivery-surcharge:') ? (
+                    <p className="font-sans text-xs text-foreground/40 mt-2 uppercase tracking-widest">Included with delivery</p>
+                  ) : (
+                    <CartItemControls
+                      id={item.id}
+                      quantity={item.quantity}
+                      linkedSurchargeId={surchargeIdByVariation.get(item.productId)}
+                    />
+                  )}
                 </div>
               ))}
             </div>

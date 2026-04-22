@@ -17,15 +17,14 @@ export type CatalogProduct = {
 }
 
 type AttrMap = Record<string, { stringValue?: string | null; numberValue?: string | null }>
-type FrenchKeys = { nameKeys: string[]; descriptionKeys: string[] }
+type AttributeKeys = { nameKeys: string[]; descriptionKeys: string[]; bouquetsKey: string }
 
-// Builds a prioritized key list for French attribute lookup.
-// Dashboard-created definitions appear in customAttributeValues as "Square:{uuid}";
-// API-created definitions appear as plain "name_fr" / "description_fr".
-// Dashboard keys are listed first so the client's UI-managed values take priority.
-async function resolveFrenchKeys(client: SquareClient): Promise<FrenchKeys> {
+// Resolves dashboard-created custom attribute keys (stored as "Square:{uuid}") by
+// scanning attribute definitions and matching on display name.
+async function resolveAttributeKeys(client: SquareClient): Promise<AttributeKeys> {
   const nameKeys: string[] = []
   const descriptionKeys: string[] = []
+  let bouquetsKey = 'bouquets' // legacy fallback (plain key)
   try {
     for await (const obj of await client.catalog.list({ types: 'CUSTOM_ATTRIBUTE_DEFINITION' })) {
       if (obj.type !== 'CUSTOM_ATTRIBUTE_DEFINITION' || !('customAttributeDefinitionData' in obj)) continue
@@ -36,11 +35,12 @@ async function resolveFrenchKeys(client: SquareClient): Promise<FrenchKeys> {
       if (key === 'name_fr' || key === 'description_fr') continue // legacy fallbacks added below
       if (displayName === 'name_fr') nameKeys.push(`Square:${key}`)
       else if (displayName === 'description_fr') descriptionKeys.push(`Square:${key}`)
+      else if (displayName === 'bouquets') bouquetsKey = `Square:${key}`
     }
   } catch { /* fall through to legacy keys only */ }
   nameKeys.push('name_fr')
   descriptionKeys.push('description_fr')
-  return { nameKeys, descriptionKeys }
+  return { nameKeys, descriptionKeys, bouquetsKey }
 }
 
 function firstString(attrs: AttrMap | null | undefined, keys: string[]): string | null {
@@ -51,14 +51,14 @@ function firstString(attrs: AttrMap | null | undefined, keys: string[]): string 
   return null
 }
 
-function buildProduct(obj: CatalogObject, locale: string, imageUrlMap: Map<string, string>, frKeys: FrenchKeys): CatalogProduct {
+function buildProduct(obj: CatalogObject, locale: string, imageUrlMap: Map<string, string>, attrKeys: AttributeKeys): CatalogProduct {
   const isFr = locale === 'fr'
 
   const itemData = 'itemData' in obj ? obj.itemData : undefined
   const attrs = ('customAttributeValues' in obj ? obj.customAttributeValues : undefined) as AttrMap | undefined
 
-  const name = (isFr ? firstString(attrs, frKeys.nameKeys) : null) ?? itemData?.name ?? ''
-  const description = (isFr ? firstString(attrs, frKeys.descriptionKeys) : null) ?? itemData?.description ?? null
+  const name = (isFr ? firstString(attrs, attrKeys.nameKeys) : null) ?? itemData?.name ?? ''
+  const description = (isFr ? firstString(attrs, attrKeys.descriptionKeys) : null) ?? itemData?.description ?? null
 
   const imageUrls = (itemData?.imageIds ?? [])
     .map((imgId) => imageUrlMap.get(imgId))
@@ -67,8 +67,8 @@ function buildProduct(obj: CatalogObject, locale: string, imageUrlMap: Map<strin
   const variations: CatalogVariation[] = (itemData?.variations ?? []).map((v) => {
     const vData = 'itemVariationData' in v ? v.itemVariationData : undefined
     const vAttrs = ('customAttributeValues' in v ? v.customAttributeValues : undefined) as AttrMap | undefined
-    const vName = (isFr ? firstString(vAttrs, frKeys.nameKeys) : null) ?? vData?.name ?? ''
-    const bouquetsRaw = vAttrs?.['bouquets']?.numberValue
+    const vName = (isFr ? firstString(vAttrs, attrKeys.nameKeys) : null) ?? vData?.name ?? ''
+    const bouquetsRaw = vAttrs?.[attrKeys.bouquetsKey]?.numberValue
     return {
       variationId: v.id ?? '',
       name: vName,
@@ -99,9 +99,9 @@ export async function getCatalogItemsByCategory(
       .filter((id): id is string => !!id)
     if (!itemIds.length) return []
 
-    const [res, frKeys] = await Promise.all([
+    const [res, attrKeys] = await Promise.all([
       client.catalog.batchGet({ objectIds: itemIds, includeRelatedObjects: true }),
-      resolveFrenchKeys(client),
+      resolveAttributeKeys(client),
     ])
 
     if (res.errors?.length) {
@@ -118,7 +118,7 @@ export async function getCatalogItemsByCategory(
 
     return (res.objects ?? [])
       .filter((obj): obj is CatalogObject => obj.type === 'ITEM' && !obj.isDeleted)
-      .map((obj) => buildProduct(obj, locale, imageUrlMap, frKeys))
+      .map((obj) => buildProduct(obj, locale, imageUrlMap, attrKeys))
   } catch (err) {
     console.error(`getCatalogItemsByCategory(${categoryName}) failed:`, err)
     return []
@@ -153,9 +153,9 @@ export async function getCatalogItem(
   try {
     const client = getSquareClient()
 
-    const [res, frKeys] = await Promise.all([
+    const [res, attrKeys] = await Promise.all([
       client.catalog.batchGet({ objectIds: [itemId], includeRelatedObjects: true }),
-      resolveFrenchKeys(client),
+      resolveAttributeKeys(client),
     ])
 
     if (res.errors?.length || !res.objects?.length) return null
@@ -170,7 +170,7 @@ export async function getCatalogItem(
       }
     }
 
-    return buildProduct(obj, locale, imageUrlMap, frKeys)
+    return buildProduct(obj, locale, imageUrlMap, attrKeys)
   } catch (err) {
     console.error('getCatalogItem error:', err)
     return null

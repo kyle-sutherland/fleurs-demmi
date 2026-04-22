@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 
-export function CartItemControls({ id, quantity }: { id: string; quantity: number }) {
+export function CartItemControls({ id, quantity, linkedSurchargeId }: { id: string; quantity: number; linkedSurchargeId?: string }) {
   const router = useRouter()
 
   async function update(newQty: number) {
@@ -20,6 +20,13 @@ export function CartItemControls({ id, quantity }: { id: string; quantity: numbe
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id }),
     })
+    if (linkedSurchargeId) {
+      await fetch('/api/cart', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: linkedSurchargeId }),
+      })
+    }
     router.refresh()
   }
 

@@ -61,8 +61,8 @@ export function BouquetSubscribeButton({
         body: JSON.stringify({
           productId: `delivery-surcharge:${variationId}`,
           name: 'Home Delivery',
-          price: 10 * tierBouquets,
-          quantity: 1,
+          price: 10,
+          quantity: tierBouquets,
           options: { for: tierLabel },
         }),
       })

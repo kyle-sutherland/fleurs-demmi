@@ -10,6 +10,7 @@ import { escapeHtml, emailSchema, nameSchema } from '@/app/lib/validate'
 import { verifyTurnstile } from '@/app/lib/turnstile'
 import { appendToCustomerList } from '@/app/lib/sheets'
 import { createPickupBooking, getPickupLocation } from '@/app/lib/appointments'
+import type { CatalogObject } from 'square'
 
 const SQUARE_VARIATION_ID = /^[A-Z0-9]{20,30}$/
 
@@ -65,6 +66,39 @@ export async function POST(request: Request) {
   }
 
   const client = getSquareClient()
+
+  // Defense-in-depth: validate delivery surcharge prices server-side.
+  // productId format is `delivery-surcharge:<variationId>` where the
+  // variationId encodes the linked subscription tier.
+  const surchargeItems = cart.items.filter((i) => i.productId.startsWith('delivery-surcharge:'))
+  if (surchargeItems.length > 0) {
+    const variationIds = surchargeItems.map((i) => i.productId.slice('delivery-surcharge:'.length))
+    try {
+      const res = await client.catalog.batchGet({ objectIds: variationIds })
+      const variationMap = new Map<string, CatalogObject>()
+      for (const obj of res.objects ?? []) {
+        if (obj.id) variationMap.set(obj.id, obj)
+      }
+      for (const surcharge of surchargeItems) {
+        const varId = surcharge.productId.slice('delivery-surcharge:'.length)
+        const variation = variationMap.get(varId)
+        const attrs = variation && 'customAttributeValues' in variation
+          ? (variation.customAttributeValues as Record<string, { numberValue?: string | null }> | undefined)
+          : undefined
+        const bouquets = attrs?.['bouquets']?.numberValue != null ? Number(attrs['bouquets'].numberValue) : null
+        const expectedPrice = bouquets != null ? 10 * bouquets : null
+        if (expectedPrice === null || Math.abs(surcharge.price * surcharge.quantity - expectedPrice) > 0.01) {
+          console.error(
+            `Delivery surcharge price mismatch: cartPrice=${surcharge.price * surcharge.quantity} expected=${expectedPrice} varId=${varId}`
+          )
+          return NextResponse.json({ error: 'Invalid delivery surcharge.' }, { status: 400 })
+        }
+      }
+    } catch (err) {
+      console.error('Surcharge validation failed:', err)
+      return NextResponse.json({ error: 'Failed to validate cart. Please try again.' }, { status: 500 })
+    }
+  }
 
   try {
     const lineItems = cart.items.map((item) => {
@@ -356,6 +390,7 @@ export async function POST(request: Request) {
       maxAge: 60 * 60 * 24 * 30,
       sameSite: 'lax',
       httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
     })
     return res
   } catch (err: unknown) {

@@ -120,6 +120,7 @@ All env vars in `.env.local` (gitignored via `.env*`). Required:
 - `CLIENT_ID`, `CLIENT_SECRET`, `REFRESH_TOKEN` — Google OAuth2 (shared by nodemailer + Sheets API)
 - `WEBMASTER_EMAIL`, `RECIPIENT_EMAIL`, `SUBSCRIBERS_SHEET_ID`
 - `TURNSTILE_SECRET_KEY`, `NEXT_PUBLIC_TURNSTILE_SITE_KEY` — Cloudflare Turnstile
+- `CART_COOKIE_SECRET` — HMAC-SHA256 secret for signing the cart cookie (generate: `openssl rand -base64 32`). Required in production; falls back to an insecure placeholder in dev.
 - `NODE_OPTIONS=--dns-result-order=ipv4first` is set locally (IPv6 issues with some providers)
 
 Scripts load `.env.local` **manually** via `fs.readFileSync` — tsx doesn't auto-load. Copy that pattern for new scripts.

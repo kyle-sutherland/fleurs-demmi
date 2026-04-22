@@ -12,7 +12,8 @@ function useCartCount() {
         .then((r) => r.json())
         .then((cart) => {
           const total = (cart.items ?? []).reduce(
-            (sum: number, item: { quantity: number }) => sum + item.quantity,
+            (sum: number, item: { quantity: number; productId: string }) =>
+              sum + (item.productId.startsWith('delivery-surcharge:') ? 1 : item.quantity),
             0
           )
           setCount(total)

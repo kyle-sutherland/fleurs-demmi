@@ -1,3 +1,5 @@
+import { signCart, verifyCart } from '@/app/lib/cartCookie'
+
 export type CartItem = {
   id: string
   productId: string
@@ -12,14 +14,16 @@ export type Cart = { items: CartItem[] }
 export function parseCart(value: string | undefined): Cart {
   if (!value) return { items: [] }
   try {
-    const parsed = JSON.parse(decodeURIComponent(value))
+    const payload = verifyCart(value)
+    if (!payload) return { items: [] }
+    const parsed = JSON.parse(payload)
     if (parsed && Array.isArray(parsed.items)) return parsed as Cart
   } catch {}
   return { items: [] }
 }
 
 export function serializeCart(cart: Cart): string {
-  return encodeURIComponent(JSON.stringify(cart))
+  return signCart(JSON.stringify(cart))
 }
 
 export function cartTotal(cart: Cart): number {
@@ -27,5 +31,6 @@ export function cartTotal(cart: Cart): number {
 }
 
 export function cartCount(cart: Cart): number {
-  return cart.items.reduce((sum, item) => sum + item.quantity, 0)
+  return cart.items.reduce((sum, item) =>
+    sum + (item.productId.startsWith('delivery-surcharge:') ? 1 : item.quantity), 0)
 }
