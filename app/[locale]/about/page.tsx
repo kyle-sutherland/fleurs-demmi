@@ -19,16 +19,23 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
           </h1>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 mt-8 mx-12 md:mx-32 md:w-[80%]">
-          <div className="relative aspect-[3/4]">
-            <Image src="/60c13257-cae1-486f-b37a-683c0594416b.jpeg" alt="Emily Gray with flower cart" fill sizes="(max-width: 768px) 50vw, 33vw" className="object-cover" priority />
+        {/* Desktop: both images side by side. Mobile: first image only */}
+        <div className="mt-8 mx-12 md:mx-32 md:w-[54%]">
+          <div className="hidden md:grid grid-cols-2 gap-8">
+            <div className="relative aspect-[3/4]">
+              <Image src="/60c13257-cae1-486f-b37a-683c0594416b.jpeg" alt="Emily Gray with flower cart" fill sizes="33vw" className="object-cover" priority />
+            </div>
+            <div className="relative aspect-[3/4]">
+              <Image src="/ee457bb0-6711-4bd4-a478-09e127b505a6.jpeg" alt="Emily Gray watering plants" fill sizes="33vw" className="object-cover" />
+            </div>
           </div>
-          <div className="relative aspect-[3/4]">
-            <Image src="/ee457bb0-6711-4bd4-a478-09e127b505a6.jpeg" alt="Emily Gray watering plants" fill sizes="(max-width: 768px) 50vw, 33vw" className="object-cover" />
+          {/* Mobile: first image only */}
+          <div className="relative aspect-[3/4] md:hidden">
+            <Image src="/60c13257-cae1-486f-b37a-683c0594416b.jpeg" alt="Emily Gray with flower cart" fill sizes="100vw" className="object-cover" priority />
           </div>
         </div>
 
-        <div className="mx-12 md:mx-32 mt-12 md:mt-16 max-w-2xl md:max-w-none">
+        <div className="mx-12 md:mx-32 mt-8 md:mt-16 max-w-2xl md:max-w-none">
           {t.about.paragraphs.map((para, i) => {
             let content: React.ReactNode = para;
             if (i === 0) {
@@ -66,6 +73,11 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
               {t.about.servicesBtn}
             </Link>
           </div>
+        </div>
+
+        {/* Mobile: second image below bio, full width within text margins */}
+        <div className="relative aspect-[3/4] mt-10 mx-12 md:hidden">
+          <Image src="/ee457bb0-6711-4bd4-a478-09e127b505a6.jpeg" alt="Emily Gray watering plants" fill sizes="100vw" className="object-cover" />
         </div>
       </main>
     </div>
