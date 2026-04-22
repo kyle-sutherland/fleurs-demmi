@@ -35,16 +35,20 @@ export default async function LocaleLayout({
           <EmailSignupForm />
         </div>
         <div className="border-t-2 border-foreground/10 py-8 mx-12 md:mx-32 flex flex-col md:flex-row md:items-center md:justify-between gap-3 text-sm font-sans text-foreground/50">
-          <div className="flex items-center justify-between w-full md:w-auto md:justify-start md:gap-6">
-            <div className="flex items-center gap-3">
-              <span className="font-semibold text-foreground/70 tracking-widest uppercase">Contact &rarr;</span>
+          <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-6">
+            <span className="font-semibold text-foreground/70 tracking-widest uppercase underline md:hidden">Contact</span>
+            <div className="flex items-center gap-1">
+              <span className="font-semibold text-foreground/70 tracking-widest uppercase">&rarr;<span className="md:inline hidden"> Contact</span></span>
               <a href="https://instagram.com/fleursdemmi" target="_blank" rel="noopener noreferrer" className="text-orange-500 font-semibold hover:opacity-80 transition-opacity">
                 @fleursdemmi
               </a>
             </div>
-            <a href="mailto:fleursdemmi@gmail.com" className="text-orange-500 font-semibold hover:opacity-80 transition-opacity">
-              fleursdemmi@gmail.com
-            </a>
+            <div className="flex items-center gap-1 md:contents">
+              <span className="font-semibold text-foreground/70 tracking-widest uppercase md:hidden">&rarr;</span>
+              <a href="mailto:fleursdemmi@gmail.com" className="text-orange-500 font-semibold hover:opacity-80 transition-opacity">
+                fleursdemmi@gmail.com
+              </a>
+            </div>
           </div>
           <span>&copy; {new Date().getFullYear()} {t.footer.copyright}</span>
         </div>

@@ -26,7 +26,7 @@ export default async function CardsPage({ params }: { params: Promise<{ locale: 
         <p className="font-sans text-base mt-6 max-w-xl text-foreground/80 leading-relaxed">{c.intro}</p>
 
         {items.length === 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-6 mt-10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
             {Array.from({ length: 3 }).map((_, i) => (
               <div key={i} className="group flex flex-col">
                 <div className="relative aspect-square bg-purple/15 overflow-hidden" />
@@ -34,7 +34,7 @@ export default async function CardsPage({ params }: { params: Promise<{ locale: 
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-6 mt-10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
             {items.map((item) => {
               const price = Number(item.variations[0]?.priceMoney ?? 0) / 100
               const imageUrl = item.imageUrls[0]
@@ -42,7 +42,7 @@ export default async function CardsPage({ params }: { params: Promise<{ locale: 
                 <Link key={item.id} href={`/${locale}/shop/cards/${item.id}`} className="group flex flex-col">
                   <div className="relative aspect-square bg-purple/10 overflow-hidden">
                     {imageUrl ? (
-                      <Image src={imageUrl} alt={item.name} fill sizes="(max-width: 768px) 50vw, 25vw" className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                      <Image src={imageUrl} alt={item.name} fill sizes="(max-width: 768px) 100vw, 25vw" className="object-cover group-hover:scale-105 transition-transform duration-300" />
                     ) : (
                       <div className="w-full h-full bg-foreground/5" />
                     )}
@@ -54,6 +54,10 @@ export default async function CardsPage({ params }: { params: Promise<{ locale: 
                         ${price}
                       </span>
                     </div>
+                  </div>
+                  <div className="md:hidden pt-3">
+                    <p className="font-display font-black text-lg leading-tight">{item.name}</p>
+                    <p className="font-sans text-sm text-foreground/60 mt-1">${price.toFixed(2)}</p>
                   </div>
                 </Link>
               )

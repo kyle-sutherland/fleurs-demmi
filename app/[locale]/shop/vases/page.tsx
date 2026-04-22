@@ -25,7 +25,7 @@ export default async function VasesPage({ params }: { params: Promise<{ locale: 
         </h1>
         <p className="font-sans text-base mt-6 max-w-xl text-foreground/80 leading-relaxed">{v.intro}</p>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-6 mt-10">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
           {vases.map((vase) => {
             const price = Number(vase.variations[0]?.priceMoney ?? 0) / 100
             const imageUrl = vase.imageUrls[0]
@@ -38,7 +38,7 @@ export default async function VasesPage({ params }: { params: Promise<{ locale: 
                       src={imageUrl}
                       alt={vase.name}
                       fill
-                      sizes="(max-width: 768px) 50vw, 25vw"
+                      sizes="(max-width: 768px) 100vw, 25vw"
                       className="object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                   ) : (
@@ -52,6 +52,10 @@ export default async function VasesPage({ params }: { params: Promise<{ locale: 
                       ${price}
                     </span>
                   </div>
+                </div>
+                <div className="md:hidden pt-3">
+                  <p className="font-display font-black text-lg leading-tight">{vase.name}</p>
+                  <p className="font-sans text-sm text-foreground/60 mt-1">${price.toFixed(2)}</p>
                 </div>
               </Link>
             )

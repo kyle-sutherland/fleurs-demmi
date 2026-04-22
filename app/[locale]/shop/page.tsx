@@ -48,7 +48,7 @@ export default async function ShopPage({ params }: { params: Promise<{ locale: s
           {t.shop.heading}
         </h1>
 
-        <div className="grid grid-cols-2 gap-6 mt-8 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-6 mt-8 md:grid-cols-2">
           {products.map((p) => (
             <Link key={p.id} href={p.href} className="group flex flex-col overflow-hidden border-2 border-foreground/10 hover:border-foreground/30 transition-colors">
               <div className="relative aspect-[4/3] w-full bg-purple/20">
