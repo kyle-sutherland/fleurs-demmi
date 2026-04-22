@@ -1,0 +1,9 @@
+User-agent: *
+Disallow: /en/cart
+Disallow: /en/checkout
+Disallow: /en/order-confirmation
+Disallow: /fr/cart
+Disallow: /fr/checkout
+Disallow: /fr/order-confirmation
+
+Sitemap: https://fleurs-demmi.ca/sitemap.xml
