@@ -5,6 +5,7 @@ import { SquareError } from 'square'
 import type { OrderLineItem } from 'square'
 import { getSquareClient, LOCATION_ID } from '@/app/lib/square'
 import { getCatalogItemsByCategory } from '@/app/lib/catalog'
+import { getInventoryByVariationId } from '@/app/lib/inventory'
 import { getPickupLocation } from '@/app/lib/appointments'
 import { sendMail } from '@/app/lib/email'
 import { escapeHtml, emailSchema, nameSchema, phoneSchema, textSchema, montrealAddressSchema } from '@/app/lib/validate'
@@ -69,6 +70,16 @@ export async function POST(request: Request) {
     .find((v) => v.variationId === variationId)
   if (!validVariation) {
     return NextResponse.json({ error: 'Invalid arrangement selection.' }, { status: 400 })
+  }
+
+  // Live stock check
+  const inventoryCounts = await getInventoryByVariationId([variationId])
+  const stockCount = inventoryCounts[variationId]
+  if (stockCount !== null && stockCount < 1) {
+    return NextResponse.json(
+      { error: 'This arrangement is no longer available. Please contact us directly.' },
+      { status: 409 },
+    )
   }
 
   const arrangementPrice = Number(validVariation.priceMoney) / 100

@@ -6,6 +6,7 @@ import { SquareError } from "square";
 import { parseCart, serializeCart, cartTotal } from "@/app/lib/cart";
 import { getSquareClient, LOCATION_ID } from "@/app/lib/square";
 import { resolveAttributeKeys } from "@/app/lib/catalog";
+import { getInventoryByVariationId } from "@/app/lib/inventory";
 import { sendMail } from "@/app/lib/email";
 import {
   escapeHtml,
@@ -166,6 +167,29 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { error: "Failed to validate cart. Please try again." },
         { status: 500 },
+      );
+    }
+  }
+
+  // Live stock check — only for catalog-variation items (custom line items are skipped)
+  const catalogVariationIds = cart.items
+    .map((i) => i.productId)
+    .filter((id) => SQUARE_VARIATION_ID.test(id));
+
+  if (catalogVariationIds.length > 0) {
+    const inventoryCounts = await getInventoryByVariationId(catalogVariationIds);
+    const outOfStock = cart.items.filter((item) => {
+      if (!SQUARE_VARIATION_ID.test(item.productId)) return false;
+      const count = inventoryCounts[item.productId];
+      return count !== null && count < item.quantity;
+    });
+    if (outOfStock.length > 0) {
+      return NextResponse.json(
+        {
+          error: "One or more items in your cart are no longer available.",
+          items: outOfStock.map((i) => i.name),
+        },
+        { status: 409 },
       );
     }
   }
