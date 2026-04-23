@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { emailSchema, nameSchema } from '@/app/lib/validate'
+import { emailSchema } from '@/app/lib/validate'
 import { verifyTurnstile } from '@/app/lib/turnstile'
 import { appendToCustomerList } from '@/app/lib/sheets'
 
 const bodySchema = z.object({
   email:     emailSchema,
-  name:      nameSchema.optional(),
+  name:      z.string().max(200).trim().optional(),
   turnstile: z.string().optional(),
   website:   z.string().max(0, 'Honeypot').optional(),
 })
