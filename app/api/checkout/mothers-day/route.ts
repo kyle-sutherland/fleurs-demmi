@@ -5,6 +5,7 @@ import { SquareError } from 'square'
 import type { OrderLineItem } from 'square'
 import { getSquareClient, LOCATION_ID } from '@/app/lib/square'
 import { getCatalogItemsByCategory } from '@/app/lib/catalog'
+import { getPickupLocation } from '@/app/lib/appointments'
 import { sendMail } from '@/app/lib/email'
 import { escapeHtml, emailSchema, nameSchema, phoneSchema, textSchema, montrealAddressSchema } from '@/app/lib/validate'
 import { verifyTurnstile } from '@/app/lib/turnstile'
@@ -138,7 +139,7 @@ export async function POST(request: Request) {
       console.error(`Square order had no totalMoney — orderId=${order.id}`)
       return NextResponse.json({ error: 'Failed to create order.' }, { status: 500 })
     }
-    let payment: { id?: string } | null = null
+    let payment: { id?: string; receiptUrl?: string } | null = null
     let giftCardAmountCents = 0
 
     if (giftCardToken) {
@@ -233,6 +234,11 @@ export async function POST(request: Request) {
     const sCardTo       = card_to ? escapeHtml(card_to) : ''
     const sCardMsg      = card_message ? escapeHtml(card_message) : ''
 
+    // Pickup location (from Square custom attribute) — only shown for pickup fulfillment
+    const pickupLocationResult = !isDelivery ? await getPickupLocation().catch(() => null) : null
+    const safePickupLocation = escapeHtml(pickupLocationResult ?? 'Mile End')
+    const receiptUrl = payment.receiptUrl ?? null
+
     const gcDisplay = giftCardAmountCents > 0
       ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;color:#888">Gift Card</td><td style="padding:6px 12px;border-bottom:1px solid #eee;text-align:right;color:#888">−$${(giftCardAmountCents / 100).toFixed(2)}</td></tr>`
       : ''
@@ -268,8 +274,9 @@ export async function POST(request: Request) {
           <tr><td style="padding:6px 12px;font-weight:700">Total</td><td style="padding:6px 12px;font-weight:700;text-align:right">$${total.toFixed(2)} CAD</td></tr>
         </table>
         <table style="font-size:14px;border-collapse:collapse;width:100%;margin-top:24px">
-          <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;width:160px">Mode de r&#233;ception</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${isDelivery ? `Livraison &#8212; 10 mai${sAddress ? `, ${sAddress}` : ''}` : 'Cueillette &#8212; 9 mai, 10h&#8211;17h, Mile End'}</td></tr>
+          <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;width:160px">Mode de r&#233;ception</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${isDelivery ? `Livraison &#8212; 10 mai${sAddress ? `, ${sAddress}` : ''}` : `Cueillette &#8212; 9 mai, 10h&#8211;17h, ${safePickupLocation}`}</td></tr>
         </table>
+        ${receiptUrl ? `<p style="margin-top:24px"><a href="${escapeHtml(receiptUrl)}" style="display:inline-block;padding:10px 20px;background:#1a1a1a;color:#fff;text-decoration:none;font-size:13px;font-weight:600">Voir le re&#231;u Square</a></p>` : ''}
         <p style="font-size:12px;color:#aaa;margin-top:32px">R&#233;f&#233;rence&nbsp;: ${order.id}</p>
         <p style="font-size:13px;color:#888;margin-top:4px">Fleurs d&#39;Emmi &middot; Montr&#233;al, QC</p>
       </div>
@@ -287,8 +294,9 @@ export async function POST(request: Request) {
           <tr><td style="padding:6px 12px;font-weight:700">Total</td><td style="padding:6px 12px;font-weight:700;text-align:right">$${total.toFixed(2)} CAD</td></tr>
         </table>
         <table style="font-size:14px;border-collapse:collapse;width:100%;margin-top:24px">
-          <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;width:160px">Fulfillment</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${isDelivery ? `Delivery &#8212; May 10th${sAddress ? `, ${sAddress}` : ''}` : 'Pick up &#8212; May 9th, 10am&#8211;5pm, Mile End'}</td></tr>
+          <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;width:160px">Fulfillment</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${isDelivery ? `Delivery &#8212; May 10th${sAddress ? `, ${sAddress}` : ''}` : `Pick up &#8212; May 9th, 10am&#8211;5pm, ${safePickupLocation}`}</td></tr>
         </table>
+        ${receiptUrl ? `<p style="margin-top:24px"><a href="${escapeHtml(receiptUrl)}" style="display:inline-block;padding:10px 20px;background:#1a1a1a;color:#fff;text-decoration:none;font-size:13px;font-weight:600">View Square receipt</a></p>` : ''}
         <p style="font-size:12px;color:#aaa;margin-top:32px">Order ref: ${order.id}</p>
         <p style="font-size:13px;color:#888;margin-top:4px">Fleurs d&#39;Emmi &middot; Montr&#233;al, QC</p>
       </div>
