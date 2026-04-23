@@ -159,6 +159,8 @@ export const en = {
       subscribeLabel: "Subscribe to our newsletter",
       paymentSoon: "Payment integration coming soon",
       submit: "Submit Request",
+      submitSuccess:
+        "Thank you! Emmi will be in touch shortly to set up a consultation and provide a custom quote.",
     },
   },
   funerals: {

@@ -69,23 +69,33 @@ export async function POST(request: Request) {
   `
 
   const customerHtml = `
+    <div style="font-family:sans-serif;max-width:600px;color:#1a1a1a;padding-bottom:32px;border-bottom:2px solid #eee;margin-bottom:32px">
+      <h1 style="font-size:28px;font-weight:900;margin-bottom:8px">Demande re&#231;ue&nbsp;!</h1>
+      <p style="font-size:15px;line-height:1.6;color:#444">
+        Merci, ${sName}&nbsp;! Emmi a bien re&#231;u votre demande de devis pour mariage &amp; &#233;v&#233;nements et vous contactera sous peu pour discuter de votre vision et vous envoyer une soumission personnalis&#233;e.
+      </p>
+      <h2 style="font-size:16px;font-weight:700;margin-top:32px;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em">D&#233;tails de votre demande</h2>
+      <table style="font-size:14px;border-collapse:collapse;width:100%">
+        <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;width:160px">Date de l&#39;&#233;v&#233;nement</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${sDate}</td></tr>
+        <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Mode de r&#233;ception</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${fulfillmentList.join(', ') || '&#8212;'}</td></tr>
+        ${sLoc ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Lieu de l&#39;&#233;v&#233;nement</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${sLoc}</td></tr>` : ''}
+        ${itemList.length > 0 ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Articles d&#39;int&#233;r&#234;t</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${itemList.join('<br/>')}</td></tr>` : ''}
+      </table>
+      <p style="font-size:13px;color:#888;margin-top:32px">Fleurs d&#39;Emmi &middot; Montr&#233;al, QC</p>
+    </div>
     <div style="font-family:sans-serif;max-width:600px;color:#1a1a1a">
       <h1 style="font-size:28px;font-weight:900;margin-bottom:8px">Inquiry received!</h1>
       <p style="font-size:15px;line-height:1.6;color:#444">
         Thank you, ${sName}! Emmi has received your wedding &amp; events inquiry and will be in touch shortly to discuss your vision and provide a custom quote.
       </p>
-
       <h2 style="font-size:16px;font-weight:700;margin-top:32px;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em">Your Inquiry Details</h2>
       <table style="font-size:14px;border-collapse:collapse;width:100%">
         <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;width:160px">Event Date</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${sDate}</td></tr>
-        <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Fulfillment</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${fulfillmentList.join(', ') || '—'}</td></tr>
+        <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Fulfillment</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${fulfillmentList.join(', ') || '&#8212;'}</td></tr>
         ${sLoc ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Event Location</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${sLoc}</td></tr>` : ''}
         ${itemList.length > 0 ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Items of Interest</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${itemList.join('<br/>')}</td></tr>` : ''}
       </table>
-
-      <p style="font-size:13px;color:#888;margin-top:32px">
-        Fleurs d'Emmi · Montréal, QC
-      </p>
+      <p style="font-size:13px;color:#888;margin-top:32px">Fleurs d&#39;Emmi &middot; Montr&#233;al, QC</p>
     </div>
   `
 

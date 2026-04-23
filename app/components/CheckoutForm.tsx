@@ -96,6 +96,7 @@ export function CheckoutForm({
   const [discountError, setDiscountError] = useState<string | null>(null);
 
   const onTurnstileToken = useCallback((t: string) => setTurnstileToken(t), []);
+  const sdkError = formT.sdkError;
 
   // Mount/unmount credit card element when sdkReady
   useEffect(() => {
@@ -122,11 +123,11 @@ export function CheckoutForm({
         cardRef.current = card;
         setSdkReady(true);
       } catch {
-        if (!cancelled) setError(formT.sdkError);
+        if (!cancelled) setError(sdkError);
       }
     };
     script.onerror = () => {
-      if (!cancelled) setError(formT.sdkError);
+      if (!cancelled) setError(sdkError);
     };
     document.head.appendChild(script);
     return () => {
@@ -137,7 +138,7 @@ export function CheckoutForm({
       giftCardRef.current = null;
       if (document.head.contains(script)) document.head.removeChild(script);
     };
-  }, [applicationId, locationId, sdkUrl]);
+  }, [applicationId, locationId, sdkUrl, sdkError]);
 
   // Mount/unmount gift card SDK element once balance has been verified
   useEffect(() => {

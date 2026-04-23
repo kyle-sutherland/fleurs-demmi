@@ -168,6 +168,8 @@ export const fr: Dictionary = {
       subscribeLabel: "S\u2019abonner \u00e0 notre infolettre",
       paymentSoon: "Int\u00e9gration de paiement \u00e0 venir",
       submit: "Soumettre la demande",
+      submitSuccess:
+        "Merci ! Emmi vous contactera sous peu pour organiser une consultation et fournir un devis personnalisé.",
     },
   },
   funerals: {

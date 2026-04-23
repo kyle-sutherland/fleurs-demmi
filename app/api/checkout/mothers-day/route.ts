@@ -250,24 +250,43 @@ export async function POST(request: Request) {
     `
 
     const customerHtml = `
+      <div style="font-family:sans-serif;max-width:600px;color:#1a1a1a;padding-bottom:32px;border-bottom:2px solid #eee;margin-bottom:32px">
+        <h1 style="font-size:28px;font-weight:900;margin-bottom:8px">Commande confirm&#233;e</h1>
+        <p style="font-size:15px;line-height:1.6;color:#444">
+          Merci, ${sName}&nbsp;! Votre commande f&#234;te des M&#232;res est confirm&#233;e. Emmi l&#39;aura pr&#234;te pour vous.
+        </p>
+        <h2 style="font-size:16px;font-weight:700;margin-top:32px;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em">R&#233;sum&#233; de la commande</h2>
+        <table style="font-size:14px;border-collapse:collapse;width:100%">
+          <tr><td style="padding:6px 12px;border-bottom:1px solid #eee">${escapeHtml(arrangementName)}</td><td style="padding:6px 12px;border-bottom:1px solid #eee;text-align:right">$${arrangementPrice.toFixed(2)}</td></tr>
+          ${isDelivery ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee">Livraison &#8212; 10 mai</td><td style="padding:6px 12px;border-bottom:1px solid #eee;text-align:right">$${DELIVERY_PRICE.toFixed(2)}</td></tr>` : ''}
+          ${hasCard ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee">Carte de voeux</td><td style="padding:6px 12px;border-bottom:1px solid #eee;text-align:right">$${cardPrice.toFixed(2)}</td></tr>` : ''}
+          ${gcDisplay}
+          <tr><td style="padding:6px 12px;font-weight:700">Total</td><td style="padding:6px 12px;font-weight:700;text-align:right">$${total.toFixed(2)} CAD</td></tr>
+        </table>
+        <table style="font-size:14px;border-collapse:collapse;width:100%;margin-top:24px">
+          <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;width:160px">Mode de r&#233;ception</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${isDelivery ? `Livraison &#8212; 10 mai${sAddress ? `, ${sAddress}` : ''}` : 'Cueillette &#8212; 9 mai, 10h&#8211;17h, Mile End'}</td></tr>
+        </table>
+        <p style="font-size:12px;color:#aaa;margin-top:32px">R&#233;f&#233;rence&nbsp;: ${order.id}</p>
+        <p style="font-size:13px;color:#888;margin-top:4px">Fleurs d&#39;Emmi &middot; Montr&#233;al, QC</p>
+      </div>
       <div style="font-family:sans-serif;max-width:600px;color:#1a1a1a">
         <h1 style="font-size:28px;font-weight:900;margin-bottom:8px">Order confirmed</h1>
         <p style="font-size:15px;line-height:1.6;color:#444">
-          Thank you, ${sName}! Your Mother's Day order is confirmed. Emmi will have it ready for you.
+          Thank you, ${sName}! Your Mother&#39;s Day order is confirmed. Emmi will have it ready for you.
         </p>
         <h2 style="font-size:16px;font-weight:700;margin-top:32px;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em">Order Summary</h2>
         <table style="font-size:14px;border-collapse:collapse;width:100%">
           <tr><td style="padding:6px 12px;border-bottom:1px solid #eee">${escapeHtml(arrangementName)}</td><td style="padding:6px 12px;border-bottom:1px solid #eee;text-align:right">$${arrangementPrice.toFixed(2)}</td></tr>
-          ${isDelivery ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee">Delivery — May 10th</td><td style="padding:6px 12px;border-bottom:1px solid #eee;text-align:right">$${DELIVERY_PRICE.toFixed(2)}</td></tr>` : ''}
+          ${isDelivery ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee">Delivery &#8212; May 10th</td><td style="padding:6px 12px;border-bottom:1px solid #eee;text-align:right">$${DELIVERY_PRICE.toFixed(2)}</td></tr>` : ''}
           ${hasCard ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee">Greeting Card</td><td style="padding:6px 12px;border-bottom:1px solid #eee;text-align:right">$${cardPrice.toFixed(2)}</td></tr>` : ''}
           ${gcDisplay}
           <tr><td style="padding:6px 12px;font-weight:700">Total</td><td style="padding:6px 12px;font-weight:700;text-align:right">$${total.toFixed(2)} CAD</td></tr>
         </table>
         <table style="font-size:14px;border-collapse:collapse;width:100%;margin-top:24px">
-          <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;width:160px">Fulfillment</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${isDelivery ? `Delivery — May 10th${sAddress ? `, ${sAddress}` : ''}` : 'Pick up — May 9th, 10am–5pm, Mile End'}</td></tr>
+          <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;width:160px">Fulfillment</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${isDelivery ? `Delivery &#8212; May 10th${sAddress ? `, ${sAddress}` : ''}` : 'Pick up &#8212; May 9th, 10am&#8211;5pm, Mile End'}</td></tr>
         </table>
         <p style="font-size:12px;color:#aaa;margin-top:32px">Order ref: ${order.id}</p>
-        <p style="font-size:13px;color:#888;margin-top:4px">Fleurs d'Emmi · Montréal, QC</p>
+        <p style="font-size:13px;color:#888;margin-top:4px">Fleurs d&#39;Emmi &middot; Montr&#233;al, QC</p>
       </div>
     `
 

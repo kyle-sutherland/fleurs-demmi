@@ -67,12 +67,25 @@ export async function POST(request: Request) {
   `
 
   const customerHtml = `
+    <div style="font-family:sans-serif;max-width:600px;color:#1a1a1a;padding-bottom:32px;border-bottom:2px solid #eee;margin-bottom:32px">
+      <h1 style="font-size:28px;font-weight:900;margin-bottom:8px">Demande re&#231;ue</h1>
+      <p style="font-size:15px;line-height:1.6;color:#444">
+        Merci, ${sName}. Emmi a bien re&#231;u votre demande d&#39;arrangement de condol&#233;ances et vous contactera sous peu pour discuter des d&#233;tails.
+      </p>
+      <h2 style="font-size:16px;font-weight:700;margin-top:32px;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em">D&#233;tails de votre demande</h2>
+      <table style="font-size:14px;border-collapse:collapse;width:100%">
+        <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;width:160px">Date des fun&#233;railles</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${sDate}</td></tr>
+        ${sFulfillment ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Mode de r&#233;ception</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${sFulfillment}</td></tr>` : ''}
+        ${sLocation ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Lieu</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${sLocation}</td></tr>` : ''}
+        ${sArrangement ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Arrangement</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${sArrangement}</td></tr>` : ''}
+      </table>
+      <p style="font-size:13px;color:#888;margin-top:32px">Fleurs d&#39;Emmi &middot; Montr&#233;al, QC</p>
+    </div>
     <div style="font-family:sans-serif;max-width:600px;color:#1a1a1a">
       <h1 style="font-size:28px;font-weight:900;margin-bottom:8px">Inquiry received</h1>
       <p style="font-size:15px;line-height:1.6;color:#444">
         Thank you, ${sName}. Emmi has received your sympathy arrangement inquiry and will be in touch shortly to discuss the details.
       </p>
-
       <h2 style="font-size:16px;font-weight:700;margin-top:32px;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em">Your Inquiry Details</h2>
       <table style="font-size:14px;border-collapse:collapse;width:100%">
         <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;width:160px">Funeral Date</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${sDate}</td></tr>
@@ -80,8 +93,7 @@ export async function POST(request: Request) {
         ${sLocation ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Location</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${sLocation}</td></tr>` : ''}
         ${sArrangement ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Arrangement</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${sArrangement}</td></tr>` : ''}
       </table>
-
-      <p style="font-size:13px;color:#888;margin-top:32px">Fleurs d'Emmi · Montréal, QC</p>
+      <p style="font-size:13px;color:#888;margin-top:32px">Fleurs d&#39;Emmi &middot; Montr&#233;al, QC</p>
     </div>
   `
 

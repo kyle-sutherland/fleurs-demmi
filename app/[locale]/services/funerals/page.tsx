@@ -1,4 +1,5 @@
 import SiteHeader from "@/app/components/SiteHeader";
+import Image from "next/image";
 import {
   FuneralsForm,
   type SympathyArrangement,
@@ -57,8 +58,7 @@ export default async function FuneralsPage({
 
         <div className="mt-8 max-w-2xl md:max-w-[58.8rem] w-full border-[24px] border-[#E6E6FA]">
           <div className="overflow-hidden">
-            {/* eslin -disable-next-line @next/next/no-img-element */}
-            <img
+            <Image
               src="/Flower Photos/sympathy.jpeg"
               alt="Sympathy & Support"
               className="w-full h-auto scale-[1.15] block"
