@@ -20,6 +20,14 @@ export const fr: Dictionary = {
     subscribe: "S\u2019abonner",
     subscribeLabel: "S\u2019abonner \u00e0 notre infolettre",
     copyright: "Fleurs d\u2019Emmi \u00b7 Montr\u00e9al, QC",
+    form: {
+      name: "Nom",
+      email: "Courriel",
+      submit: "S\u2019abonner",
+      submitSuccess: "Merci pour votre abonnement !",
+      submitError: "Une erreur est survenue. Veuillez réessayer.",
+      invalidEmail: "Veuillez entrer une adresse courriel valide.",
+    },
   },
   home: {
     shopNow: "Magasiner",
@@ -268,6 +276,17 @@ export const fr: Dictionary = {
     backToVases: "← Retour aux vases",
     notFound: "Vase introuvable.",
     pickupAt: "Disponible pour la cueillette au Mile End",
+  },
+  cart: {
+    heading: "Votre panier",
+    empty: "Votre panier est vide.",
+    browseShop: "Parcourir la boutique",
+    each: "chacun",
+    orderSummary: "Résumé de la commande",
+    subtotal: "Sous-total",
+    total: "Total",
+    proceedToCheckout: "Passer à la caisse",
+    includedWithDelivery: "Inclus avec la livraison",
   },
   checkout: {
     heading: "Paiement",

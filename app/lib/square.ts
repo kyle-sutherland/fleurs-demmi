@@ -10,4 +10,6 @@ export function getSquareClient() {
   })
 }
 
-export const LOCATION_ID = process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID!
+const _locationId = process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID
+if (!_locationId) throw new Error('NEXT_PUBLIC_SQUARE_LOCATION_ID is not set')
+export const LOCATION_ID = _locationId

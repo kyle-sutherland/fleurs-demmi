@@ -78,6 +78,8 @@ Do not rely on pre-v16 habits.
 - **Idempotency keys** use `randomUUID()` from `crypto` for every `orders.create` and `payments.create`.
 - **HTML emails hand-escape every interpolation** with `escapeHtml()` from `@/app/lib/validate`. No template engine.
 - **Form bodies always include a honeypot** (`website` field, must be empty) + Turnstile token. Server validates both.
+- **Rate limiting** on all public POST endpoints via `enforceRateLimit(request, key)` from `@/app/lib/rateLimit`. Call it first in each POST handler, before Turnstile. Uses Upstash Redis sliding window (silently skipped in dev if Upstash env vars are unset). Keys: `checkout` (10/min), `inquire` (5/min), `subscribe` (3/min), `cart_write` (60/min).
+- **IP extraction** — the site runs on Vercel (not Cloudflare). Use `x-forwarded-for` only: `request.headers.get('x-forwarded-for')?.split(',')[0].trim()`. Do NOT read `cf-connecting-ip`.
 - **`'use client'` only when needed** — all pages/layouts are Server Components by default. Client components: cart badge, forms, slideshows, TurnstileWidget.
 
 ---
@@ -121,6 +123,7 @@ All env vars in `.env.local` (gitignored via `.env*`). Required:
 - `WEBMASTER_EMAIL`, `RECIPIENT_EMAIL`, `SUBSCRIBERS_SHEET_ID`
 - `TURNSTILE_SECRET_KEY`, `NEXT_PUBLIC_TURNSTILE_SITE_KEY` — Cloudflare Turnstile
 - `CART_COOKIE_SECRET` — HMAC-SHA256 secret for signing the cart cookie (generate: `openssl rand -base64 32`). Required in production; falls back to an insecure placeholder in dev.
+- `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` — Upstash Redis for distributed rate limiting (required in production; rate limiting is silently skipped in dev if unset). Create a free database at console.upstash.com.
 - `NODE_OPTIONS=--dns-result-order=ipv4first` is set locally (IPv6 issues with some providers)
 
 Scripts load `.env.local` **manually** via `fs.readFileSync` — tsx doesn't auto-load. Copy that pattern for new scripts.

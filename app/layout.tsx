@@ -12,7 +12,19 @@ const courierPrime = Courier_Prime({
 
 export const metadata: Metadata = {
   title: "Fleurs d'Emmi",
-  description: "Flowers & things",
+  description: "Flowers & things · Montréal florist",
+  openGraph: {
+    title: "Fleurs d'Emmi",
+    description: "Flowers & things · Montréal florist",
+    siteName: "Fleurs d'Emmi",
+    locale: "fr_CA",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "Fleurs d'Emmi",
+    description: "Flowers & things · Montréal florist",
+  },
 };
 
 export default async function RootLayout({

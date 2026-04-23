@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { sendMail } from '@/app/lib/email'
 import { escapeHtml, emailSchema, nameSchema, phoneSchema, dateSchema, textSchema } from '@/app/lib/validate'
 import { verifyTurnstile } from '@/app/lib/turnstile'
+import { enforceRateLimit } from '@/app/lib/rateLimit'
 import { appendToCustomerList } from '@/app/lib/sheets'
 
 const bodySchema = z.object({
@@ -28,11 +29,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Invalid request.' }, { status: 400 })
   }
 
+  const rateLimited = await enforceRateLimit(request, 'inquire')
+  if (rateLimited) return rateLimited
+
   if (body.website) {
     return NextResponse.json({ error: 'Invalid request.' }, { status: 400 })
   }
 
-  const ip = request.headers.get('cf-connecting-ip') ?? request.headers.get('x-forwarded-for') ?? undefined
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim()
   if (!await verifyTurnstile(body.turnstile, ip)) {
     return NextResponse.json({ error: 'Bot verification failed. Please try again.' }, { status: 403 })
   }

@@ -21,7 +21,7 @@ type AttributeKeys = { nameKeys: string[]; descriptionKeys: string[]; bouquetsKe
 
 // Resolves dashboard-created custom attribute keys (stored as "Square:{uuid}") by
 // scanning attribute definitions and matching on display name.
-async function resolveAttributeKeys(client: SquareClient): Promise<AttributeKeys> {
+export async function resolveAttributeKeys(client: SquareClient): Promise<AttributeKeys> {
   const nameKeys: string[] = []
   const descriptionKeys: string[] = []
   let bouquetsKey = 'bouquets' // legacy fallback (plain key)

@@ -63,10 +63,6 @@ type Props = {
     giftCardError: string
     giftCardRemove: string
     giftCardConfirmLabel: string
-    discountLabel: string
-    discountPlaceholder: string
-    discountApply: string
-    discountError: string
   }
 }
 
@@ -91,10 +87,6 @@ export function MothersDayCheckoutForm({ applicationId, locationId, sdkUrl, arra
   const [giftCardError, setGiftCardError] = useState<string | null>(null)
   const [giftCardLoading, setGiftCardLoading] = useState(false)
   const [giftCardReady, setGiftCardReady] = useState(false)
-
-  // Discount code state (stubbed — always invalid)
-  const [discountInput, setDiscountInput] = useState('')
-  const [discountError, setDiscountError] = useState<string | null>(null)
 
   const onTurnstileToken = useCallback((t: string) => setTurnstileToken(t), [])
 
@@ -183,11 +175,6 @@ export function MothersDayCheckoutForm({ applicationId, locationId, sdkUrl, arra
     } finally {
       setGiftCardLoading(false)
     }
-  }
-
-  function applyDiscountCode() {
-    if (!discountInput.trim()) return
-    setDiscountError(t.discountError)
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -349,13 +336,14 @@ export function MothersDayCheckoutForm({ applicationId, locationId, sdkUrl, arra
 
       {/* Gift card */}
       <div className="flex flex-col gap-2">
-        <label className="font-sans text-xs uppercase tracking-widest font-semibold">
+        <label htmlFor="md-gift-card-gan" className="font-sans text-xs uppercase tracking-widest font-semibold">
           {t.giftCardLabel}
         </label>
         {!giftCard ? (
           <>
             <div className="flex gap-2">
               <input
+                id="md-gift-card-gan"
                 type="text"
                 value={giftCardInput}
                 onChange={(e) => { setGiftCardInput(e.target.value); setGiftCardError(null) }}
@@ -399,35 +387,8 @@ export function MothersDayCheckoutForm({ applicationId, locationId, sdkUrl, arra
         )}
       </div>
 
-      {/* Discount code */}
       <div className="flex flex-col gap-2">
-        <label className="font-sans text-xs uppercase tracking-widest font-semibold">
-          {t.discountLabel}
-        </label>
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={discountInput}
-            onChange={(e) => { setDiscountInput(e.target.value); setDiscountError(null) }}
-            placeholder={t.discountPlaceholder}
-            className="flex-1 border-2 border-foreground bg-transparent font-sans text-sm px-4 py-3 focus:outline-none focus:border-purple"
-          />
-          <button
-            type="button"
-            onClick={applyDiscountCode}
-            disabled={!discountInput.trim()}
-            className="font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground px-5 py-3 hover:bg-foreground hover:text-background transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-          >
-            {t.discountApply}
-          </button>
-        </div>
-        {discountError && (
-          <p className="font-sans text-sm text-red-600">{discountError}</p>
-        )}
-      </div>
-
-      <div className="flex flex-col gap-2">
-        <label className="font-sans text-xs uppercase tracking-widest font-semibold">Card Details</label>
+        <p className="font-sans text-xs uppercase tracking-widest font-semibold">Card Details</p>
         <div
           id="mothers-day-card-container"
           className="bg-transparent px-1 py-1 min-h-[56px]"
@@ -508,8 +469,8 @@ function Field({ label, name, type, hint, required }: { label: string; name: str
 function Textarea({ label, name, rows }: { label: string; name: string; rows: number }) {
   return (
     <div className="flex flex-col gap-1">
-      {label && <label className="font-sans text-xs uppercase tracking-widest font-semibold">{label}</label>}
-      <textarea name={name} rows={rows} className="border-2 border-foreground bg-transparent font-sans text-sm px-4 py-3 focus:outline-none focus:border-purple resize-none" />
+      {label && <label htmlFor={name} className="font-sans text-xs uppercase tracking-widest font-semibold">{label}</label>}
+      <textarea id={name} name={name} rows={rows} className="border-2 border-foreground bg-transparent font-sans text-sm px-4 py-3 focus:outline-none focus:border-purple resize-none" />
     </div>
   )
 }

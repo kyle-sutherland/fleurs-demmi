@@ -3,6 +3,7 @@ import { cookies } from 'next/headers'
 import SiteHeader from '@/app/components/SiteHeader'
 import { CartItemControls } from '@/app/components/CartItemControls'
 import { parseCart, cartTotal } from '@/app/lib/cart'
+import { getDictionary } from '@/lib/i18n'
 
 export const metadata = {
   title: "Cart — Fleurs d'Emmi",
@@ -14,6 +15,7 @@ export default async function CartPage({
   params: Promise<{ locale: string }>
 }) {
   const { locale } = await params
+  const t = getDictionary(locale)
   const cookieStore = await cookies()
   const cart = parseCart(cookieStore.get('cart')?.value)
   const total = cartTotal(cart)
@@ -30,17 +32,17 @@ export default async function CartPage({
 
       <main className="mx-8 md:mx-32 mt-10 md:mt-16 pb-24">
         <h1 className="font-display font-black text-[14vw] md:text-[6vw] leading-none">
-          Your Cart
+          {t.cart.heading}
         </h1>
 
         {cart.items.length === 0 ? (
           <div className="mt-12 flex flex-col gap-5">
-            <p className="font-sans text-base text-foreground/60">Your cart is empty.</p>
+            <p className="font-sans text-base text-foreground/60">{t.cart.empty}</p>
             <Link
               href={`/${locale}/shop`}
               className="self-start font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-8 py-3 hover:bg-orange-500 hover:border-[#E6E6FA] hover:text-[#E6E6FA] transition-colors"
             >
-              Browse the Shop
+              {t.cart.browseShop}
             </Link>
           </div>
         ) : (
@@ -65,11 +67,11 @@ export default async function CartPage({
                   )}
 
                   <p className="font-sans text-sm text-foreground/60">
-                    ${item.price.toFixed(2)} each
+                    ${item.price.toFixed(2)} {t.cart.each}
                   </p>
 
                   {item.productId.startsWith('delivery-surcharge:') ? (
-                    <p className="font-sans text-xs text-foreground/40 mt-2 uppercase tracking-widest">Included with delivery</p>
+                    <p className="font-sans text-xs text-foreground/40 mt-2 uppercase tracking-widest">{t.cart.includedWithDelivery}</p>
                   ) : (
                     <CartItemControls
                       id={item.id}
@@ -83,15 +85,15 @@ export default async function CartPage({
 
             {/* Order summary */}
             <div className="md:w-72 flex flex-col gap-5 border-2 border-foreground/20 p-6">
-              <p className="font-display font-black text-xl">Order Summary</p>
+              <p className="font-display font-black text-xl">{t.cart.orderSummary}</p>
 
               <div className="flex justify-between font-sans text-sm text-foreground/70">
-                <span>Subtotal</span>
+                <span>{t.cart.subtotal}</span>
                 <span>${total.toFixed(2)}</span>
               </div>
 
               <div className="border-t-2 border-foreground/10 pt-4 flex justify-between font-display font-black text-lg">
-                <span>Total</span>
+                <span>{t.cart.total}</span>
                 <span>${total.toFixed(2)}</span>
               </div>
 
@@ -99,7 +101,7 @@ export default async function CartPage({
                 href="/checkout"
                 className="font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-8 py-3 text-center hover:bg-orange-500 hover:border-[#E6E6FA] hover:text-[#E6E6FA] transition-colors"
               >
-                Proceed to Checkout
+                {t.cart.proceedToCheckout}
               </Link>
             </div>
           </div>

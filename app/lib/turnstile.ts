@@ -29,7 +29,9 @@ export async function verifyTurnstile(token: string | undefined, ip?: string): P
     const data = await res.json() as { success: boolean }
     return data.success === true
   } catch (err) {
-    console.error('Turnstile verification error:', err)
-    return false
+    // Network/infrastructure error reaching Cloudflare — fail open so a Cloudflare
+    // outage doesn't block checkouts. Rate limiting remains active as a backstop.
+    console.error('Turnstile network error (failing open):', err)
+    return true
   }
 }
