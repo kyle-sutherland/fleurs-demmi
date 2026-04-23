@@ -22,7 +22,6 @@ declare global {
 }
 
 const DELIVERY_PRICE = 10
-const CARD_PRICE = 4
 
 export type MDArrangement = {
   variationId: string
@@ -36,6 +35,7 @@ type Props = {
   locationId: string
   sdkUrl: string
   arrangements: MDArrangement[]
+  cardPrice: number
   t: {
     name: string
     email: string
@@ -68,7 +68,7 @@ type Props = {
   }
 }
 
-export function MothersDayCheckoutForm({ applicationId, locationId, sdkUrl, arrangements, t }: Props) {
+export function MothersDayCheckoutForm({ applicationId, locationId, sdkUrl, arrangements, cardPrice, t }: Props) {
   const router = useRouter()
   const cardRef = useRef<SquarePaymentMethod | null>(null)
   const giftCardRef = useRef<SquarePaymentMethod | null>(null)
@@ -98,7 +98,7 @@ export function MothersDayCheckoutForm({ applicationId, locationId, sdkUrl, arra
 
   const selected = arrangements.find((a) => a.variationId === selectedId)
   const arrangementPrice = selected?.price ?? 0
-  const total = arrangementPrice + (fulfillment === 'delivery' ? DELIVERY_PRICE : 0) + (showCard ? CARD_PRICE : 0)
+  const total = arrangementPrice + (fulfillment === 'delivery' ? DELIVERY_PRICE : 0) + (showCard ? cardPrice : 0)
 
   const displayTotal = giftCard ? Math.max(0, total - giftCard.balance) : total
 
@@ -217,18 +217,20 @@ export function MothersDayCheckoutForm({ applicationId, locationId, sdkUrl, arra
       giftCardToken = gcResult.token
     }
 
+    const getString = (key: string) => data.get(key) as string | null ?? undefined
+
     const body = {
       token,
       name: data.get('name') as string,
       email: data.get('email') as string,
       phone: data.get('phone') as string,
       fulfillment,
-      address: data.get('address') as string,
-      delivery_time: data.get('delivery_time') as string,
+      address: getString('address'),
+      delivery_time: getString('delivery_time'),
       variationId: selected.variationId,
       arrangementName: selected.name,
-      card_to: data.get('card_to') as string,
-      card_message: data.get('card_message') as string,
+      card_to: getString('card_to'),
+      card_message: getString('card_message'),
       subscribe_to_news: subscribeToNews,
       turnstile: turnstileToken,
       ...(giftCardToken ? { giftCardToken } : {}),
@@ -324,7 +326,7 @@ export function MothersDayCheckoutForm({ applicationId, locationId, sdkUrl, arra
             onChange={(e) => setShowCard(e.target.checked)}
             className="accent-purple"
           />
-          {t.card}
+          {t.card} <span className="font-normal normal-case">(+${cardPrice.toFixed(2)})</span>
         </label>
         {showCard && (
           <div className="mt-2 flex flex-col gap-3">
@@ -442,7 +444,7 @@ export function MothersDayCheckoutForm({ applicationId, locationId, sdkUrl, arra
         {showCard && (
           <div className="flex justify-between font-sans text-sm text-foreground/60">
             <span>Greeting card</span>
-            <span>+${CARD_PRICE.toFixed(2)}</span>
+            <span>+${cardPrice.toFixed(2)}</span>
           </div>
         )}
         {giftCard && (

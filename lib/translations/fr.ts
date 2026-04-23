@@ -30,11 +30,29 @@ export const fr: Dictionary = {
       "fleurs d\u2019emmi est le projet floral d\u2019Emily Gray, bas\u00e9e \u00e0 Montr\u00e9al, Qu\u00e9bec, utilisant principalement des fleurs cultiv\u00e9es par des agriculteurs locaux et dans son propre jardin. Avec une formation en arts visuels (BFA c.2017) et plus de 10 ans d\u2019exp\u00e9rience dans des fermes biologiques \u00e0 petite \u00e9chelle \u00e0 travers le Canada, sa passion pour le travail avec les fleurs est n\u00e9e naturellement et continue de grandir.",
     readMore: "En savoir plus",
     products: {
-      bouquetSubscription: { label: "Abonnement de bouquets", sublabel: "Bouquets saisonniers aux deux semaines \u00b7 Cueillette ou livraison" },
-      mothersDay: { label: "Bouquets f\u00eate des M\u00e8res", sublabel: "Commandez maintenant \u00b7 Cueillette le 9 mai ou livraison le 10 mai" },
-      vases: { label: "Vases artisanaux et vintage", sublabel: "Des contenants uniques pour votre maison et vos arrangements floraux" },
-      cards: { label: "Cartes et petits cadeaux", sublabel: "De petits extras pour compl\u00e9ter votre cadeau" },
-      giftCard: { label: "Carte-cadeau num\u00e9rique", sublabel: "Offrez des fleurs \u00b7 Utilisable en ligne" },
+      bouquetSubscription: {
+        label: "Abonnement de bouquets",
+        sublabel:
+          "Bouquets saisonniers aux deux semaines \u00b7 Cueillette ou livraison",
+      },
+      mothersDay: {
+        label: "Bouquets f\u00eate des M\u00e8res",
+        sublabel:
+          "Commandez maintenant \u00b7 Cueillette le 9 mai ou livraison le 10 mai",
+      },
+      vases: {
+        label: "Vases artisanaux et vintage",
+        sublabel:
+          "Des contenants uniques pour votre maison et vos arrangements floraux",
+      },
+      cards: {
+        label: "Cartes et petits cadeaux",
+        sublabel: "De petits extras pour compl\u00e9ter votre cadeau",
+      },
+      giftCard: {
+        label: "Carte-cadeau num\u00e9rique",
+        sublabel: "Offrez des fleurs \u00b7 Utilisable en ligne",
+      },
     },
     serviceCards: {
       weddings: {
@@ -50,11 +68,28 @@ export const fr: Dictionary = {
   shop: {
     heading: "fleurs & choses",
     products: {
-      bouquetSubscription: { label: "Abonnement de bouquets", sublabel: "Bouquets saisonniers aux deux semaines \u00b7 \u00e0 partir de 150\u00a0$" },
-      mothersDay: { label: "Bouquets f\u00eate des M\u00e8res", sublabel: "Cueillette le 9 mai ou livraison le 10 mai \u00b7 \u00e0 partir de 50\u00a0$" },
-      vases: { label: "Vases artisanaux et vintage", sublabel: "Des pi\u00e8ces uniques en leur genre" },
-      cards: { label: "Cartes et petits cadeaux", sublabel: "De petits extras pour compl\u00e9ter votre cadeau" },
-      giftCard: { label: "Carte-cadeau num\u00e9rique", sublabel: "Offrez des fleurs \u00b7 Utilisable en ligne" },
+      bouquetSubscription: {
+        label: "Abonnement de bouquets",
+        sublabel:
+          "Bouquets saisonniers aux deux semaines \u00b7 \u00e0 partir de 150\u00a0$",
+      },
+      mothersDay: {
+        label: "Bouquets f\u00eate des M\u00e8res",
+        sublabel:
+          "Cueillette le 9 mai ou livraison le 10 mai \u00b7 \u00e0 partir de 50\u00a0$",
+      },
+      vases: {
+        label: "Vases artisanaux et vintage",
+        sublabel: "Des pi\u00e8ces uniques en leur genre",
+      },
+      cards: {
+        label: "Cartes et petits cadeaux",
+        sublabel: "De petits extras pour compl\u00e9ter votre cadeau",
+      },
+      giftCard: {
+        label: "Carte-cadeau num\u00e9rique",
+        sublabel: "Offrez des fleurs \u00b7 Utilisable en ligne",
+      },
     },
   },
   about: {
@@ -107,19 +142,29 @@ export const fr: Dictionary = {
       email: "Courriel",
       phone: "T\u00e9l\u00e9phone",
       eventDate: "Date du mariage / \u00e9v\u00e9nement",
-      eventDateHint: "Veuillez commander au moins 1 mois avant votre \u00e9v\u00e9nement.",
+      eventDateHint:
+        "Veuillez commander au moins 1 mois avant votre \u00e9v\u00e9nement.",
       fulfillment: "Mode de r\u00e9ception",
       pickUp: "Cueillette (Mile End)",
       delivery: "Livraison",
       eventLocation: "Lieu du mariage / \u00e9v\u00e9nement",
-      eventLocationHint: "Requis si livraison ou installation est n\u00e9cessaire.",
+      eventLocationHint:
+        "Requis si livraison ou installation est n\u00e9cessaire.",
       guestCount: "Nombre de tables / invit\u00e9s",
       selectedItems: "Vos articles s\u00e9lectionn\u00e9s",
-      items: ["Bouquet de mari\u00e9e", "Boutonni\u00e8re / Corsages", "Bouquets des demoiselles d\u2019honneur", "Centres de table", "Installations florales et arches", "Seau de fleurs en libre-service"],
+      items: [
+        "Bouquet de mari\u00e9e",
+        "Boutonni\u00e8re / Corsages",
+        "Bouquets des demoiselles d\u2019honneur",
+        "Centres de table",
+        "Installations florales et arches",
+        "Seau de fleurs en libre-service",
+      ],
       styleNotes: "Notes sur le style / la couleur",
       additionalInfo: "Informations ou demandes suppl\u00e9mentaires",
       images: "Images (optionnel)",
-      imagesNote: "Les pi\u00e8ces jointes ne sont pas envoy\u00e9es avec ce formulaire \u2014 vous pourrez les partager lors de votre consultation.",
+      imagesNote:
+        "Les pi\u00e8ces jointes ne sont pas envoy\u00e9es avec ce formulaire \u2014 vous pourrez les partager lors de votre consultation.",
       subscribeLabel: "S\u2019abonner \u00e0 notre infolettre",
       paymentSoon: "Int\u00e9gration de paiement \u00e0 venir",
       submit: "Soumettre la demande",
@@ -136,9 +181,11 @@ export const fr: Dictionary = {
       email: "Courriel",
       phone: "T\u00e9l\u00e9phone",
       funeralDate: "Date des fun\u00e9railles",
-      funeralDateHint: "Les commandes doivent \u00eatre pass\u00e9es au moins 3 jours avant la r\u00e9ception.",
+      funeralDateHint:
+        "Les commandes doivent \u00eatre pass\u00e9es au moins 3 jours avant la r\u00e9ception.",
       funeralLocation: "Lieu des fun\u00e9railles",
-      funeralLocationHint: "Requis si livraison ou installation est n\u00e9cessaire.",
+      funeralLocationHint:
+        "Requis si livraison ou installation est n\u00e9cessaire.",
       fulfillment: "Mode de r\u00e9ception",
       pickUp: "Cueillette (Mile End)",
       delivery: "Livraison (Dans un rayon de 8 km)",
@@ -148,7 +195,7 @@ export const fr: Dictionary = {
       inquireForPricing: "Prix sur demande",
       soldOut: "\u00c9puis\u00e9",
       styleNotes: "Notes sur le style / la couleur",
-      card: "Carte avec note (4,00\u00a0$ suppl\u00e9mentaire)",
+      card: "Carte avec note",
       cardRecipient: "À :",
       cardMessage: "Message :",
       paymentSoon: "Int\u00e9gration de paiement \u00e0 venir",
@@ -162,15 +209,18 @@ export const fr: Dictionary = {
     from: "Du",
     available: "disponibles",
     deliveryLabel: "Option de livraison",
-    pickUpOption: "Cueillette \u2014 Caf\u00e9 Replika (252 Rue Rachel E, Montr\u00e9al), samedis 11h\u201317h",
-    pickUpOption2: "Cueillette \u2014 D\u00e9panneur Le Pick-Up (7032 Rue Waverly), samedis 11h\u201316h",
+    pickUpOption:
+      "Cueillette \u2014 Caf\u00e9 Replika (252 Rue Rachel E, Montr\u00e9al), samedis 11h\u201317h",
+    pickUpOption2:
+      "Cueillette \u2014 D\u00e9panneur Le Pick-Up (7032 Rue Waverly), samedis 11h\u201316h",
     deliveryOption: "Livraison \u00e0 domicile (+10\u00a0$/bouquet)",
     paymentSoon: "Int\u00e9gration de paiement \u00e0 venir",
     subscribeBtn: "S\u2019abonner \u2014 ",
   },
   mothersDay: {
     heading: "Bouquets\nf\u00eate des M\u00e8res",
-    intro: "C\u2019est cette p\u00e9riode sp\u00e9ciale de l\u2019ann\u00e9e pour montrer votre amour \u00e0 toutes les merveilleuses m\u00e8res de nos vies.",
+    intro:
+      "C\u2019est cette p\u00e9riode sp\u00e9ciale de l\u2019ann\u00e9e pour montrer votre amour \u00e0 toutes les merveilleuses m\u00e8res de nos vies.",
     form: {
       name: "Nom",
       email: "Courriel",
@@ -185,7 +235,7 @@ export const fr: Dictionary = {
       arrangement: "Arrangement",
       arrangement50: "Arrangement à 50\u00a0$ (pot Mason 490\u00a0mL)",
       arrangement75: "Arrangement à 75\u00a0$ (pot Mason 750\u00a0mL)",
-      card: "Carte avec note (4,00\u00a0$ suppl\u00e9mentaire)",
+      card: "Carte avec note",
       cardName: "À :",
       cardMessage: "Message :",
       subscribeLabel: "S\u2019abonner \u00e0 notre infolettre",
@@ -196,22 +246,24 @@ export const fr: Dictionary = {
 
   cards: {
     heading: "Cartes &\nPetits cadeaux",
-    intro: "De petits extras pour compléter votre cadeau. Cartes, petits cadeaux et surprises saisonnières.",
+    intro:
+      "De petits extras pour compléter votre cadeau. Cartes, petits cadeaux et surprises saisonnières.",
     comingSoon: "À venir",
     back: "← Retour",
     backToCards: "← Retour aux cartes et cadeaux",
     notFound: "Article introuvable.",
-    pickupAt: "Disponible pour la cueillette au studio de céramique d'Emmi au",
+    pickupAt: "Disponible pour la cueillette au Mile End",
   },
   vases: {
     heading: "Vases artisanaux\net vintage",
-    intro: "Des contenants uniques pour votre maison et vos arrangements floraux. Découvrez ici notre collection de céramiques artisanales locales et de trouvailles vintage.",
+    intro:
+      "Des contenants uniques pour votre maison et vos arrangements floraux. Découvrez ici notre collection de céramiques artisanales locales et de trouvailles vintage.",
     comingSoon: "À venir",
     oneOfAKind: "Pièce unique",
     back: "← Retour",
     backToVases: "← Retour aux vases",
     notFound: "Vase introuvable.",
-    pickupAt: "Disponible pour la cueillette au studio de céramique d'Emmi au",
+    pickupAt: "Disponible pour la cueillette au Mile End",
   },
   checkout: {
     heading: "Paiement",
@@ -224,7 +276,8 @@ export const fr: Dictionary = {
       loadingPayment: "Chargement du formulaire de paiement…",
       processing: "Traitement en cours…",
       pay: "Payer",
-      sdkError: "Impossible de charger le formulaire de paiement. Veuillez rafraîchir la page.",
+      sdkError:
+        "Impossible de charger le formulaire de paiement. Veuillez rafraîchir la page.",
       tokenizeError: "Échec de la lecture de la carte.",
       paymentError: "Paiement échoué. Veuillez réessayer.",
       giftCardLabel: "Numéro de carte-cadeau",
@@ -242,13 +295,16 @@ export const fr: Dictionary = {
     },
     scheduler: {
       heading: "Heure de cueillette",
-      pickupAt: "Disponible pour la cueillette au studio de céramique d'Emmi au",
+      pickupAt: "Disponible pour la cueillette au Mile End",
       selectDate: "Choisir une date",
       selectTime: "Choisir une heure de cueillette *",
       loadingSlots: "Chargement des disponibilités…",
-      noSlots: "Aucune heure de cueillette disponible dans les 2 prochaines semaines.",
-      fetchError: "Impossible de charger les disponibilités. Veuillez réessayer.",
-      noSlotError: "Veuillez choisir une heure de cueillette avant de continuer.",
+      noSlots:
+        "Aucune heure de cueillette disponible dans les 2 prochaines semaines.",
+      fetchError:
+        "Impossible de charger les disponibilités. Veuillez réessayer.",
+      noSlotError:
+        "Veuillez choisir une heure de cueillette avant de continuer.",
       pickupAround: "Votre cueillette sera prévue vers",
     },
   },

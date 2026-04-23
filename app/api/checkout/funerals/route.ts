@@ -11,7 +11,8 @@ import { verifyTurnstile } from '@/app/lib/turnstile'
 import { appendToCustomerList } from '@/app/lib/sheets'
 
 const SYMPATHY_CATEGORY = 'Sympathy'
-const CARD_CATEGORY = 'Card Add-On'
+const CARD_CATEGORY = 'Cards & Goodies'
+const CARD_ITEM_NAME = 'Candy Flowers Card (blank inside)'
 const CARD_ADDON_PRICE = 4
 
 const bodySchema = z.object({
@@ -62,7 +63,14 @@ export async function POST(request: Request) {
 
   const arrangementPrice = Number(validVariation.priceMoney) / 100
   const hasCard = !!(card_name || card_message)
-  const total = arrangementPrice + (hasCard ? CARD_ADDON_PRICE : 0)
+
+  const cardItems = hasCard ? await getCatalogItemsByCategory(CARD_CATEGORY, 'en') : []
+  const cardItem = cardItems.find((i) => i.name === CARD_ITEM_NAME) ?? cardItems[0]
+  const cardVariation = cardItem?.variations[0]
+  const cardVariationId = cardVariation?.variationId
+  const cardPrice = cardVariation ? Number(cardVariation.priceMoney) / 100 : CARD_ADDON_PRICE
+
+  const total = arrangementPrice + (hasCard ? cardPrice : 0)
 
   const lineItems: OrderLineItem[] = [
     {
@@ -73,8 +81,6 @@ export async function POST(request: Request) {
   ]
 
   if (hasCard) {
-    const cardItems = await getCatalogItemsByCategory(CARD_CATEGORY, 'en')
-    const cardVariationId = cardItems[0]?.variations[0]?.variationId
     if (cardVariationId) {
       lineItems.push({
         quantity: '1',
@@ -108,7 +114,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Failed to create order.' }, { status: 500 })
     }
 
-    const orderTotalCents = Math.round(total * 100)
+    const orderTotalCents = Number(order.totalMoney?.amount ?? 0)
+
+    if (!orderTotalCents) {
+      console.error(`Square order had no totalMoney — orderId=${order.id}`)
+      return NextResponse.json({ error: 'Failed to create order.' }, { status: 500 })
+    }
     let payment: { id?: string } | null = null
     let giftCardAmountCents = 0
 
@@ -237,7 +248,7 @@ export async function POST(request: Request) {
         <h2 style="font-size:16px;font-weight:700;margin-top:32px;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em">Order Summary</h2>
         <table style="font-size:14px;border-collapse:collapse;width:100%">
           <tr><td style="padding:6px 12px;border-bottom:1px solid #eee">${escapeHtml(arrangementName)}</td><td style="padding:6px 12px;border-bottom:1px solid #eee;text-align:right">$${arrangementPrice.toFixed(2)}</td></tr>
-          ${hasCard ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee">Greeting Card</td><td style="padding:6px 12px;border-bottom:1px solid #eee;text-align:right">$${CARD_ADDON_PRICE.toFixed(2)}</td></tr>` : ''}
+          ${hasCard ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee">Greeting Card</td><td style="padding:6px 12px;border-bottom:1px solid #eee;text-align:right">$${cardPrice.toFixed(2)}</td></tr>` : ''}
           ${gcDisplay}
           <tr><td style="padding:6px 12px;font-weight:700">Total</td><td style="padding:6px 12px;font-weight:700;text-align:right">$${total.toFixed(2)} CAD</td></tr>
         </table>

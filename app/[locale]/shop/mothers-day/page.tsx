@@ -8,6 +8,8 @@ import { getInventoryByVariationId } from "@/app/lib/inventory";
 export const revalidate = 3600
 
 const MD_CATEGORY = "Mother's Day"
+const CARD_CATEGORY = 'Cards & Goodies'
+const CARD_ITEM_NAME = 'Candy Flowers Card (blank inside)'
 
 export default async function MothersDayPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -19,8 +21,15 @@ export default async function MothersDayPage({ params }: { params: Promise<{ loc
       ? 'https://web.squarecdn.com/v1/square.js'
       : 'https://sandbox.web.squarecdn.com/v1/square.js'
 
-  const items = await getCatalogItemsByCategory(MD_CATEGORY, locale)
+  const [items, cardItems] = await Promise.all([
+    getCatalogItemsByCategory(MD_CATEGORY, locale),
+    getCatalogItemsByCategory(CARD_CATEGORY, 'en'),
+  ])
   const mdItem = items[0]
+  const cardItem = cardItems.find((i) => i.name === CARD_ITEM_NAME) ?? cardItems[0]
+  const cardPrice = cardItem?.variations[0]?.priceMoney
+    ? Number(cardItem.variations[0].priceMoney) / 100
+    : 4
 
   const variationIds = mdItem?.variations.map((v) => v.variationId) ?? []
   const inventory = variationIds.length > 0 ? await getInventoryByVariationId(variationIds) : {}
@@ -52,6 +61,7 @@ export default async function MothersDayPage({ params }: { params: Promise<{ loc
             locationId={process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID!}
             sdkUrl={sdkUrl}
             arrangements={arrangements}
+            cardPrice={cardPrice}
             t={{ ...m.form, ...t.checkout.form }}
           />
         </section>

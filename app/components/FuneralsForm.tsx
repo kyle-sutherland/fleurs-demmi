@@ -65,18 +65,20 @@ export function FuneralsForm({ arrangements, t }: Props) {
     const form = e.currentTarget
     const data = new FormData(form)
 
+    const getString = (key: string) => data.get(key) as string | null ?? undefined
+
     const body = {
       name: data.get('name') as string,
       email: data.get('email') as string,
       phone: data.get('phone') as string,
       funeral_date: data.get('funeral_date') as string,
-      funeral_location: data.get('funeral_location') as string,
+      funeral_location: getString('funeral_location'),
       fulfillment,
       variationIds: selectedId,
       arrangementNames: selectedArrangements.map((a) => a.name).concat(hasCustom ? ['Custom Arrangement'] : []),
-      style_notes: data.get('style_notes') as string,
-      card_name: data.get('card_name') as string,
-      card_message: data.get('card_message') as string,
+      style_notes: getString('style_notes'),
+      card_name: getString('card_name'),
+      card_message: getString('card_message'),
       turnstile: turnstileToken,
     }
 
