@@ -91,10 +91,6 @@ export function CheckoutForm({
 
   const displayTotal = giftCard ? Math.max(0, total - giftCard.balance) : total;
 
-  // Discount code state (stubbed — always invalid)
-  const [discountInput, setDiscountInput] = useState("");
-  const [discountError, setDiscountError] = useState<string | null>(null);
-
   const onTurnstileToken = useCallback((t: string) => setTurnstileToken(t), []);
   const sdkError = formT.sdkError;
 
@@ -193,11 +189,6 @@ export function CheckoutForm({
     } finally {
       setGiftCardLoading(false);
     }
-  }
-
-  function applyDiscountCode() {
-    if (!discountInput.trim()) return;
-    setDiscountError(formT.discountError);
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -335,13 +326,14 @@ export function CheckoutForm({
 
       {/* Gift card */}
       <div className="flex flex-col gap-2">
-        <label className="font-sans text-xs uppercase tracking-widest font-semibold">
+        <label htmlFor="gift-card-gan" className="font-sans text-xs uppercase tracking-widest font-semibold">
           {formT.giftCardLabel}
         </label>
         {!giftCard ? (
           <>
             <div className="flex gap-2">
               <input
+                id="gift-card-gan"
                 type="text"
                 value={giftCardInput}
                 onChange={(e) => {
@@ -401,42 +393,10 @@ export function CheckoutForm({
         )}
       </div>
 
-      {/* Discount code */}
       <div className="flex flex-col gap-2">
-        <label className="font-sans text-xs uppercase tracking-widest font-semibold">
-          {formT.discountLabel}
-        </label>
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={discountInput}
-            onChange={(e) => {
-              setDiscountInput(e.target.value);
-              setDiscountError(null);
-            }}
-            placeholder={formT.discountPlaceholder}
-            className="flex-1 border-2 border-foreground bg-transparent font-sans text-sm px-4 py-3 focus:outline-none focus:border-purple"
-          />
-          <button
-            type="button"
-            onClick={applyDiscountCode}
-            disabled={!discountInput.trim()}
-            className="font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground px-5 py-3 hover:bg-foreground hover:text-background transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-          >
-            {formT.discountApply}
-          </button>
-        </div>
-        {discountError && (
-          <p className="font-sans text-sm text-red-600">
-            {formT.discountError}
-          </p>
-        )}
-      </div>
-
-      <div className="flex flex-col gap-2">
-        <label className="font-sans text-xs uppercase tracking-widest font-semibold">
+        <p className="font-sans text-xs uppercase tracking-widest font-semibold">
           {formT.cardDetails}
-        </label>
+        </p>
         <div
           id="card-container"
           className="bg-transparent px-1 py-1 min-h-[56px]"
