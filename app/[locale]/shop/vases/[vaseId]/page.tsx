@@ -73,7 +73,7 @@ export default async function VaseDetailPage({
               {vase.name}
             </h1>
             <p className="font-sans text-sm text-foreground/60 uppercase tracking-widest">
-              {v.oneOfAKind}
+              {vase.description}
             </p>
             {pickupLocation && (
               <p className="font-sans text-sm text-foreground/60">
