@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { emailSchema } from '@/app/lib/validate'
 import { verifyTurnstile } from '@/app/lib/turnstile'
+import { enforceRateLimit } from '@/app/lib/rateLimit'
 import { appendToCustomerList } from '@/app/lib/sheets'
 
 const bodySchema = z.object({
@@ -19,11 +20,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid email address.' }, { status: 400 })
   }
 
+  const rateLimited = await enforceRateLimit(req, 'subscribe')
+  if (rateLimited) return rateLimited
+
   if (body.website) {
     return NextResponse.json({ error: 'Invalid request.' }, { status: 400 })
   }
 
-  const ip = req.headers.get('cf-connecting-ip') ?? req.headers.get('x-forwarded-for') ?? undefined
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim()
   if (!await verifyTurnstile(body.turnstile, ip)) {
     return NextResponse.json({ error: 'Bot verification failed. Please try again.' }, { status: 403 })
   }

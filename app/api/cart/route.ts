@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import { parseCart, serializeCart, type CartItem } from '@/app/lib/cart'
+import { enforceRateLimit } from '@/app/lib/rateLimit'
 import { randomUUID } from 'crypto'
 
 const COOKIE_NAME = 'cart'
@@ -29,6 +30,9 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const rateLimited = await enforceRateLimit(request, 'cart_write')
+  if (rateLimited) return rateLimited
+
   const cart = await readCart()
   const item: Omit<CartItem, 'id'> = await request.json()
 
@@ -48,6 +52,9 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE(request: Request) {
+  const rateLimited = await enforceRateLimit(request, 'cart_write')
+  if (rateLimited) return rateLimited
+
   const cart = await readCart()
   const { id }: { id: string } = await request.json()
   cart.items = cart.items.filter((i) => i.id !== id)
@@ -55,6 +62,9 @@ export async function DELETE(request: Request) {
 }
 
 export async function PATCH(request: Request) {
+  const rateLimited = await enforceRateLimit(request, 'cart_write')
+  if (rateLimited) return rateLimited
+
   const cart = await readCart()
   const { id, quantity }: { id: string; quantity: number } = await request.json()
   const item = cart.items.find((i) => i.id === id)

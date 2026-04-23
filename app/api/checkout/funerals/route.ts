@@ -8,6 +8,7 @@ import { getCatalogItemsByCategory } from '@/app/lib/catalog'
 import { sendMail } from '@/app/lib/email'
 import { escapeHtml, emailSchema, nameSchema, phoneSchema, dateSchema, textSchema } from '@/app/lib/validate'
 import { verifyTurnstile } from '@/app/lib/turnstile'
+import { enforceRateLimit } from '@/app/lib/rateLimit'
 import { appendToCustomerList } from '@/app/lib/sheets'
 
 const SYMPATHY_CATEGORY = 'Sympathy'
@@ -42,12 +43,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Invalid request.' }, { status: 400 })
   }
 
+  const rateLimited = await enforceRateLimit(request, 'checkout')
+  if (rateLimited) return rateLimited
+
   if (body.website) {
     return NextResponse.json({ error: 'Invalid request.' }, { status: 400 })
   }
 
-  const ip = request.headers.get('cf-connecting-ip') ?? request.headers.get('x-forwarded-for') ?? undefined
-  if (!await verifyTurnstile(body.turnstile, ip ?? undefined)) {
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim()
+  if (!await verifyTurnstile(body.turnstile, ip)) {
     return NextResponse.json({ error: 'Bot verification failed. Please try again.' }, { status: 403 })
   }
 

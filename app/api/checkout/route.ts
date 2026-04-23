@@ -8,6 +8,7 @@ import { getSquareClient, LOCATION_ID } from '@/app/lib/square'
 import { sendMail } from '@/app/lib/email'
 import { escapeHtml, emailSchema, nameSchema, montrealAddressSchema } from '@/app/lib/validate'
 import { verifyTurnstile } from '@/app/lib/turnstile'
+import { enforceRateLimit } from '@/app/lib/rateLimit'
 import { appendToCustomerList } from '@/app/lib/sheets'
 import { createPickupBooking, getPickupLocation } from '@/app/lib/appointments'
 import type { CatalogObject } from 'square'
@@ -49,14 +50,18 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Invalid request.' }, { status: 400 })
   }
 
+  // --- Rate limiting ---
+  const rateLimited = await enforceRateLimit(request, 'checkout')
+  if (rateLimited) return rateLimited
+
   // --- Honeypot check ---
   if (body.website) {
     return NextResponse.json({ error: 'Invalid request.' }, { status: 400 })
   }
 
   // --- Turnstile verification ---
-  const ip = request.headers.get('cf-connecting-ip') ?? request.headers.get('x-forwarded-for') ?? undefined
-  const turnstileOk = await verifyTurnstile(body.turnstile, ip ?? undefined)
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim()
+  const turnstileOk = await verifyTurnstile(body.turnstile, ip)
   if (!turnstileOk) {
     return NextResponse.json({ error: 'Bot verification failed. Please try again.' }, { status: 403 })
   }

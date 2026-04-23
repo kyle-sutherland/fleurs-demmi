@@ -18,6 +18,14 @@ export const en = {
     subscribe: "Subscribe",
     subscribeLabel: "Subscribe to our newsletter",
     copyright: "Fleurs d\u2019Emmi \u00b7 Montr\u00e9al, QC",
+    form: {
+      name: "Name",
+      email: "Email",
+      submit: "Subscribe",
+      submitSuccess: "Thank you for subscribing to our newsletter!",
+      submitError: "Something went wrong. Please try again.",
+      invalidEmail: "Please enter a valid email address.",
+    },
   },
   home: {
     shopNow: "Shop Now",
@@ -124,7 +132,7 @@ export const en = {
         ["Bridesmaids bouquets", "$50\u2013100"],
         ["Centerpieces", "$75+"],
         ["Floral installations & arches", "$300+"],
-      ] as [string, string][],
+      ],
     },
     note: "It is recommended to pick up arrangements as close to your event time as possible to maximize freshness. Keep the flowers cool and away from direct sunlight; in water wherever possible until your event as the condition of flowers is not guaranteed after pick-up. Orders are available for pick up in the Mile End, unless delivery is arranged in advance. Delivery and on site installation charges will be an additional 15% of the order total.",
     form: {
