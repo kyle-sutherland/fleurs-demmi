@@ -40,33 +40,36 @@ export function BouquetSubscribeButton({
   async function handleClick() {
     setState('adding')
 
+    const subscriptionItem = {
+      productId: variationId,
+      name: tierLabel,
+      price: tierPrice,
+      quantity: 1,
+      options: {
+        pickup: delivery === 'pickup1' ? pickUpOption : delivery === 'pickup2' ? pickUpOption2 : 'Delivery',
+      },
+    }
+
+    const body = isDelivery
+      ? {
+          items: [
+            subscriptionItem,
+            {
+              productId: `delivery-surcharge:${variationId}`,
+              name: 'Home Delivery',
+              price: 10,
+              quantity: tierBouquets,
+              options: { for: tierLabel },
+            },
+          ],
+        }
+      : subscriptionItem
+
     await fetch('/api/cart', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        productId: variationId,
-        name: tierLabel,
-        price: tierPrice,
-        quantity: 1,
-        options: {
-          pickup: delivery === 'pickup1' ? pickUpOption : delivery === 'pickup2' ? pickUpOption2 : 'Delivery',
-        },
-      }),
+      body: JSON.stringify(body),
     })
-
-    if (isDelivery) {
-      await fetch('/api/cart', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          productId: `delivery-surcharge:${variationId}`,
-          name: 'Home Delivery',
-          price: 10,
-          quantity: tierBouquets,
-          options: { for: tierLabel },
-        }),
-      })
-    }
 
     setState('added')
     router.refresh()

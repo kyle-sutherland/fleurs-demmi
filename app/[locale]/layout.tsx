@@ -1,9 +1,28 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import { getDictionary } from "@/lib/i18n";
 import EmailSignupForm from "@/app/components/EmailSignupForm";
 
 export function generateStaticParams() {
   return [{ locale: "en" }, { locale: "fr" }];
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://fleursdemmi.ca";
+  return {
+    alternates: {
+      canonical: `${siteUrl}/${locale}`,
+      languages: {
+        en: `${siteUrl}/en`,
+        fr: `${siteUrl}/fr`,
+      },
+    },
+  };
 }
 
 export default async function LocaleLayout({

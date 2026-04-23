@@ -13,6 +13,10 @@ const addItemSchema = z.object({
   options: z.record(z.string().max(64), z.string().max(255)).optional(),
 })
 
+const batchAddSchema = z.object({
+  items: z.array(addItemSchema).min(1).max(20),
+})
+
 const patchSchema = z.object({
   id: z.string().uuid(),
   quantity: z.number().int().positive().max(50),
@@ -45,26 +49,34 @@ export async function GET() {
   return NextResponse.json(cart)
 }
 
+function applyItem(cart: ReturnType<typeof parseCart>, item: Omit<CartItem, 'id'>) {
+  const existing = cart.items.find(
+    (i) =>
+      i.productId === item.productId &&
+      JSON.stringify(i.options ?? {}) === JSON.stringify(item.options ?? {})
+  )
+  if (existing) {
+    existing.quantity += item.quantity
+  } else {
+    cart.items.push({ ...item, id: randomUUID() })
+  }
+}
+
 export async function POST(request: Request) {
   const rateLimited = await enforceRateLimit(request, 'cart_write')
   if (rateLimited) return rateLimited
 
   const cart = await readCart()
   const body = await request.json()
-  const parsed = addItemSchema.safeParse(body)
-  if (!parsed.success) return NextResponse.json({ error: 'Invalid item' }, { status: 400 })
-  const item: Omit<CartItem, 'id'> = parsed.data
 
-  const existing = cart.items.find(
-    (i) =>
-      i.productId === item.productId &&
-      JSON.stringify(i.options ?? {}) === JSON.stringify(item.options ?? {})
-  )
-
-  if (existing) {
-    existing.quantity += item.quantity
+  if (body && typeof body === 'object' && Array.isArray(body.items)) {
+    const parsed = batchAddSchema.safeParse(body)
+    if (!parsed.success) return NextResponse.json({ error: 'Invalid items' }, { status: 400 })
+    for (const item of parsed.data.items) applyItem(cart, item)
   } else {
-    cart.items.push({ ...item, id: randomUUID() })
+    const parsed = addItemSchema.safeParse(body)
+    if (!parsed.success) return NextResponse.json({ error: 'Invalid item' }, { status: 400 })
+    applyItem(cart, parsed.data)
   }
 
   return cartResponse(cart)

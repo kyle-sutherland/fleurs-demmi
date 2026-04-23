@@ -277,6 +277,17 @@ export const fr: Dictionary = {
     notFound: "Vase introuvable.",
     pickupAt: "Disponible pour la cueillette au Mile End",
   },
+  cart: {
+    heading: "Votre panier",
+    empty: "Votre panier est vide.",
+    browseShop: "Parcourir la boutique",
+    each: "chacun",
+    orderSummary: "Résumé de la commande",
+    subtotal: "Sous-total",
+    total: "Total",
+    proceedToCheckout: "Passer à la caisse",
+    includedWithDelivery: "Inclus avec la livraison",
+  },
   checkout: {
     heading: "Paiement",
     orderSummary: "Résumé de la commande",

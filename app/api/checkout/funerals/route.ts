@@ -7,7 +7,7 @@ import { getSquareClient, LOCATION_ID } from "@/app/lib/square";
 import { getCatalogItemsByCategory } from "@/app/lib/catalog";
 import { getInventoryByVariationId } from "@/app/lib/inventory";
 import { getPickupLocation } from "@/app/lib/appointments";
-import { sendMail } from "@/app/lib/email";
+import { sendMail, sanitizeSubject, extractBalanceCents } from "@/app/lib/email";
 import {
   escapeHtml,
   emailSchema,
@@ -41,7 +41,6 @@ const bodySchema = z.object({
   turnstile: z.string().optional(),
   website: z.string().max(0, "Honeypot").optional(),
   giftCardToken: z.string().min(1).max(512).optional(),
-  discountCode: z.string().max(50).optional(),
 });
 
 export async function POST(request: Request) {
@@ -213,13 +212,7 @@ export async function POST(request: Request) {
               e.code === "INSUFFICIENT_FUNDS" ||
               e.code === "GIFT_CARD_BALANCE_INSUFFICIENT",
           );
-          const availableCents = insufficientErr
-            ? Number(
-                (insufficientErr as { detail?: string }).detail?.match(
-                  /(\d+)/,
-                )?.[1] ?? 0,
-              )
-            : 0;
+          const availableCents = insufficientErr ? extractBalanceCents(gcErr) : 0;
 
           if (availableCents > 0) {
             const gcSplitRes = await client.payments.create({
@@ -396,7 +389,7 @@ export async function POST(request: Request) {
       await Promise.all([
         sendMail({
           to: process.env.RECIPIENT_EMAIL!,
-          subject: `New sympathy order — ${name}`,
+          subject: `New sympathy order — ${sanitizeSubject(name)}`,
           html: ownerHtml,
         }),
         sendMail({
@@ -404,7 +397,7 @@ export async function POST(request: Request) {
           subject: `Your order is confirmed — Fleurs d'Emmi`,
           html: customerHtml,
         }),
-        appendToCustomerList({ name, email, phone, source: "funerals" }),
+        appendToCustomerList({ name, email, phone, source: "funerals", subscribed: 'unknown' }),
       ]);
     } catch (err) {
       console.error("Email error (funerals checkout):", err);

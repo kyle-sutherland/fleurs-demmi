@@ -266,6 +266,17 @@ export const en = {
     notFound: "Vase not found.",
     pickupAt: "Available for pickup in Mile End",
   },
+  cart: {
+    heading: "Your Cart",
+    empty: "Your cart is empty.",
+    browseShop: "Browse the Shop",
+    each: "each",
+    orderSummary: "Order Summary",
+    subtotal: "Subtotal",
+    total: "Total",
+    proceedToCheckout: "Proceed to Checkout",
+    includedWithDelivery: "Included with delivery",
+  },
   checkout: {
     heading: "Checkout",
     orderSummary: "Order Summary",

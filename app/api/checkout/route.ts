@@ -7,7 +7,7 @@ import { parseCart, serializeCart, cartTotal } from "@/app/lib/cart";
 import { getSquareClient, LOCATION_ID } from "@/app/lib/square";
 import { resolveAttributeKeys } from "@/app/lib/catalog";
 import { getInventoryByVariationId } from "@/app/lib/inventory";
-import { sendMail } from "@/app/lib/email";
+import { sendMail, sanitizeSubject, extractBalanceCents } from "@/app/lib/email";
 import {
   escapeHtml,
   emailSchema,
@@ -47,7 +47,6 @@ const bodySchema = z.object({
     .optional(),
   deliveryAddress: montrealAddressSchema.optional(),
   giftCardToken: z.string().min(1).max(512).optional(),
-  discountCode: z.string().max(50).optional(),
 });
 
 export async function POST(request: Request) {
@@ -289,13 +288,7 @@ export async function POST(request: Request) {
               e.code === "INSUFFICIENT_FUNDS" ||
               e.code === "GIFT_CARD_BALANCE_INSUFFICIENT",
           );
-          const availableCents = insufficientErr
-            ? Number(
-                (insufficientErr as { detail?: string }).detail?.match(
-                  /(\d+)/,
-                )?.[1] ?? 0,
-              )
-            : 0;
+          const availableCents = insufficientErr ? extractBalanceCents(gcErr) : 0;
 
           if (availableCents > 0) {
             // Charge gift card for its available balance
@@ -547,7 +540,7 @@ export async function POST(request: Request) {
       await Promise.all([
         sendMail({
           to: process.env.RECIPIENT_EMAIL!,
-          subject: `New shop order — ${name ?? email ?? "customer"}`,
+          subject: `New shop order — ${sanitizeSubject(name ?? email ?? "customer")}`,
           html: ownerHtml,
         }),
         ...(customerHtml && email
