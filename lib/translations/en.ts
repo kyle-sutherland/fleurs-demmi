@@ -190,6 +190,8 @@ export const en = {
       cardMessage: "Message:",
       paymentSoon: "Payment integration coming soon",
       submit: "Submit Request",
+      submitSuccess:
+        "Thank you! Emily will be in touch shortly to discuss the details of your sympathy arrangement.",
     },
   },
   bouquetSubscription: {
@@ -276,10 +278,17 @@ export const en = {
       giftCardError: "Gift card not found or has no balance.",
       giftCardRemove: "Remove",
       giftCardConfirmLabel: "Confirm your gift card",
+      deliveryAddressLabel: "Delivery Address",
+      deliveryAddressPlaceholder: "Street address, city, postal code",
+      deliveryAddressRequired: "Please enter your delivery address.",
+      deliveryAddressInvalid:
+        "Address must include a Montréal postal code (e.g. H2W 1Y5). We only deliver within Montréal proper.",
       discountLabel: "Discount Code",
       discountPlaceholder: "Enter discount code",
       discountApply: "Apply",
       discountError: "Invalid or expired discount code.",
+      deliveryAddressError:
+        "Address must include a Montréal postal code (e.g. H2W 1Y5). We only deliver within Montréal.",
     },
     scheduler: {
       heading: "Pickup Time",

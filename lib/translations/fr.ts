@@ -200,6 +200,8 @@ export const fr: Dictionary = {
       cardMessage: "Message :",
       paymentSoon: "Int\u00e9gration de paiement \u00e0 venir",
       submit: "Soumettre la demande",
+      submitSuccess:
+        "Merci ! Emily prendra contact avec vous rapidement pour échanger sur les détails de votre arrangement de sympathie.",
     },
   },
   bouquetSubscription: {
@@ -288,10 +290,17 @@ export const fr: Dictionary = {
       giftCardError: "Carte-cadeau introuvable ou sans solde.",
       giftCardRemove: "Retirer",
       giftCardConfirmLabel: "Confirmez votre carte-cadeau",
+      deliveryAddressLabel: "Adresse de livraison",
+      deliveryAddressPlaceholder: "Adresse, ville, code postal",
+      deliveryAddressRequired: "Veuillez entrer votre adresse de livraison.",
+      deliveryAddressInvalid:
+        "L'adresse doit inclure un code postal de Montréal (ex. H2W 1Y5). Nous livrons uniquement dans la ville de Montréal.",
       discountLabel: "Code de réduction",
       discountPlaceholder: "Entrez le code de réduction",
       discountApply: "Appliquer",
       discountError: "Code de réduction invalide ou expiré.",
+      deliveryAddressError:
+        "L/'adresse doit inclure un code postal de Montréal (ex. : H2W 1Y5). Nous livrons uniquement à Montréal.",
     },
     scheduler: {
       heading: "Heure de cueillette",

@@ -1,12 +1,12 @@
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import { randomUUID } from 'crypto'
-import { z } from 'zod'
+import { z, ZodError } from 'zod'
 import { SquareError } from 'square'
 import { parseCart, serializeCart, cartTotal } from '@/app/lib/cart'
 import { getSquareClient, LOCATION_ID } from '@/app/lib/square'
 import { sendMail } from '@/app/lib/email'
-import { escapeHtml, emailSchema, nameSchema } from '@/app/lib/validate'
+import { escapeHtml, emailSchema, nameSchema, montrealAddressSchema } from '@/app/lib/validate'
 import { verifyTurnstile } from '@/app/lib/turnstile'
 import { appendToCustomerList } from '@/app/lib/sheets'
 import { createPickupBooking, getPickupLocation } from '@/app/lib/appointments'
@@ -23,14 +23,15 @@ const bodySchema = z.object({
   subscribe_to_news:  z.boolean().optional(),
   turnstile:          z.string().optional(),
   website:            z.string().max(0, 'Honeypot').optional(), // must be empty
-  pickupStartAt:      z.string().datetime(),
+  pickupStartAt:      z.string().datetime().optional(),
   pickupSegments:     z.array(z.object({
     startAt:                 z.string(),
     durationMinutes:         z.number().int().positive(),
     serviceVariationId:      z.string().min(1).max(64),
     serviceVariationVersion: z.string().regex(/^\d+$/),
     teamMemberId:            z.string().min(1).max(64),
-  })).min(1).max(1),
+  })).min(1).max(1).optional(),
+  deliveryAddress: montrealAddressSchema.optional(),
   giftCardToken: z.string().min(1).max(512).optional(),
   discountCode:  z.string().max(50).optional(),
 })
@@ -40,7 +41,11 @@ export async function POST(request: Request) {
   let body: z.infer<typeof bodySchema>
   try {
     body = bodySchema.parse(await request.json())
-  } catch {
+  } catch (err) {
+    if (err instanceof ZodError) {
+      const addressIssue = err.issues.find((i) => i.path.includes('deliveryAddress'))
+      if (addressIssue) return NextResponse.json({ error: addressIssue.message }, { status: 400 })
+    }
     return NextResponse.json({ error: 'Invalid request.' }, { status: 400 })
   }
 
@@ -63,6 +68,19 @@ export async function POST(request: Request) {
 
   if (cart.items.length === 0) {
     return NextResponse.json({ error: 'Cart is empty' }, { status: 400 })
+  }
+
+  const needsPickup = cart.items.some(
+    (i) => !i.productId.startsWith('delivery-surcharge:') && !i.options?.pickup
+  )
+  const hasDelivery = cart.items.some((i) => i.options?.pickup === 'Delivery')
+
+  if (needsPickup && !body.pickupStartAt) {
+    return NextResponse.json({ error: 'Please select a pickup time.' }, { status: 400 })
+  }
+
+  if (hasDelivery && !body.deliveryAddress?.trim()) {
+    return NextResponse.json({ error: 'Please enter a delivery address.' }, { status: 400 })
   }
 
   const client = getSquareClient()
@@ -250,11 +268,13 @@ export async function POST(request: Request) {
 
     // Step 4: Create pickup booking (non-fatal — payment already captured)
     let bookingId: string | null = null
-    try {
-      const customerNote = `Order ${order.id}${name ? ` — ${name}` : ''}`
-      bookingId = await createPickupBooking(body.pickupSegments[0], customerNote)
-    } catch (err) {
-      console.error('Booking creation failed after payment:', err)
+    if (needsPickup && body.pickupSegments) {
+      try {
+        const customerNote = `Order ${order.id}${name ? ` — ${name}` : ''}`
+        bookingId = await createPickupBooking(body.pickupSegments[0], customerNote)
+      } catch (err) {
+        console.error('Booking creation failed after payment:', err)
+      }
     }
 
     // Step 5: Send confirmation emails (HTML-escaped)
@@ -271,7 +291,7 @@ export async function POST(request: Request) {
     }
 
     const [pickupLocationResult, receiptBufferResult] = await Promise.allSettled([
-      getPickupLocation(),
+      needsPickup ? getPickupLocation() : Promise.resolve(null),
       receiptUrl ? fetchReceiptAttachment(receiptUrl) : Promise.resolve(null),
     ])
     const safePickupLocation = escapeHtml(
@@ -285,19 +305,25 @@ export async function POST(request: Request) {
       ? [{ filename: 'receipt.html', content: receiptBuffer, contentType: 'text/html' }]
       : []
 
-    const pickupFormatted = new Intl.DateTimeFormat('en-CA', {
-      timeZone: 'America/Toronto',
-      weekday: 'long', month: 'long', day: 'numeric',
-      hour: 'numeric', minute: '2-digit', hour12: true,
-    }).format(new Date(body.pickupStartAt))
-    const safePickup = escapeHtml(pickupFormatted)
+    const safePickup = needsPickup && body.pickupStartAt
+      ? escapeHtml(new Intl.DateTimeFormat('en-CA', {
+          timeZone: 'America/Toronto',
+          weekday: 'long', month: 'long', day: 'numeric',
+          hour: 'numeric', minute: '2-digit', hour12: true,
+        }).format(new Date(body.pickupStartAt)))
+      : null
 
-    const pickupFormattedFr = new Intl.DateTimeFormat('fr-CA', {
-      timeZone: 'America/Toronto',
-      weekday: 'long', month: 'long', day: 'numeric',
-      hour: 'numeric', minute: '2-digit', hour12: false,
-    }).format(new Date(body.pickupStartAt))
-    const safePickupFr = escapeHtml(pickupFormattedFr)
+    const safePickupFr = needsPickup && body.pickupStartAt
+      ? escapeHtml(new Intl.DateTimeFormat('fr-CA', {
+          timeZone: 'America/Toronto',
+          weekday: 'long', month: 'long', day: 'numeric',
+          hour: 'numeric', minute: '2-digit', hour12: false,
+        }).format(new Date(body.pickupStartAt)))
+      : null
+
+    const safeDeliveryAddress = hasDelivery && body.deliveryAddress
+      ? escapeHtml(body.deliveryAddress)
+      : null
 
     const totalFormatted = (orderTotalCents / 100).toFixed(2)
     const safeName = escapeHtml(name ?? '')
@@ -321,7 +347,9 @@ export async function POST(request: Request) {
       <table style="font-family:sans-serif;font-size:14px;border-collapse:collapse;width:100%;max-width:600px">
         <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;width:160px">Name</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${safeName || '—'}</td></tr>
         <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Email</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${safeEmail ? `<a href="mailto:${safeEmail}">${safeEmail}</a>` : '—'}</td></tr>
-        <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Pickup</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${safePickup} — ${safePickupLocation}${bookingId ? ` <span style="color:#888;font-size:12px">(Booking: ${escapeHtml(bookingId)})</span>` : ''}</td></tr>
+        ${safePickup ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Pickup time</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${safePickup} — ${safePickupLocation}${bookingId ? ` <span style="color:#888;font-size:12px">(Booking: ${escapeHtml(bookingId)})</span>` : ''}</td></tr>` : ''}
+        ${safeDeliveryAddress ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Delivery address</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${safeDeliveryAddress}</td></tr>` : ''}
+        ${cart.items.filter(i => i.options?.pickup).map(i => `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;color:#555">${escapeHtml(i.name)}</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${escapeHtml(i.options!.pickup)}</td></tr>`).join('')}
       </table>
       <h3 style="font-family:sans-serif;margin-top:24px">Items</h3>
       <table style="font-family:sans-serif;font-size:14px;border-collapse:collapse;width:100%;max-width:600px">
@@ -337,7 +365,7 @@ export async function POST(request: Request) {
       <div style="font-family:sans-serif;max-width:600px;color:#1a1a1a;padding-bottom:32px;border-bottom:2px solid #eee;margin-bottom:32px">
         <h1 style="font-size:28px;font-weight:900;margin-bottom:8px">Commande confirm&#233;e</h1>
         <p style="font-size:15px;line-height:1.6;color:#444">
-          Merci${safeName ? `, ${safeName}` : ''}&nbsp;! Votre commande a &#233;t&#233; re&#231;ue et votre paiement est confirm&#233;. Votre cueillette est pr&#233;vue le ${safePickupFr} &#8212; ${safePickupLocation}.
+          Merci${safeName ? `, ${safeName}` : ''}&nbsp;! Votre commande a &#233;t&#233; re&#231;ue et votre paiement est confirm&#233;.${safePickupFr ? ` Votre cueillette est pr&#233;vue le ${safePickupFr} &#8212; ${safePickupLocation}.` : ''}${safeDeliveryAddress ? ` Livraison &#224;&nbsp;: ${safeDeliveryAddress}.` : ''}
         </p>
         <h2 style="font-size:16px;font-weight:700;margin-top:32px;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em">R&#233;sum&#233; de la commande</h2>
         <table style="font-size:14px;border-collapse:collapse;width:100%">
@@ -352,7 +380,7 @@ export async function POST(request: Request) {
       <div style="font-family:sans-serif;max-width:600px;color:#1a1a1a">
         <h1 style="font-size:28px;font-weight:900;margin-bottom:8px">Order confirmed</h1>
         <p style="font-size:15px;line-height:1.6;color:#444">
-          Thank you${safeName ? `, ${safeName}` : ''}! Your order has been received and your payment is confirmed. Your pickup is booked for ${safePickup} &#8212; ${safePickupLocation}.
+          Thank you${safeName ? `, ${safeName}` : ''}! Your order has been received and your payment is confirmed.${safePickup ? ` Your pickup is booked for ${safePickup} &#8212; ${safePickupLocation}.` : ''}${safeDeliveryAddress ? ` Delivery to: ${safeDeliveryAddress}.` : ''}
         </p>
         <h2 style="font-size:16px;font-weight:700;margin-top:32px;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em">Order Summary</h2>
         <table style="font-size:14px;border-collapse:collapse;width:100%">

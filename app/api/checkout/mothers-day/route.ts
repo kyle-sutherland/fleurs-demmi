@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server'
 import { randomUUID } from 'crypto'
-import { z } from 'zod'
+import { z, ZodError } from 'zod'
 import { SquareError } from 'square'
 import type { OrderLineItem } from 'square'
 import { getSquareClient, LOCATION_ID } from '@/app/lib/square'
 import { getCatalogItemsByCategory } from '@/app/lib/catalog'
 import { sendMail } from '@/app/lib/email'
-import { escapeHtml, emailSchema, nameSchema, phoneSchema, textSchema } from '@/app/lib/validate'
+import { escapeHtml, emailSchema, nameSchema, phoneSchema, textSchema, montrealAddressSchema } from '@/app/lib/validate'
 import { verifyTurnstile } from '@/app/lib/turnstile'
 import { appendToCustomerList } from '@/app/lib/sheets'
 
@@ -22,7 +22,7 @@ const bodySchema = z.object({
   email:           emailSchema,
   phone:           phoneSchema,
   fulfillment:     z.enum(['pickup', 'delivery']),
-  address:         textSchema.optional(),
+  address:         montrealAddressSchema.optional(),
   delivery_time:   textSchema.optional(),
   variationId:     z.string().min(1).max(64),  // Square variation ID for chosen arrangement
   arrangementName: z.string().min(1).max(255), // Display name for emails
@@ -39,7 +39,11 @@ export async function POST(request: Request) {
   let body: z.infer<typeof bodySchema>
   try {
     body = bodySchema.parse(await request.json())
-  } catch {
+  } catch (err) {
+    if (err instanceof ZodError) {
+      const addressIssue = err.issues.find((i) => i.path.includes('address'))
+      if (addressIssue) return NextResponse.json({ error: addressIssue.message }, { status: 400 })
+    }
     return NextResponse.json({ error: 'Invalid request.' }, { status: 400 })
   }
 

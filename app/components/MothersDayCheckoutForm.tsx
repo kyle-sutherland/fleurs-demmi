@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { TurnstileWidget } from '@/app/components/TurnstileWidget'
+import { isMontrealAddress } from '@/app/lib/validate'
 
 interface SquarePaymentMethod {
   attach(selector: string): Promise<void>
@@ -45,6 +46,7 @@ type Props = {
     delivery: string
     deliveryAddress: string
     deliveryAddressHint: string
+    deliveryAddressInvalid: string
     deliveryTime: string
     deliveryTimeHint: string
     arrangement: string
@@ -192,11 +194,20 @@ export function MothersDayCheckoutForm({ applicationId, locationId, sdkUrl, arra
     e.preventDefault()
     if (!selected) return
     if (!cardRef.current) return
-    setError(null)
-    setSubmitting(true)
 
     const form = e.currentTarget
     const data = new FormData(form)
+
+    if (fulfillment === 'delivery') {
+      const address = (data.get('address') as string | null)?.trim() ?? ''
+      if (!isMontrealAddress(address)) {
+        setError(t.deliveryAddressInvalid)
+        return
+      }
+    }
+
+    setError(null)
+    setSubmitting(true)
 
     const tokenResult = await cardRef.current.tokenize()
     if (tokenResult.status !== 'OK') {
