@@ -29,6 +29,7 @@ export type MDArrangement = {
   name: string        // Localized display name
   price: number       // CAD dollars
   soldOut: boolean
+  section: 'bouquet' | 'arrangement'
 }
 
 type Props = {
@@ -78,7 +79,10 @@ export function MothersDayCheckoutForm({ applicationId, locationId, sdkUrl, arra
   const [error, setError] = useState<string | null>(null)
   const [fulfillment, setFulfillment] = useState('pickup')
   const firstAvailable = arrangements.find((a) => !a.soldOut)
-  const [selectedId, setSelectedId] = useState(firstAvailable?.variationId ?? arrangements[0]?.variationId ?? '')
+  const [selectedIds, setSelectedIds] = useState<string[]>(
+    firstAvailable ? [firstAvailable.variationId] : arrangements[0] ? [arrangements[0].variationId] : []
+  )
+  const [selectionError, setSelectionError] = useState<string | null>(null)
   const [showCard, setShowCard] = useState(false)
   const [subscribeToNews, setSubscribeToNews] = useState(false)
   const [turnstileToken, setTurnstileToken] = useState('')
@@ -96,8 +100,8 @@ export function MothersDayCheckoutForm({ applicationId, locationId, sdkUrl, arra
 
   const onTurnstileToken = useCallback((t: string) => setTurnstileToken(t), [])
 
-  const selected = arrangements.find((a) => a.variationId === selectedId)
-  const arrangementPrice = selected?.price ?? 0
+  const selectedItems = arrangements.filter((a) => selectedIds.includes(a.variationId))
+  const arrangementPrice = selectedItems.reduce((sum, a) => sum + a.price, 0)
   const total = arrangementPrice + (fulfillment === 'delivery' ? DELIVERY_PRICE : 0) + (showCard ? CARD_PRICE : 0)
 
   const displayTotal = giftCard ? Math.max(0, total - giftCard.balance) : total
@@ -190,9 +194,13 @@ export function MothersDayCheckoutForm({ applicationId, locationId, sdkUrl, arra
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    if (!selected) return
+    if (selectedIds.length === 0) {
+      setSelectionError('Please select at least one item.')
+      return
+    }
     if (!cardRef.current) return
     setError(null)
+    setSelectionError(null)
     setSubmitting(true)
 
     const form = e.currentTarget
@@ -225,8 +233,8 @@ export function MothersDayCheckoutForm({ applicationId, locationId, sdkUrl, arra
       fulfillment,
       address: data.get('address') as string,
       delivery_time: data.get('delivery_time') as string,
-      variationId: selected.variationId,
-      arrangementName: selected.name,
+      variationIds: selectedIds,
+      arrangementNames: selectedItems.map((a) => a.name),
       card_to: data.get('card_to') as string,
       card_message: data.get('card_message') as string,
       subscribe_to_news: subscribeToNews,
@@ -298,21 +306,39 @@ export function MothersDayCheckoutForm({ applicationId, locationId, sdkUrl, arra
 
       <div className="flex flex-col gap-2">
         <label className="font-sans text-xs uppercase tracking-widest font-semibold">{t.arrangement} *</label>
-        <div className="flex flex-col gap-2 font-sans text-sm">
-          {arrangements.map((a) => (
-            <label key={a.variationId} className={`flex items-center gap-3 ${a.soldOut ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}`}>
-              <input
-                type="radio"
-                name="arrangement"
-                value={a.variationId}
-                checked={selectedId === a.variationId}
-                onChange={() => setSelectedId(a.variationId)}
-                disabled={a.soldOut}
-                className="accent-purple"
-              />
-              {a.name}{a.soldOut && ' — Sold out'}
-            </label>
-          ))}
+        {selectionError && <p className="font-sans text-sm text-red-600">{selectionError}</p>}
+        <div className="flex flex-col gap-4 font-sans text-sm">
+          {(['bouquet', 'arrangement'] as const).map((section) => {
+            const sectionItems = arrangements.filter((a) => a.section === section)
+            if (sectionItems.length === 0) return null
+            return (
+              <div key={section} className="flex flex-col gap-2">
+                <span className="font-sans text-xs uppercase tracking-widest text-foreground/50">
+                  {section === 'bouquet' ? 'Bouquets' : 'Arrangements'}
+                </span>
+                {sectionItems.map((a) => (
+                  <label key={a.variationId} className={`flex items-center gap-3 ${a.soldOut ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}`}>
+                    <input
+                      type="checkbox"
+                      value={a.variationId}
+                      checked={selectedIds.includes(a.variationId)}
+                      onChange={(e) => {
+                        setSelectionError(null)
+                        setSelectedIds((prev) =>
+                          e.target.checked
+                            ? [...prev, a.variationId]
+                            : prev.filter((id) => id !== a.variationId)
+                        )
+                      }}
+                      disabled={a.soldOut}
+                      className="accent-purple"
+                    />
+                    {a.name} — ${a.price.toFixed(2)}{a.soldOut && ' — Sold out'}
+                  </label>
+                ))}
+              </div>
+            )
+          })}
         </div>
       </div>
 
@@ -429,10 +455,12 @@ export function MothersDayCheckoutForm({ applicationId, locationId, sdkUrl, arra
       )}
 
       <div className="border-t-2 border-foreground/10 pt-4 flex flex-col gap-1">
-        <div className="flex justify-between font-sans text-sm text-foreground/60">
-          <span>{selected?.name ?? ''}</span>
-          <span>${arrangementPrice.toFixed(2)}</span>
-        </div>
+        {selectedItems.map((a) => (
+          <div key={a.variationId} className="flex justify-between font-sans text-sm text-foreground/60">
+            <span>{a.name}</span>
+            <span>${a.price.toFixed(2)}</span>
+          </div>
+        ))}
         {fulfillment === 'delivery' && (
           <div className="flex justify-between font-sans text-sm text-foreground/60">
             <span>Delivery — May 10th</span>
@@ -471,7 +499,7 @@ export function MothersDayCheckoutForm({ applicationId, locationId, sdkUrl, arra
 
       <button
         type="submit"
-        disabled={!sdkReady || submitting || (selected?.soldOut ?? true)}
+        disabled={!sdkReady || submitting || selectedIds.length === 0}
         className="self-start font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-10 py-3 hover:bg-orange-500 hover:border-[#E6E6FA] hover:text-[#E6E6FA] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
       >
         {submitting ? 'Processing…' : `${t.submit} — $${displayTotal.toFixed(2)}`}

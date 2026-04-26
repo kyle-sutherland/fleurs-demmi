@@ -16,15 +16,15 @@ const DELIVERY_PRICE = 10
 const CARD_PRICE = 4
 
 const bodySchema = z.object({
-  token:           z.string().min(1).max(512),
-  name:            nameSchema,
-  email:           emailSchema,
-  phone:           phoneSchema,
-  fulfillment:     z.enum(['pickup', 'delivery']),
-  address:         textSchema.optional(),
-  delivery_time:   textSchema.optional(),
-  variationId:     z.string().min(1).max(64),  // Square variation ID for chosen arrangement
-  arrangementName: z.string().min(1).max(255), // Display name for emails
+  token:            z.string().min(1).max(512),
+  name:             nameSchema,
+  email:            emailSchema,
+  phone:            phoneSchema,
+  fulfillment:      z.enum(['pickup', 'delivery']),
+  address:          textSchema.optional(),
+  delivery_time:    textSchema.optional(),
+  variationIds:     z.array(z.string().min(1).max(64)).min(1).max(10),
+  arrangementNames: z.array(z.string().min(1).max(255)).min(1).max(10),
   card_to:            textSchema.optional(),
   card_message:       textSchema.optional(),
   subscribe_to_news:  z.boolean().optional(),
@@ -51,27 +51,24 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Bot verification failed. Please try again.' }, { status: 403 })
   }
 
-  const { token, name, email, phone, fulfillment, address, delivery_time, variationId, arrangementName, card_to, card_message, subscribe_to_news, giftCardToken } = body
+  const { token, name, email, phone, fulfillment, address, delivery_time, variationIds, arrangementNames, card_to, card_message, subscribe_to_news, giftCardToken } = body
 
   const mdItems = await getCatalogItemsByCategory(MD_CATEGORY, 'en')
-  const validVariation = mdItems
-    .flatMap((item) => item.variations)
-    .find((v) => v.variationId === variationId)
-  if (!validVariation) {
+  const allValidVariations = mdItems.flatMap((item) => item.variations)
+  const resolvedVariations = variationIds.map((id) => allValidVariations.find((v) => v.variationId === id))
+  if (resolvedVariations.some((v) => !v)) {
     return NextResponse.json({ error: 'Invalid arrangement selection.' }, { status: 400 })
   }
 
-  const arrangementPrice = Number(validVariation.priceMoney) / 100
+  const arrangementPrice = resolvedVariations.reduce((sum, v) => sum + Number(v!.priceMoney) / 100, 0)
   const isDelivery = fulfillment === 'delivery'
   const hasCard = !!(card_to || card_message)
   const total = arrangementPrice + (isDelivery ? DELIVERY_PRICE : 0) + (hasCard ? CARD_PRICE : 0)
 
-  const lineItems: OrderLineItem[] = [
-    {
-      quantity: '1',
-      catalogObjectId: variationId,
-    },
-  ]
+  const lineItems: OrderLineItem[] = variationIds.map((id) => ({
+    quantity: '1',
+    catalogObjectId: id,
+  }))
 
   if (isDelivery) {
     lineItems.push({
@@ -226,7 +223,7 @@ export async function POST(request: Request) {
         <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Phone</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${sPhone}</td></tr>
         <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Fulfillment</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${isDelivery ? 'Delivery — May 10th' : 'Pick up — May 9th, Mile End'}</td></tr>
         ${isDelivery && sAddress ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Address</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${sAddress}${sDeliveryTime ? ` · ${sDeliveryTime}` : ''}</td></tr>` : ''}
-        <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Arrangement</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${escapeHtml(arrangementName)}</td></tr>
+        <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Items</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${arrangementNames.map(escapeHtml).join('<br/>')}</td></tr>
         ${hasCard ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Card</td><td style="padding:6px 12px;border-bottom:1px solid #eee">To: ${sCardTo || '—'}<br/>${sCardMsg}</td></tr>` : ''}
         ${gcDisplay}
         <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Total Paid</td><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:700">$${total.toFixed(2)} CAD</td></tr>
@@ -242,7 +239,7 @@ export async function POST(request: Request) {
         </p>
         <h2 style="font-size:16px;font-weight:700;margin-top:32px;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em">Order Summary</h2>
         <table style="font-size:14px;border-collapse:collapse;width:100%">
-          <tr><td style="padding:6px 12px;border-bottom:1px solid #eee">${escapeHtml(arrangementName)}</td><td style="padding:6px 12px;border-bottom:1px solid #eee;text-align:right">$${arrangementPrice.toFixed(2)}</td></tr>
+          ${resolvedVariations.map((v, i) => `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee">${escapeHtml(arrangementNames[i])}</td><td style="padding:6px 12px;border-bottom:1px solid #eee;text-align:right">$${(Number(v!.priceMoney) / 100).toFixed(2)}</td></tr>`).join('')}
           ${isDelivery ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee">Delivery — May 10th</td><td style="padding:6px 12px;border-bottom:1px solid #eee;text-align:right">$${DELIVERY_PRICE.toFixed(2)}</td></tr>` : ''}
           ${hasCard ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee">Greeting Card</td><td style="padding:6px 12px;border-bottom:1px solid #eee;text-align:right">$${CARD_PRICE.toFixed(2)}</td></tr>` : ''}
           ${gcDisplay}

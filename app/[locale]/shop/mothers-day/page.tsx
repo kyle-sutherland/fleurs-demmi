@@ -20,17 +20,20 @@ export default async function MothersDayPage({ params }: { params: Promise<{ loc
       : 'https://sandbox.web.squarecdn.com/v1/square.js'
 
   const items = await getCatalogItemsByCategory(MD_CATEGORY, locale)
-  const mdItem = items[0]
 
-  const variationIds = mdItem?.variations.map((v) => v.variationId) ?? []
-  const inventory = variationIds.length > 0 ? await getInventoryByVariationId(variationIds) : {}
+  const allVariationIds = items.flatMap((item) => item.variations.map((v) => v.variationId))
+  const inventory = allVariationIds.length > 0 ? await getInventoryByVariationId(allVariationIds) : {}
 
-  const arrangements: MDArrangement[] = (mdItem?.variations ?? []).map((v) => ({
-    variationId: v.variationId,
-    name: v.name,
-    price: Number(v.priceMoney) / 100,
-    soldOut: inventory[v.variationId] === 0,
-  }))
+  const arrangements: MDArrangement[] = items.flatMap((item) => {
+    const section: 'bouquet' | 'arrangement' = item.name.toLowerCase().includes('tulip') ? 'bouquet' : 'arrangement'
+    return item.variations.map((v) => ({
+      variationId: v.variationId,
+      name: item.variations.length === 1 ? item.name : v.name,
+      price: Number(v.priceMoney) / 100,
+      soldOut: inventory[v.variationId] === 0,
+      section,
+    }))
+  })
 
   return (
     <div className="flex flex-col flex-1">
