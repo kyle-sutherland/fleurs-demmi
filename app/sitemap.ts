@@ -15,7 +15,7 @@ function urls(path: string, priority: number, changeFrequency: MetadataRoute.Sit
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [vases, cards] = await Promise.all([
     getCatalogItemsByCategory('Vases', 'en'),
-    getCatalogItemsByCategory('Card Add-On', 'en'),
+    getCatalogItemsByCategory('Cards & Goodies', 'en'),
   ])
 
   const vasePaths = vases.flatMap((item) =>

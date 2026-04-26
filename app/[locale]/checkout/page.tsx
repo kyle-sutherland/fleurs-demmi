@@ -22,12 +22,15 @@ export default async function CheckoutPage({
 
   if (cart.items.length === 0) redirect(`/${locale}/cart`)
 
-  const [sdkUrl, pickupLocation] = [
-    process.env.SQUARE_ENVIRONMENT === 'production'
-      ? 'https://web.squarecdn.com/v1/square.js'
-      : 'https://sandbox.web.squarecdn.com/v1/square.js',
-    await getPickupLocation(),
-  ]
+  const needsPickup = cart.items.some(
+    (i) => !i.productId.startsWith('delivery-surcharge:') && !i.options?.pickup
+  )
+  const hasDelivery = cart.items.some((i) => i.options?.pickup === 'Delivery')
+
+  const sdkUrl = process.env.SQUARE_ENVIRONMENT === 'production'
+    ? 'https://web.squarecdn.com/v1/square.js'
+    : 'https://sandbox.web.squarecdn.com/v1/square.js'
+  const pickupLocation = needsPickup ? await getPickupLocation() : null
 
   return (
     <div className="flex flex-col flex-1">
@@ -50,6 +53,8 @@ export default async function CheckoutPage({
               formT={t.checkout.form}
               schedulerT={t.checkout.scheduler}
               pickupLocation={pickupLocation}
+              needsPickup={needsPickup}
+              hasDelivery={hasDelivery}
             />
           </div>
 

@@ -18,6 +18,14 @@ export const en = {
     subscribe: "Subscribe",
     subscribeLabel: "Subscribe to our newsletter",
     copyright: "Fleurs d\u2019Emmi \u00b7 Montr\u00e9al, QC",
+    form: {
+      name: "Name",
+      email: "Email",
+      submit: "Subscribe",
+      submitSuccess: "Thank you for subscribing to our newsletter!",
+      submitError: "Something went wrong. Please try again.",
+      invalidEmail: "Please enter a valid email address.",
+    },
   },
   home: {
     shopNow: "Shop Now",
@@ -28,11 +36,26 @@ export const en = {
       "fleurs d\u2019emmi is the floral project of Emily Gray, currently based in Montr\u00e9al, Qu\u00e9bec using primarily blooms grown by local farmers and from her own garden. With a background in visual arts (BFA c.2017) and over 10 years of experience working on small scale, organic farms across Canada, her passion for working with flowers emerged naturally and continues to grow.",
     readMore: "Read more",
     products: {
-      bouquetSubscription: { label: "Bouquet Subscription", sublabel: "Bi-weekly seasonal bouquets \u00b7 Pick up or delivery" },
-      mothersDay: { label: "Mother\u2019s Day Bouquets", sublabel: "Order now \u00b7 Pick up May 9th or delivery May 10th" },
-      vases: { label: "Handmade & Vintage Vases", sublabel: "Unique vessels for your home & flower arrangements" },
-      cards: { label: "Cards & Goodies", sublabel: "Little extras to complete your gift" },
-      giftCard: { label: "E-Gift Card", sublabel: "Give the gift of flowers · Redeemable online" },
+      bouquetSubscription: {
+        label: "Bouquet Subscription",
+        sublabel: "Bi-weekly seasonal bouquets \u00b7 Pick up or delivery",
+      },
+      mothersDay: {
+        label: "Mother\u2019s Day Bouquets",
+        sublabel: "Order now \u00b7 Pick up May 9th or delivery May 10th",
+      },
+      vases: {
+        label: "Handmade & Vintage Vases",
+        sublabel: "Unique vessels for your home & flower arrangements",
+      },
+      cards: {
+        label: "Cards & Goodies",
+        sublabel: "Little extras to complete your gift",
+      },
+      giftCard: {
+        label: "E-Gift Card",
+        sublabel: "Give the gift of flowers · Redeemable online",
+      },
     },
     serviceCards: {
       weddings: {
@@ -48,11 +71,26 @@ export const en = {
   shop: {
     heading: "flowers & things",
     products: {
-      bouquetSubscription: { label: "Bouquet Subscription", sublabel: "Bi-weekly seasonal bouquets \u00b7 from $150" },
-      mothersDay: { label: "Mother\u2019s Day Bouquets", sublabel: "Pick up May 9th or delivery May 10th \u00b7 from $50" },
-      vases: { label: "Handmade & Vintage Vases", sublabel: "One-of-a-kind vessels" },
-      cards: { label: "Cards & Goodies", sublabel: "Little extras to complete your gift" },
-      giftCard: { label: "E-Gift Card", sublabel: "Give the gift of flowers · Redeemable online" },
+      bouquetSubscription: {
+        label: "Bouquet Subscription",
+        sublabel: "Bi-weekly seasonal bouquets \u00b7 from $150",
+      },
+      mothersDay: {
+        label: "Mother\u2019s Day Bouquets",
+        sublabel: "Pick up May 9th or delivery May 10th \u00b7 from $50",
+      },
+      vases: {
+        label: "Handmade & Vintage Vases",
+        sublabel: "One-of-a-kind vessels",
+      },
+      cards: {
+        label: "Cards & Goodies",
+        sublabel: "Little extras to complete your gift",
+      },
+      giftCard: {
+        label: "E-Gift Card",
+        sublabel: "Give the gift of flowers · Redeemable online",
+      },
     },
   },
   about: {
@@ -94,7 +132,7 @@ export const en = {
         ["Bridesmaids bouquets", "$50\u2013100"],
         ["Centerpieces", "$75+"],
         ["Floral installations & arches", "$300+"],
-      ] as [string, string][],
+      ],
     },
     note: "It is recommended to pick up arrangements as close to your event time as possible to maximize freshness. Keep the flowers cool and away from direct sunlight; in water wherever possible until your event as the condition of flowers is not guaranteed after pick-up. Orders are available for pick up in the Mile End, unless delivery is arranged in advance. Delivery and on site installation charges will be an additional 15% of the order total.",
     form: {
@@ -113,14 +151,24 @@ export const en = {
       eventLocationHint: "Required if delivery or installation is needed.",
       guestCount: "Number of Tables / Guests",
       selectedItems: "Your Selected Items",
-      items: ["Bridal bouquet", "Boutonniere / Corsages", "Bridesmaids bouquets", "Centerpieces", "Floral installations & arches", "DIY floral bucket"],
+      items: [
+        "Bridal bouquet",
+        "Boutonniere / Corsages",
+        "Bridesmaids bouquets",
+        "Centerpieces",
+        "Floral installations & arches",
+        "DIY floral bucket",
+      ],
       styleNotes: "Notes on Style / Colour",
       additionalInfo: "Additional Information or Requests",
       images: "Images (optional)",
-      imagesNote: "Image attachments are not sent with this form — you can share them during your consultation.",
+      imagesNote:
+        "Image attachments are not sent with this form — you can share them during your consultation.",
       subscribeLabel: "Subscribe to our newsletter",
       paymentSoon: "Payment integration coming soon",
       submit: "Submit Request",
+      submitSuccess:
+        "Thank you! Emmi will be in touch shortly to set up a consultation and provide a custom quote.",
     },
   },
   funerals: {
@@ -134,7 +182,8 @@ export const en = {
       email: "Email",
       phone: "Phone",
       funeralDate: "Funeral Date",
-      funeralDateHint: "Orders must be placed at least 3 days before fulfillment.",
+      funeralDateHint:
+        "Orders must be placed at least 3 days before fulfillment.",
       funeralLocation: "Funeral Location",
       funeralLocationHint: "Required if delivery or installation is needed.",
       fulfillment: "Fulfillment",
@@ -146,11 +195,13 @@ export const en = {
       inquireForPricing: "Inquire for pricing",
       soldOut: "Sold out",
       styleNotes: "Notes on Style / Colour",
-      card: "Card with note (additional $4.00)",
+      card: "Card with note",
       cardRecipient: "To:",
       cardMessage: "Message:",
       paymentSoon: "Payment integration coming soon",
       submit: "Submit Request",
+      submitSuccess:
+        "Thank you! Emily will be in touch shortly to discuss the details of your sympathy arrangement.",
     },
   },
   bouquetSubscription: {
@@ -160,15 +211,18 @@ export const en = {
     from: "From",
     available: "available",
     deliveryLabel: "Delivery option",
-    pickUpOption: "Pick up \u2014 Caf\u00e9 Replika (252 Rue Rachel E, Montr\u00e9al), Saturdays 11am\u20135pm",
-    pickUpOption2: "Pick up \u2014 D\u00e9panneur Le Pick-Up (7032 Rue Waverly), Saturdays 11am\u20134pm",
+    pickUpOption:
+      "Pick up \u2014 Caf\u00e9 Replika (252 Rue Rachel E, Montr\u00e9al), Saturdays 11am\u20135pm",
+    pickUpOption2:
+      "Pick up \u2014 D\u00e9panneur Le Pick-Up (7032 Rue Waverly), Saturdays 11am\u20134pm",
     deliveryOption: "Home delivery (+$10/bouquet)",
     paymentSoon: "Payment integration coming soon",
     subscribeBtn: "Subscribe \u2014 $",
   },
   mothersDay: {
     heading: "Mother\u2019s Day\nBouquets",
-    intro: "It\u2019s that special time of year to show love to all the wonderful mothers in our lives.",
+    intro:
+      "It\u2019s that special time of year to show love to all the wonderful mothers in our lives.",
     form: {
       name: "Name",
       email: "Email",
@@ -183,7 +237,7 @@ export const en = {
       arrangement: "Arrangement",
       arrangement50: "$50 arrangement (in 490mL mason jar)",
       arrangement75: "$75 arrangement (in 750mL mason jar)",
-      card: "Card with note (additional $4.00)",
+      card: "Card with note",
       cardName: "To:",
       cardMessage: "Message:",
       subscribeLabel: "Subscribe to our newsletter",
@@ -193,22 +247,35 @@ export const en = {
   },
   cards: {
     heading: "Cards &\nGoodies",
-    intro: "Little extras to complete your gift. Cards, small gifts, and seasonal surprises.",
+    intro:
+      "Little extras to complete your gift. Cards, small gifts, and seasonal surprises.",
     comingSoon: "Coming soon",
     back: "← Back",
     backToCards: "← Back to Cards & Goodies",
     notFound: "Item not found.",
-    pickupAt: "Available for pickup at Emily's ceramics studio at",
+    pickupAt: "Available for pickup in Mile End",
   },
   vases: {
     heading: "Handmade &\nVintage Vases",
-    intro: "Unique vessels for your home & floral arrangements. Find here our collection of locally handmade ceramics and vintage finds.",
+    intro:
+      "Unique vessels for your home & floral arrangements. Find here our collection of locally handmade ceramics and vintage finds.",
     comingSoon: "Coming soon",
     oneOfAKind: "One-of-a-kind",
     back: "← Back",
     backToVases: "← Back to Vases",
     notFound: "Vase not found.",
-    pickupAt: "Available for pickup at Emily's ceramics studio at",
+    pickupAt: "Available for pickup in Mile End",
+  },
+  cart: {
+    heading: "Your Cart",
+    empty: "Your cart is empty.",
+    browseShop: "Browse the Shop",
+    each: "each",
+    orderSummary: "Order Summary",
+    subtotal: "Subtotal",
+    total: "Total",
+    proceedToCheckout: "Proceed to Checkout",
+    includedWithDelivery: "Included with delivery",
   },
   checkout: {
     heading: "Checkout",
@@ -232,14 +299,21 @@ export const en = {
       giftCardError: "Gift card not found or has no balance.",
       giftCardRemove: "Remove",
       giftCardConfirmLabel: "Confirm your gift card",
+      deliveryAddressLabel: "Delivery Address",
+      deliveryAddressPlaceholder: "Street address, city, postal code",
+      deliveryAddressRequired: "Please enter your delivery address.",
+      deliveryAddressInvalid:
+        "Address must include a Montréal postal code (e.g. H2W 1Y5). We only deliver within Montréal proper.",
       discountLabel: "Discount Code",
       discountPlaceholder: "Enter discount code",
       discountApply: "Apply",
       discountError: "Invalid or expired discount code.",
+      deliveryAddressError:
+        "Address must include a Montréal postal code (e.g. H2W 1Y5). We only deliver within Montréal.",
     },
     scheduler: {
       heading: "Pickup Time",
-      pickupAt: "Available for pickup at Emily's ceramics studio at",
+      pickupAt: "Available for pickup in Mile End",
       selectDate: "Select a date",
       selectTime: "Select a pickup time *",
       loadingSlots: "Loading available times…",

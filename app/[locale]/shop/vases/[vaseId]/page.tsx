@@ -5,6 +5,7 @@ import { AddToCartButton } from "@/app/components/AddToCartButton";
 import { getCatalogItem } from "@/app/lib/catalog";
 import { getInventoryByVariationId } from "@/app/lib/inventory";
 import { getPickupLocation } from "@/app/lib/appointments";
+import { formatMoney } from "@/app/lib/money";
 import { getDictionary } from "@/lib/i18n";
 
 export default async function VaseDetailPage({
@@ -72,14 +73,16 @@ export default async function VaseDetailPage({
               {vase.name}
             </h1>
             <p className="font-sans text-sm text-foreground/60 uppercase tracking-widest">
-              {v.oneOfAKind}
+              {vase.description}
             </p>
             {pickupLocation && (
               <p className="font-sans text-sm text-foreground/60">
-                {v.pickupAt} {pickupLocation}
+                {v.pickupAt}
               </p>
             )}
-            <p className="font-display font-black text-2xl">${price}.00</p>
+            <p className="font-display font-black text-2xl">
+              {formatMoney(price, locale)}
+            </p>
             <AddToCartButton
               item={{
                 productId: variation.variationId,
