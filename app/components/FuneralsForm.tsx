@@ -40,25 +40,31 @@ export function FuneralsForm({ arrangements, t }: Props) {
   const [submitted, setSubmitted] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [quantities, setQuantities] = useState<Record<string, number>>({})
   const [showCard, setShowCard] = useState(false)
   const [turnstileToken, setTurnstileToken] = useState('')
   const [fulfillment, setFulfillment] = useState('pickup')
-  
+
   const onTurnstileToken = useCallback((t: string) => setTurnstileToken(t), [])
 
-  const toggleId = (id: string) => {
-    setSelectedId((prev) =>
-      prev === id ? null : id
-    )
+  const adjust = (id: string, delta: number) => {
+    setQuantities((prev) => {
+      const next = (prev[id] ?? 0) + delta
+      if (next <= 0) {
+        const { [id]: _, ...rest } = prev
+        return rest
+      }
+      return { ...prev, [id]: next }
+    })
   }
 
-  const selectedArrangements = arrangements.filter((a) => selectedId === a.variationId)
-  const hasCustom = selectedId === 'custom'
+  const hasCustom = (quantities['custom'] ?? 0) > 0
+  const selectedArrangements = arrangements.filter((a) => (quantities[a.variationId] ?? 0) > 0)
+  const totalSelected = Object.values(quantities).reduce((s, q) => s + q, 0)
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    if (selectedId === null) return
+    if (totalSelected === 0) return
     setError(null)
     setSubmitting(true)
 
@@ -72,8 +78,8 @@ export function FuneralsForm({ arrangements, t }: Props) {
       funeral_date: data.get('funeral_date') as string,
       funeral_location: data.get('funeral_location') as string,
       fulfillment,
-      variationIds: selectedId,
-      arrangementNames: selectedArrangements.map((a) => a.name).concat(hasCustom ? ['Custom Arrangement'] : []),
+      arrangementQuantities: quantities,
+      arrangementNames: selectedArrangements.map((a) => `${quantities[a.variationId]}x ${a.name}`).concat(hasCustom ? [`${quantities['custom']}x Custom Arrangement`] : []),
       style_notes: data.get('style_notes') as string,
       card_name: data.get('card_name') as string,
       card_message: data.get('card_message') as string,
@@ -156,29 +162,27 @@ export function FuneralsForm({ arrangements, t }: Props) {
       <div className="flex flex-col gap-2">
         <label className="font-sans text-xs uppercase tracking-widest font-semibold">{t.arrangement} *</label>
         <div className="flex flex-col gap-3">
-          {arrangements.map((a) => (
-            <label key={a.name} className={`flex items-center gap-3 font-sans text-sm cursor-pointer ${a.soldOut ? 'opacity-40 cursor-not-allowed' : ''}`}>
-              <input
-                type="radio"
-                name="arrangement"
-                className="accent-purple"
-                checked={selectedId === a.variationId}
-                disabled={a.soldOut}
-                onChange={() => toggleId(a.variationId)}
-              />
-              <span className="capitalize">{a.name} — ${a.price.toFixed(2)}{a.soldOut ? ` — ${t.soldOut}` : ''}</span>
-            </label>
-          ))}
-          <label className="flex items-center gap-3 font-sans text-sm cursor-pointer">
-            <input
-              type="radio"
-              name="arrangement"
-              className="accent-purple"
-              checked={selectedId === 'custom'}
-              onChange={() => toggleId('custom')}
-            />
+          {arrangements.map((a) => {
+            const qty = quantities[a.variationId] ?? 0
+            return (
+              <div key={a.variationId} className={`flex items-center justify-between font-sans text-sm ${a.soldOut ? 'opacity-40' : ''}`}>
+                <span className="capitalize">{a.name} — ${a.price.toFixed(2)}{a.soldOut ? ` — ${t.soldOut}` : ''}</span>
+                <div className="flex items-center gap-3 shrink-0 ml-4">
+                  <button type="button" onClick={() => adjust(a.variationId, -1)} disabled={qty === 0 || a.soldOut} className="w-7 h-7 border-2 border-foreground/30 flex items-center justify-center font-sans font-bold text-base hover:border-foreground transition-colors disabled:opacity-30 disabled:cursor-not-allowed">−</button>
+                  <span className="w-4 text-center">{qty}</span>
+                  <button type="button" onClick={() => adjust(a.variationId, 1)} disabled={a.soldOut} className="w-7 h-7 border-2 border-foreground/30 flex items-center justify-center font-sans font-bold text-base hover:border-foreground transition-colors disabled:opacity-30 disabled:cursor-not-allowed">+</button>
+                </div>
+              </div>
+            )
+          })}
+          <div className="flex items-center justify-between font-sans text-sm">
             <span>{t.customArrangement} — {t.inquireForPricing}</span>
-          </label>
+            <div className="flex items-center gap-3 shrink-0 ml-4">
+              <button type="button" onClick={() => adjust('custom', -1)} disabled={(quantities['custom'] ?? 0) === 0} className="w-7 h-7 border-2 border-foreground/30 flex items-center justify-center font-sans font-bold text-base hover:border-foreground transition-colors disabled:opacity-30 disabled:cursor-not-allowed">−</button>
+              <span className="w-4 text-center">{quantities['custom'] ?? 0}</span>
+              <button type="button" onClick={() => adjust('custom', 1)} className="w-7 h-7 border-2 border-foreground/30 flex items-center justify-center font-sans font-bold text-base hover:border-foreground transition-colors">+</button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -211,7 +215,7 @@ export function FuneralsForm({ arrangements, t }: Props) {
 
       <button
         type="submit"
-        disabled={submitting}
+        disabled={submitting || totalSelected === 0}
         className="self-start font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-10 py-3 hover:bg-foreground hover:text-background transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
       >
         {submitting ? 'Sending…' : t.submit}
