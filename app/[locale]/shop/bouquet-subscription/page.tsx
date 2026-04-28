@@ -48,12 +48,29 @@ export default async function BouquetSubscriptionPage({ params }: { params: Prom
             {(subItem?.variations ?? []).map((variation) => {
               const price = Number(variation.priceMoney) / 100
               const stockCount = inventory[variation.variationId] ?? null
+              const bouquets = variation.bouquets ?? 1
+              const pricePerBouquet = (price / bouquets).toFixed(2)
+
+              const tierInfo: Record<number, { label: string; dates: string }> = {
+                12: { label: 'Extended Season: Bi-Weekly Bouquets', dates: 'May 23 – Oct 24' },
+                8:  { label: 'Regular Season: Bi-weekly', dates: 'June 20 – Sept 26' },
+                4:  { label: 'Monthly for 4 months', dates: 'July 18, Aug 29, Sept 26, Oct 24' },
+              }
+              const tier = tierInfo[bouquets]
 
               return (
                 <div key={variation.variationId} className="border-2 border-foreground/20 p-6 flex flex-col gap-3">
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <p className="font-display font-black text-xl leading-tight">{variation.name}</p>
+                      <p className="font-display font-black text-xl leading-tight">
+                        {tier ? tier.label : variation.name}
+                      </p>
+                      {tier && (
+                        <p className="font-sans text-sm text-foreground/60 mt-0.5">({tier.dates})</p>
+                      )}
+                      <p className="font-sans text-sm text-foreground/70 mt-1">
+                        {bouquets} Bouquets @ ${pricePerBouquet} each
+                      </p>
                     </div>
                     <p className="font-display font-black text-2xl whitespace-nowrap">${price}.00</p>
                   </div>
