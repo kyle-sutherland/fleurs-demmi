@@ -1,7 +1,7 @@
 import Link from "next/link";
 import SiteHeader from "@/app/components/SiteHeader";
 import { VaseSlideshow } from "@/app/[locale]/shop/vases/[vaseId]/VaseSlideshow";
-import { AddToCartButton } from "@/app/components/AddToCartButton";
+import { CardVariationSelector } from "./CardVariationSelector";
 import { getCatalogItem } from "@/app/lib/catalog";
 import { getInventoryByVariationId } from "@/app/lib/inventory";
 import { getPickupLocation } from "@/app/lib/appointments";
@@ -20,25 +20,31 @@ export default async function CardDetailPage({
   const c = t.cards;
 
   const card = await getCatalogItem(cardId, locale);
-  const variation = card?.variations[0];
+  const variations = card?.variations ?? [];
 
-  const [inventory, pickupLocation] = await Promise.all([
-    variation
-      ? getInventoryByVariationId([variation.variationId])
+  const [inventory, pickupLocation, formattedPrices] = await Promise.all([
+    variations.length > 0
+      ? getInventoryByVariationId(variations.map(v => v.variationId))
       : Promise.resolve({} as Record<string, number | null>),
     getPickupLocation(),
+    Promise.all(
+      (card?.variations ?? []).map(v => formatMoney(Number(v.priceMoney) / 100, locale))
+    ),
   ]);
-  const stockCount = variation
-    ? (inventory[variation.variationId] ?? null)
-    : null;
 
-  const price = variation ? Number(variation.priceMoney) / 100 : 0;
+  const variationProps = variations.map((v, i) => ({
+    variationId: v.variationId,
+    name: v.name,
+    priceInCents: Number(v.priceMoney),
+    priceFormatted: formattedPrices[i] ?? '',
+  }));
+
   const slides =
     card && card.imageUrls.length > 0
       ? card.imageUrls.map((src) => ({ src }))
       : [];
 
-  if (!card || !variation) {
+  if (!card || variations.length === 0) {
     return (
       <div className="flex flex-col flex-1">
         <SiteHeader locale={locale} active="shop" />
@@ -84,18 +90,11 @@ export default async function CardDetailPage({
                 {c.pickupAt}
               </p>
             )}
-            <p className="font-display font-black text-2xl">
-              {formatMoney(price, locale)}
-            </p>
-            <AddToCartButton
-              item={{
-                productId: variation.variationId,
-                name: card.name,
-                price,
-                quantity: 1,
-              }}
+            <CardVariationSelector
+              variations={variationProps}
+              inventory={inventory}
+              itemName={card.name}
               labels={t.addToCart}
-              stockCount={stockCount}
             />
           </div>
         </div>
