@@ -24,7 +24,7 @@ function getRedis(): Redis | null {
   }
   const url   = process.env.UPSTASH_REDIS_REST_URL
   const token = process.env.UPSTASH_REDIS_REST_TOKEN
-  if (!url || !token) return null
+  if (!url || !token || process.env.NODE_ENV === 'development') return null
   if (!redis) redis = new Redis({ url, token })
   return redis
 }
