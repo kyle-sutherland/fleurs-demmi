@@ -81,7 +81,7 @@ export default async function CardDetailPage({
               {card.name}
             </h1>
             {card.description && (
-              <p className="font-sans text-sm text-foreground/60 uppercase tracking-widest">
+              <p className="font-sans text-sm text-foreground/60 tracking-widest">
                 {card.description}
               </p>
             )}
