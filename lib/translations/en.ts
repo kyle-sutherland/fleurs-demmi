@@ -77,7 +77,7 @@ export const en = {
       },
       mothersDay: {
         label: "Mother\u2019s Day Bouquets",
-        sublabel: "Pick up May 9th or delivery May 10th \u00b7 from $50",
+        sublabel: "Pick up May 9th or delivery May 10th \u00b7 from $20",
       },
       vases: {
         label: "Handmade & Vintage Vases",

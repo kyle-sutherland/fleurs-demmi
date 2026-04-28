@@ -84,7 +84,7 @@ export const fr: Dictionary = {
       mothersDay: {
         label: "Bouquets f\u00eate des M\u00e8res",
         sublabel:
-          "Cueillette le 9 mai ou livraison le 10 mai \u00b7 \u00e0 partir de 50\u00a0$",
+          "Cueillette le 9 mai ou livraison le 10 mai \u00b7 \u00e0 partir de 20\u00a0$",
       },
       vases: {
         label: "Vases artisanaux et vintage",
