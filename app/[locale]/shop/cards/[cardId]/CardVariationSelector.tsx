@@ -82,15 +82,15 @@ export function CardVariationSelector({
             ))}
           </select>
         )}
+        <p className="font-display font-black text-2xl">
+          {(selected ?? variations[0])?.priceFormatted ?? ''}
+        </p>
         {selected && (
-          <>
-            <p className="font-display font-black text-2xl">{selected.priceFormatted}</p>
-            <AddToCartButton
-              item={{ productId: selected.variationId, name: cartName, price, quantity: 1 }}
-              labels={labels}
-              stockCount={stockCount}
-            />
-          </>
+          <AddToCartButton
+            item={{ productId: selected.variationId, name: cartName, price, quantity: 1 }}
+            labels={labels}
+            stockCount={stockCount}
+          />
         )}
       </div>
     </div>
