@@ -104,7 +104,7 @@ export async function POST(request: Request) {
   try {
     await Promise.all([
       sendMail({ to: process.env.RECIPIENT_EMAIL!, subject: `New funeral inquiry — ${name}`, html: ownerHtml }),
-      sendMail({ to: email, subject: `Inquiry received — Fleurs d'Emmi`, html: customerHtml }),
+      sendMail({ to: email, cc: process.env.RECIPIENT_EMAIL, subject: `Inquiry received — Fleurs d'Emmi`, html: customerHtml }),
       appendToCustomerList({ name, email, phone, source: 'funerals-inquiry', subscribed: 'unknown' }),
     ])
   } catch (err) {

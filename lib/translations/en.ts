@@ -242,7 +242,7 @@ export const en = {
       cardMessage: "Message:",
       subscribeLabel: "Subscribe to our newsletter",
       paymentSoon: "Payment integration coming soon",
-      submit: "Check Out",
+      submit: "Add to Cart",
     },
   },
   cards: {
@@ -284,6 +284,8 @@ export const en = {
     form: {
       nameLabel: "Name",
       emailLabel: "Email",
+      phoneLabel: "Phone",
+      phoneRequired: "Please enter your phone number.",
       total: "Total",
       cardDetails: "Card Details",
       loadingPayment: "Loading payment form…",
@@ -308,6 +310,8 @@ export const en = {
       discountLabel: "Discount Code",
       discountPlaceholder: "Enter discount code",
       discountApply: "Apply",
+      discountApplied: "Discount applied",
+      discountRemove: "Remove",
       discountError: "Invalid or expired discount code.",
       deliveryAddressError:
         "Address must include a Montréal postal code (e.g. H2W 1Y5). We only deliver within Montréal.",

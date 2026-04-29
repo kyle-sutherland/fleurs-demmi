@@ -7,6 +7,7 @@ const LIMITS = {
   inquire:    { requests: 5,  windowSeconds: 60 },
   subscribe:  { requests: 3,  windowSeconds: 60 },
   cart_write: { requests: 60, windowSeconds: 60 },
+  discount:   { requests: 5,  windowSeconds: 60 },
 } as const
 
 type RouteKey = keyof typeof LIMITS
