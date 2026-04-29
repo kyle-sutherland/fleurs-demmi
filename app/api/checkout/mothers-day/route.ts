@@ -277,31 +277,39 @@ export async function POST(request: Request) {
 
     const customerHtml = `
       <div style="font-family:sans-serif;max-width:600px;color:#1a1a1a">
-        <h1 style="font-size:28px;font-weight:900;margin-bottom:8px">Order confirmed</h1>
-        <p style="font-size:15px;line-height:1.6;color:#444">
-          Thank you, ${sName}! Your Mother's Day order is confirmed. Emmi will have it ready for you.
+        <h1 style="font-size:24px;font-weight:900;margin-bottom:16px">Order Confirmed</h1>
+        <p style="font-size:15px;line-height:1.6;color:#333">
+          Thank you so much for your purchase with Fleurs D&#8217;Emmi.
+        </p>
+        <p style="font-size:15px;line-height:1.6;color:#333">
+          ${isDelivery
+            ? `Your flowers will be delivered to ${sAddress || 'your address'} on Sunday May 10th${sDeliveryTime ? ` at ${sDeliveryTime}` : ''}.`
+            : 'Your flowers will be available for pick up on Saturday May 9th at 59 Bernard Ouest between 10am&#8211;5pm.'}
         </p>
         <h2 style="font-size:16px;font-weight:700;margin-top:32px;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em">Order Summary</h2>
         <table style="font-size:14px;border-collapse:collapse;width:100%">
           ${resolvedVariations.map((v, i) => `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee">${escapeHtml(arrangementNames[i])}</td><td style="padding:6px 12px;border-bottom:1px solid #eee;text-align:right">$${(Number(v!.priceMoney) / 100).toFixed(2)}</td></tr>`).join('')}
-          ${isDelivery ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee">Delivery — May 10th</td><td style="padding:6px 12px;border-bottom:1px solid #eee;text-align:right">$${DELIVERY_PRICE.toFixed(2)}</td></tr>` : ''}
+          ${isDelivery ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee">Delivery &#8212; May 10th</td><td style="padding:6px 12px;border-bottom:1px solid #eee;text-align:right">$${DELIVERY_PRICE.toFixed(2)}</td></tr>` : ''}
           ${hasCard ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee">Greeting Card</td><td style="padding:6px 12px;border-bottom:1px solid #eee;text-align:right">$${CARD_PRICE.toFixed(2)}</td></tr>` : ''}
           ${discountDisplay}
           ${gcDisplay}
           <tr><td style="padding:6px 12px;font-weight:700">Total</td><td style="padding:6px 12px;font-weight:700;text-align:right">$${totalPaid.toFixed(2)} CAD</td></tr>
         </table>
-        <table style="font-size:14px;border-collapse:collapse;width:100%;margin-top:24px">
-          <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;width:160px">Fulfillment</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${isDelivery ? `Delivery — May 10th${sAddress ? `, ${sAddress}` : ''}` : 'Pick up — May 9th, 10am–5pm, Mile End'}</td></tr>
-        </table>
+        <p style="font-size:15px;line-height:1.6;color:#333;margin-top:32px">
+          Always remember to keep the flowers out of direct sunlight and submerged in water. Snip the ends of the stems every few days and refresh the water in order to prolong their vase life.
+        </p>
+        <p style="font-size:15px;line-height:1.6;color:#333">
+          Please contact <a href="mailto:fleursdemmi@gmail.com">fleursdemmi@gmail.com</a> if you have any questions or concerns related to your order.
+        </p>
         <p style="font-size:12px;color:#aaa;margin-top:32px">Order ref: ${order.id}</p>
-        <p style="font-size:13px;color:#888;margin-top:4px">Fleurs d'Emmi · Montréal, QC</p>
+        <p style="font-size:13px;color:#888;margin-top:4px">Fleurs d&#39;Emmi &middot; Montr&#233;al, QC</p>
       </div>
     `
 
     try {
       await Promise.all([
         sendMail({ to: process.env.RECIPIENT_EMAIL!, subject: `New Mother's Day order — ${name}`, html: ownerHtml }),
-        sendMail({ to: email, subject: `Your order is confirmed — Fleurs d'Emmi`, html: customerHtml }),
+        sendMail({ to: email, cc: process.env.RECIPIENT_EMAIL, subject: `Your order is confirmed — Fleurs d'Emmi`, html: customerHtml }),
         appendToCustomerList({ name, email, phone, source: 'mothers-day', subscribed: subscribe_to_news ? 'subscribed' : 'unknown' }),
       ])
     } catch (err) {

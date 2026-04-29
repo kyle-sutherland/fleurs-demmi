@@ -555,8 +555,62 @@ export async function POST(request: Request) {
       <p style="font-family:sans-serif;font-size:13px;color:#888;margin-top:16px">Order ID: ${order.id}</p>
     `;
 
+    const isSubscriptionOrder = cart.items.some((item) =>
+      /subscription/i.test(item.name),
+    );
+
     const customerHtml = email
-      ? `
+      ? isSubscriptionOrder
+        ? `
+      <div style="font-family:sans-serif;max-width:600px;color:#1a1a1a">
+        <h1 style="font-size:24px;font-weight:900;margin-bottom:16px">Order Confirmed</h1>
+        <p style="font-size:15px;line-height:1.6;color:#333">
+          Thank you so much for your purchase of a Fleurs D&#8217;Emmi floral subscription!
+        </p>
+        <h2 style="font-size:16px;font-weight:700;margin-top:32px;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em">Order Summary</h2>
+        <table style="font-size:14px;border-collapse:collapse;width:100%">
+          ${itemRows}
+          ${gcDisplay}
+          ${discountDisplay}
+          <tr><td style="padding:6px 12px;font-weight:700">Total</td><td style="padding:6px 12px;font-weight:700;text-align:right">$${totalFormatted} CAD</td></tr>
+        </table>
+        ${safeDeliveryAddress
+          ? `<p style="font-size:15px;line-height:1.6;color:#333;margin-top:24px">
+              Your bouquets will be delivered to ${safeDeliveryAddress}.<br/>
+              Please contact <a href="mailto:fleursdemmi@gmail.com">fleursdemmi@gmail.com</a> if you have any special instructions for deliveries.
+            </p>`
+          : `<p style="font-size:15px;line-height:1.6;color:#333;margin-top:24px">
+              Your bouquets will be available for pick up on Saturdays at either location:
+            </p>
+            <ul style="font-size:15px;line-height:1.8;color:#333;padding-left:20px">
+              <li>Caf&#233; Replika &#8212; 252 Rue Rachel E, Montr&#233;al (11am&#8211;6pm)</li>
+              <li>D&#233;panneur Le Pick-Up &#8212; 7032 Rue Waverly (11am&#8211;4pm)</li>
+            </ul>
+            <p style="font-size:15px;line-height:1.6;color:#333">
+              Just come in and speak to one of the baristas to let them know your name, and you can pick up your very own seasonal bouquet &#10047;
+            </p>
+            <p style="font-size:15px;line-height:1.6;color:#333">
+              If you are unable to pick up on certain dates and would like to request delivery, please contact <a href="mailto:fleursdemmi@gmail.com">fleursdemmi@gmail.com</a> in advance (there is an additional $10 delivery fee).
+            </p>`
+        }
+        <p style="font-size:15px;line-height:1.6;color:#333;margin-top:24px">
+          <strong>Mark the calendar!</strong> Your bouquets will be prepared for the following dates:<br/>
+          May 23 &middot; June 6 &middot; June 20 &middot; July 4 &middot; July 18 &middot; August 1 &middot; August 15 &middot; August 29 &middot; September 12 &middot; September 26 &middot; October 10 &middot; October 24
+        </p>
+        <p style="font-size:15px;line-height:1.6;color:#333">
+          If you need to cancel a bouquet, you must give at least 1 week notice and you will be refunded 75% of the bouquet price.
+        </p>
+        <p style="font-size:15px;line-height:1.6;color:#333">
+          Always remember to keep the flowers out of direct sunlight and submerged in water. Snip the ends of the stems every few days and refresh the water in order to prolong their vase life.
+        </p>
+        <p style="font-size:15px;line-height:1.6;color:#333">
+          Please contact <a href="mailto:fleursdemmi@gmail.com">fleursdemmi@gmail.com</a> if you have any questions or concerns.
+        </p>
+        <p style="font-size:12px;color:#aaa;margin-top:32px">Order ref: ${order.id}</p>
+        <p style="font-size:13px;color:#888;margin-top:4px">Fleurs d&#39;Emmi &middot; Montr&#233;al, QC</p>
+      </div>
+    `
+        : `
       <div style="font-family:sans-serif;max-width:600px;color:#1a1a1a;padding-bottom:32px;border-bottom:2px solid #eee;margin-bottom:32px">
         <h1 style="font-size:28px;font-weight:900;margin-bottom:8px">Commande confirm&#233;e</h1>
         <p style="font-size:15px;line-height:1.6;color:#444">
@@ -601,6 +655,7 @@ export async function POST(request: Request) {
           ? [
               sendMail({
                 to: email,
+                cc: process.env.RECIPIENT_EMAIL,
                 subject: `Your order is confirmed — Fleurs d'Emmi`,
                 html: customerHtml,
                 attachments: receiptAttachments,

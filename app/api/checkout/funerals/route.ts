@@ -394,6 +394,7 @@ export async function POST(request: Request) {
         }),
         sendMail({
           to: email,
+          cc: process.env.RECIPIENT_EMAIL,
           subject: `Your order is confirmed — Fleurs d'Emmi`,
           html: customerHtml,
         }),

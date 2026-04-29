@@ -23,11 +23,13 @@ export function extractBalanceCents(err: SquareError): number {
 
 export async function sendMail({
   to,
+  cc,
   subject,
   html,
   attachments,
 }: {
   to: string
+  cc?: string
   subject: string
   html: string
   attachments?: Mail.Attachment[]
@@ -46,6 +48,7 @@ export async function sendMail({
   await transporter.sendMail({
     from: `Fleurs d'Emmi <${process.env.WEBMASTER_EMAIL}>`,
     to,
+    ...(cc ? { cc } : {}),
     subject,
     html,
     ...(attachments?.length ? { attachments } : {}),
