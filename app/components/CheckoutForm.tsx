@@ -269,6 +269,7 @@ export function CheckoutForm({
     const form = e.currentTarget;
     const name = (form.elements.namedItem("name") as HTMLInputElement).value;
     const email = (form.elements.namedItem("email") as HTMLInputElement).value;
+    const phone = (form.elements.namedItem("phone") as HTMLInputElement).value;
 
     // Tokenize credit card
     const tokenResult = await cardRef.current.tokenize();
@@ -298,6 +299,7 @@ export function CheckoutForm({
         token,
         name,
         email,
+        phone,
         subscribe_to_news: subscribeToNews,
         turnstile: turnstileToken,
         ...(needsPickup && selectedSlot
@@ -337,6 +339,7 @@ export function CheckoutForm({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <Field label={formT.nameLabel} name="name" type="text" required />
         <Field label={formT.emailLabel} name="email" type="email" required />
+        <Field label={formT.phoneLabel} name="phone" type="tel" required />
       </div>
 
       {hasDelivery && (

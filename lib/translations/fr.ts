@@ -295,6 +295,8 @@ export const fr: Dictionary = {
     form: {
       nameLabel: "Nom",
       emailLabel: "Courriel",
+      phoneLabel: "Téléphone",
+      phoneRequired: "Veuillez entrer votre numéro de téléphone.",
       total: "Total",
       cardDetails: "Informations de paiement",
       loadingPayment: "Chargement du formulaire de paiement…",

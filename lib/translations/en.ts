@@ -284,6 +284,8 @@ export const en = {
     form: {
       nameLabel: "Name",
       emailLabel: "Email",
+      phoneLabel: "Phone",
+      phoneRequired: "Please enter your phone number.",
       total: "Total",
       cardDetails: "Card Details",
       loadingPayment: "Loading payment form…",

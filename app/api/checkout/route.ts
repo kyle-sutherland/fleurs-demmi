@@ -12,6 +12,7 @@ import {
   escapeHtml,
   emailSchema,
   nameSchema,
+  phoneSchema,
   montrealAddressSchema,
 } from "@/app/lib/validate";
 import { verifyTurnstile } from "@/app/lib/turnstile";
@@ -28,6 +29,7 @@ const bodySchema = z.object({
   token: z.string().min(1).max(512),
   email: emailSchema.optional(),
   name: nameSchema.optional(),
+  phone: phoneSchema.optional(),
   subscribe_to_news: z.boolean().optional(),
   turnstile: z.string().optional(),
   website: z.string().max(0, "Honeypot").optional(), // must be empty
@@ -88,7 +90,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const { token, email, name, subscribe_to_news, giftCardToken, discountCode } = body;
+  const { token, email, name, phone, subscribe_to_news, giftCardToken, discountCode } = body;
 
   const cookieStore = await cookies();
   const cart = parseCart(cookieStore.get(COOKIE_NAME)?.value);
@@ -505,6 +507,7 @@ export async function POST(request: Request) {
     const totalFormatted = (orderTotalCents / 100).toFixed(2);
     const safeName = escapeHtml(name ?? "");
     const safeEmail = escapeHtml(email ?? "");
+    const safePhone = escapeHtml(phone ?? "");
     const itemRows = cart.items
       .map((item) => {
         const safItemName = escapeHtml(item.name);
@@ -535,6 +538,8 @@ export async function POST(request: Request) {
       <table style="font-family:sans-serif;font-size:14px;border-collapse:collapse;width:100%;max-width:600px">
         <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;width:160px">Name</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${safeName || "—"}</td></tr>
         <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Email</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${safeEmail ? `<a href="mailto:${safeEmail}">${safeEmail}</a>` : "—"}</td></tr>
+        ${safePhone ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Phone</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${safePhone}</td></tr>` : ""}
+        <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Fulfillment</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${hasDelivery ? "Delivery" : "Pickup"}</td></tr>
         ${safePickup ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Pickup time</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${safePickup} — ${safePickupLocation}${bookingId ? ` <span style="color:#888;font-size:12px">(Booking: ${escapeHtml(bookingId)})</span>` : ""}</td></tr>` : ""}
         ${safeDeliveryAddress ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Delivery address</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${safeDeliveryAddress}</td></tr>` : ""}
         ${cart.items
@@ -665,6 +670,7 @@ export async function POST(request: Request) {
         appendToCustomerList({
           name,
           email,
+          phone,
           source: "checkout",
           subscribed: subscribe_to_news ? "subscribed" : "unknown",
         }),
