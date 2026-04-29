@@ -207,7 +207,7 @@ export async function POST(request: Request) {
         query: { exactQuery: { attributeName: "name", attributeValue: normalizedCode } },
       });
       const obj = discountSearch.objects?.[0];
-      const disc = obj?.catalogDiscount;
+      const disc = obj?.discountData;
       if (
         !obj?.id ||
         !disc ||
