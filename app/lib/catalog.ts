@@ -6,6 +6,7 @@ export type CatalogVariation = {
   name: string          // Localized variation name
   priceMoney: bigint    // In cents (CAD)
   bouquets: number | null
+  imageUrls: string[]   // Variation-specific images (may be empty)
 }
 
 export type CatalogProduct = {
@@ -69,11 +70,22 @@ function buildProduct(obj: CatalogObject, locale: string, imageUrlMap: Map<strin
     const vAttrs = ('customAttributeValues' in v ? v.customAttributeValues : undefined) as AttrMap | undefined
     const vName = (isFr ? firstString(vAttrs, attrKeys.nameKeys) : null) ?? vData?.name ?? ''
     const bouquetsRaw = vAttrs?.[attrKeys.bouquetsKey]?.numberValue
+
+    const vImageIds: string[] = []
+    if (vData && 'imageId' in vData && typeof (vData as { imageId?: string }).imageId === 'string') {
+      vImageIds.push((vData as { imageId: string }).imageId)
+    }
+    if (vData && 'imageIds' in vData && Array.isArray((vData as { imageIds?: string[] }).imageIds)) {
+      vImageIds.push(...(vData as { imageIds: string[] }).imageIds)
+    }
+    const vImageUrls = vImageIds.map(id => imageUrlMap.get(id)).filter((u): u is string => !!u)
+
     return {
       variationId: v.id ?? '',
       name: vName,
       priceMoney: vData?.priceMoney?.amount ?? BigInt(0),
       bouquets: bouquetsRaw != null ? Number(bouquetsRaw) : null,
+      imageUrls: vImageUrls,
     }
   })
 

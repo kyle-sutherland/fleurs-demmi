@@ -265,6 +265,7 @@ export const fr: Dictionary = {
     backToCards: "← Retour aux cartes et cadeaux",
     notFound: "Article introuvable.",
     pickupAt: "Disponible pour la cueillette au Mile End",
+    selectColour: "Sélectionner la couleur",
   },
   vases: {
     heading: "Vases artisanaux\net vintage",

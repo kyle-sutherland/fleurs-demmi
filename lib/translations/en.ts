@@ -254,6 +254,7 @@ export const en = {
     backToCards: "← Back to Cards & Goodies",
     notFound: "Item not found.",
     pickupAt: "Available for pickup in Mile End",
+    selectColour: "Select colour",
   },
   vases: {
     heading: "Handmade &\nVintage Vases",
