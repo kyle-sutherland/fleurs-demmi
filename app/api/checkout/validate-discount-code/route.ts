@@ -39,7 +39,7 @@ export async function POST(request: Request) {
     })
 
     const obj = res.objects?.[0]
-    const disc = obj?.discountData
+    const disc = obj?.type === 'DISCOUNT' ? obj.discountData : undefined
 
     if (!obj?.id || !disc) {
       return NextResponse.json({ valid: false, error: 'Invalid or expired discount code.' })

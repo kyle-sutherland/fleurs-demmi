@@ -115,7 +115,7 @@ export async function POST(request: Request) {
         query: { exactQuery: { attributeName: 'name', attributeValue: normalizedCode } },
       })
       const obj = discountSearch.objects?.[0]
-      const disc = obj?.discountData
+      const disc = obj?.type === 'DISCOUNT' ? obj.discountData : undefined
       if (
         !obj?.id ||
         !disc ||
