@@ -1,6 +1,5 @@
 import Link from "next/link";
 import SiteHeader from "@/app/components/SiteHeader";
-import { VaseSlideshow } from "@/app/[locale]/shop/vases/[vaseId]/VaseSlideshow";
 import { CardVariationSelector } from "./CardVariationSelector";
 import { getCatalogItem } from "@/app/lib/catalog";
 import { getInventoryByVariationId } from "@/app/lib/inventory";
@@ -37,12 +36,8 @@ export default async function CardDetailPage({
     name: v.name,
     priceInCents: Number(v.priceMoney),
     priceFormatted: formattedPrices[i] ?? '',
+    imageUrls: v.imageUrls,
   }));
-
-  const slides =
-    card && card.imageUrls.length > 0
-      ? card.imageUrls.map((src) => ({ src }))
-      : [];
 
   if (!card || variations.length === 0) {
     return (
@@ -73,30 +68,17 @@ export default async function CardDetailPage({
           {c.back}
         </Link>
 
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-start">
-          <VaseSlideshow slides={slides} title={card.name} />
-
-          <div className="flex flex-col gap-4">
-            <h1 className="font-display font-black text-[8.8vw] md:text-[3vw] leading-none">
-              {card.name}
-            </h1>
-            {card.description && (
-              <p className="font-sans text-sm text-foreground/60 tracking-widest">
-                {card.description}
-              </p>
-            )}
-            {pickupLocation && (
-              <p className="font-sans text-sm text-foreground/60">
-                {c.pickupAt}
-              </p>
-            )}
-            <CardVariationSelector
-              variations={variationProps}
-              inventory={inventory}
-              itemName={card.name}
-              labels={t.addToCart}
-            />
-          </div>
+        <div className="mt-8">
+          <CardVariationSelector
+            variations={variationProps}
+            itemImageUrls={card.imageUrls}
+            inventory={inventory}
+            itemName={card.name}
+            description={card.description}
+            pickupText={pickupLocation ? c.pickupAt : null}
+            labels={t.addToCart}
+            selectColourLabel={c.selectColour}
+          />
         </div>
       </main>
     </div>
