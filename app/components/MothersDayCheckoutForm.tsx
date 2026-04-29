@@ -61,16 +61,8 @@ export function MothersDayCheckoutForm({ arrangements, t }: Props) {
     setSubmitting(true)
 
     const data = new FormData(e.currentTarget)
-    const address = (data.get('address') as string | null) ?? ''
-    const delivery_time = (data.get('delivery_time') as string | null) ?? ''
     const card_to = (data.get('card_to') as string | null) ?? ''
     const card_message = (data.get('card_message') as string | null) ?? ''
-
-    if (fulfillment === 'delivery' && !address.trim()) {
-      setError('Please enter a delivery address.')
-      setSubmitting(false)
-      return
-    }
 
     const pickupLabel = fulfillment === 'pickup' ? 'Pick up — May 9th, Mile End' : 'Delivery'
 
@@ -83,14 +75,11 @@ export function MothersDayCheckoutForm({ arrangements, t }: Props) {
         options: { pickup: pickupLabel },
       })),
       ...(fulfillment === 'delivery' ? [{
-        productId: 'delivery-surcharge:mothers-day',
-        name: 'Delivery',
+        productId: 'md-delivery',
+        name: "Mother's Day Delivery — May 10th",
         price: DELIVERY_PRICE,
         quantity: 1,
-        options: {
-          pickup: 'Delivery',
-          ...(delivery_time.trim() && { note: delivery_time.trim() }),
-        },
+        options: { pickup: 'Delivery' },
       }] : []),
       ...(showCard ? [{
         productId: 'card-addon',
@@ -157,12 +146,6 @@ export function MothersDayCheckoutForm({ arrangements, t }: Props) {
         </div>
       </div>
 
-      {fulfillment === 'delivery' && (
-        <>
-          <Field label={t.deliveryAddress} name="address" type="text" hint={t.deliveryAddressHint} required />
-          <Field label={t.deliveryTime} name="delivery_time" type="text" hint={t.deliveryTimeHint} />
-        </>
-      )}
 
       <div className="flex flex-col gap-2">
         <label className="font-sans text-xs uppercase tracking-widest font-semibold">{t.arrangement} *</label>
