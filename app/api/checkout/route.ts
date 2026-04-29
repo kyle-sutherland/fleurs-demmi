@@ -47,6 +47,7 @@ const bodySchema = z.object({
     .optional(),
   deliveryAddress: montrealAddressSchema.optional(),
   giftCardToken: z.string().min(1).max(512).optional(),
+  discountCode: z.string().max(50).trim().optional(),
 });
 
 export async function POST(request: Request) {
@@ -87,7 +88,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const { token, email, name, subscribe_to_news, giftCardToken } = body;
+  const { token, email, name, subscribe_to_news, giftCardToken, discountCode } = body;
 
   const cookieStore = await cookies();
   const cart = parseCart(cookieStore.get(COOKIE_NAME)?.value);
@@ -193,6 +194,47 @@ export async function POST(request: Request) {
     }
   }
 
+  const cartTotalCents = Math.round(cartTotal(cart) * 100);
+
+  // Validate discount code server-side before creating the order
+  let catalogDiscountId: string | null = null;
+  let expectedDiscountCents = 0;
+  if (discountCode) {
+    const normalizedCode = discountCode.toUpperCase();
+    try {
+      const discountSearch = await client.catalog.search({
+        objectTypes: ["DISCOUNT"],
+        query: { exactQuery: { attributeName: "name", attributeValue: normalizedCode } },
+      });
+      const obj = discountSearch.objects?.[0];
+      const disc = obj?.catalogDiscount;
+      if (
+        !obj?.id ||
+        !disc ||
+        !["FIXED_PERCENTAGE", "FIXED_AMOUNT"].includes(disc.discountType ?? "")
+      ) {
+        return NextResponse.json(
+          { error: "Invalid or expired discount code." },
+          { status: 400 },
+        );
+      }
+      catalogDiscountId = obj.id;
+      if (disc.discountType === "FIXED_PERCENTAGE") {
+        expectedDiscountCents = Math.round(
+          (cartTotalCents * parseFloat(disc.percentage ?? "0")) / 100,
+        );
+      } else {
+        expectedDiscountCents = Number(disc.amountMoney?.amount ?? 0);
+      }
+    } catch (err) {
+      console.error("Discount validation failed:", err);
+      return NextResponse.json(
+        { error: "Could not validate discount code. Please try again." },
+        { status: 500 },
+      );
+    }
+  }
+
   try {
     const lineItems = cart.items.map((item) => {
       const note =
@@ -223,7 +265,13 @@ export async function POST(request: Request) {
 
     // Step 1: Create the order
     const orderResponse = await client.orders.create({
-      order: { locationId: LOCATION_ID, lineItems },
+      order: {
+        locationId: LOCATION_ID,
+        lineItems,
+        ...(catalogDiscountId
+          ? { discounts: [{ catalogObjectId: catalogDiscountId, scope: "ORDER" }] }
+          : {}),
+      },
       idempotencyKey: randomUUID(),
     });
 
@@ -235,9 +283,9 @@ export async function POST(request: Request) {
       );
     }
 
-    // Step 2: Verify order total matches cart total — hard reject if they diverge
+    // Step 2: Verify order total matches expected total — hard reject if they diverge
     const orderTotalCents = Number(order.totalMoney?.amount ?? 0);
-    const cartTotalCents = Math.round(cartTotal(cart) * 100);
+    const expectedOrderTotalCents = cartTotalCents - expectedDiscountCents;
 
     if (!orderTotalCents) {
       console.error(`Square order had no totalMoney — orderId=${order.id}`);
@@ -247,9 +295,9 @@ export async function POST(request: Request) {
       );
     }
 
-    if (Math.abs(orderTotalCents - cartTotalCents) > 5) {
+    if (Math.abs(orderTotalCents - expectedOrderTotalCents) > 5) {
       console.error(
-        `Order total mismatch: Square=${orderTotalCents} cart=${cartTotalCents} orderId=${order.id}`,
+        `Order total mismatch: Square=${orderTotalCents} expected=${expectedOrderTotalCents} cart=${cartTotalCents} discount=${expectedDiscountCents} orderId=${order.id}`,
       );
       return NextResponse.json(
         { error: "Order total mismatch. Please refresh and try again." },
@@ -477,6 +525,11 @@ export async function POST(request: Request) {
         ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;color:#888">Gift Card</td><td style="padding:6px 12px;border-bottom:1px solid #eee;text-align:right;color:#888">−$${(giftCardAmountCents / 100).toFixed(2)}</td></tr>`
         : "";
 
+    const discountDisplay =
+      expectedDiscountCents > 0
+        ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;color:#888">Discount (${escapeHtml(discountCode!)})</td><td style="padding:6px 12px;border-bottom:1px solid #eee;text-align:right;color:#888">−$${(expectedDiscountCents / 100).toFixed(2)}</td></tr>`
+        : "";
+
     const ownerHtml = `
       <h2 style="font-family:sans-serif">New shop order — ${safeName || safeEmail}</h2>
       <table style="font-family:sans-serif;font-size:14px;border-collapse:collapse;width:100%;max-width:600px">
@@ -495,6 +548,7 @@ export async function POST(request: Request) {
       <h3 style="font-family:sans-serif;margin-top:24px">Items</h3>
       <table style="font-family:sans-serif;font-size:14px;border-collapse:collapse;width:100%;max-width:600px">
         ${itemRows}
+        ${discountDisplay}
         ${gcDisplay}
         <tr><td style="padding:6px 12px;font-weight:700">Total</td><td style="padding:6px 12px;font-weight:700;text-align:right">$${totalFormatted} CAD</td></tr>
       </table>

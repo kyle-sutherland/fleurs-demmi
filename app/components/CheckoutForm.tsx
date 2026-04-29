@@ -89,7 +89,27 @@ export function CheckoutForm({
   const [giftCardLoading, setGiftCardLoading] = useState(false);
   const [giftCardReady, setGiftCardReady] = useState(false);
 
-  const displayTotal = giftCard ? Math.max(0, total - giftCard.balance) : total;
+  // Discount code state
+  const [discountInput, setDiscountInput] = useState("");
+  const [discount, setDiscount] = useState<{
+    id: string;
+    code: string;
+    label: string;
+    discountType: string;
+    percentage?: string;
+    amountCents?: number;
+  } | null>(null);
+  const [discountError, setDiscountError] = useState<string | null>(null);
+  const [discountLoading, setDiscountLoading] = useState(false);
+
+  const discountSavings = discount
+    ? discount.discountType === "FIXED_PERCENTAGE"
+      ? total * (parseFloat(discount.percentage!) / 100)
+      : (discount.amountCents ?? 0) / 100
+    : 0;
+  const discountedTotal = Math.max(0, total - discountSavings);
+  const giftCardSavings = giftCard ? Math.min(giftCard.balance, discountedTotal) : 0;
+  const displayTotal = Math.max(0, discountedTotal - giftCardSavings);
 
   const onTurnstileToken = useCallback((t: string) => setTurnstileToken(t), []);
   const sdkError = formT.sdkError;
@@ -191,6 +211,37 @@ export function CheckoutForm({
     }
   }
 
+  async function applyDiscount() {
+    if (!discountInput.trim()) return;
+    setDiscountError(null);
+    setDiscountLoading(true);
+    try {
+      const res = await fetch("/api/checkout/validate-discount-code", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: discountInput.trim() }),
+      });
+      const data = await res.json();
+      if (data.valid) {
+        setDiscount({
+          id: data.discountId,
+          code: discountInput.trim().toUpperCase(),
+          label: data.label,
+          discountType: data.discountType,
+          percentage: data.percentage,
+          amountCents: data.amountCents,
+        });
+        setDiscountInput("");
+      } else {
+        setDiscountError(data.error ?? formT.discountError);
+      }
+    } catch {
+      setDiscountError(formT.discountError);
+    } finally {
+      setDiscountLoading(false);
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
@@ -257,6 +308,7 @@ export function CheckoutForm({
           : {}),
         ...(hasDelivery ? { deliveryAddress } : {}),
         ...(giftCardToken ? { giftCardToken } : {}),
+        ...(discount ? { discountCode: discount.code } : {}),
       }),
     });
 
@@ -393,6 +445,63 @@ export function CheckoutForm({
         )}
       </div>
 
+      {/* Discount code */}
+      <div className="flex flex-col gap-2">
+        <label
+          htmlFor="discount-code"
+          className="font-sans text-xs uppercase tracking-widest font-semibold"
+        >
+          {formT.discountLabel}
+        </label>
+        {!discount ? (
+          <>
+            <div className="flex gap-2">
+              <input
+                id="discount-code"
+                type="text"
+                value={discountInput}
+                onChange={(e) => {
+                  setDiscountInput(e.target.value);
+                  setDiscountError(null);
+                }}
+                placeholder={formT.discountPlaceholder}
+                className="flex-1 border-2 border-foreground bg-transparent font-sans text-sm px-4 py-3 focus:outline-none focus:border-purple"
+              />
+              <button
+                type="button"
+                onClick={applyDiscount}
+                disabled={discountLoading || !discountInput.trim()}
+                className="font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground px-5 py-3 hover:bg-foreground hover:text-background transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                {formT.discountApply}
+              </button>
+            </div>
+            {discountError && (
+              <p className="font-sans text-sm text-red-600">{discountError}</p>
+            )}
+          </>
+        ) : (
+          <div className="flex items-center justify-between border-2 border-foreground/20 px-4 py-3 font-sans text-sm">
+            <span>
+              <span className="font-semibold">{formT.discountApplied}</span>
+              {" ("}
+              {discount.code}
+              {") — "}
+              {discount.discountType === "FIXED_PERCENTAGE"
+                ? `${discount.percentage}% off`
+                : `−$${((discount.amountCents ?? 0) / 100).toFixed(2)}`}
+            </span>
+            <button
+              type="button"
+              onClick={() => setDiscount(null)}
+              className="font-sans text-xs uppercase tracking-widest font-semibold underline"
+            >
+              {formT.discountRemove}
+            </button>
+          </div>
+        )}
+      </div>
+
       <div className="flex flex-col gap-2">
         <p className="font-sans text-xs uppercase tracking-widest font-semibold">
           {formT.cardDetails}
@@ -415,12 +524,20 @@ export function CheckoutForm({
       )}
 
       <div className="border-t-2 border-foreground/10 pt-5 flex flex-col gap-1">
+        {discount && (
+          <div className="flex justify-between font-sans text-sm text-foreground/60">
+            <span>
+              {formT.discountApplied} ({discount.code})
+            </span>
+            <span>−${discountSavings.toFixed(2)}</span>
+          </div>
+        )}
         {giftCard && (
           <div className="flex justify-between font-sans text-sm text-foreground/60">
             <span>
               {formT.giftCardApplied} (…{giftCard.gan.slice(-4)})
             </span>
-            <span>−${Math.min(giftCard.balance, total).toFixed(2)}</span>
+            <span>−${giftCardSavings.toFixed(2)}</span>
           </div>
         )}
         <div className="flex justify-between items-center font-display font-black text-lg">

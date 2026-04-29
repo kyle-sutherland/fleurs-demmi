@@ -252,7 +252,7 @@ export const fr: Dictionary = {
       cardMessage: "Message :",
       subscribeLabel: "S\u2019abonner \u00e0 notre infolettre",
       paymentSoon: "Int\u00e9gration de paiement \u00e0 venir",
-      submit: "Commander",
+      submit: "Ajouter au panier",
     },
   },
 
@@ -319,6 +319,8 @@ export const fr: Dictionary = {
       discountLabel: "Code de réduction",
       discountPlaceholder: "Entrez le code de réduction",
       discountApply: "Appliquer",
+      discountApplied: "Réduction appliquée",
+      discountRemove: "Retirer",
       discountError: "Code de réduction invalide ou expiré.",
       deliveryAddressError:
         "L/'adresse doit inclure un code postal de Montréal (ex. : H2W 1Y5). Nous livrons uniquement à Montréal.",

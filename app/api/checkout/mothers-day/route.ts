@@ -104,9 +104,46 @@ export async function POST(request: Request) {
 
   const client = getSquareClient()
 
+  const baseTotalCents = Math.round(total * 100)
+  let catalogDiscountId: string | null = null
+  let expectedDiscountCents = 0
+  if (body.discountCode) {
+    const normalizedCode = body.discountCode.toUpperCase()
+    try {
+      const discountSearch = await client.catalog.search({
+        objectTypes: ['DISCOUNT'],
+        query: { exactQuery: { attributeName: 'name', attributeValue: normalizedCode } },
+      })
+      const obj = discountSearch.objects?.[0]
+      const disc = obj?.catalogDiscount
+      if (
+        !obj?.id ||
+        !disc ||
+        !['FIXED_PERCENTAGE', 'FIXED_AMOUNT'].includes(disc.discountType ?? '')
+      ) {
+        return NextResponse.json({ error: 'Invalid or expired discount code.' }, { status: 400 })
+      }
+      catalogDiscountId = obj.id
+      if (disc.discountType === 'FIXED_PERCENTAGE') {
+        expectedDiscountCents = Math.round(baseTotalCents * parseFloat(disc.percentage ?? '0') / 100)
+      } else {
+        expectedDiscountCents = Number(disc.amountMoney?.amount ?? 0)
+      }
+    } catch (err) {
+      console.error('Discount validation failed:', err)
+      return NextResponse.json({ error: 'Could not validate discount code. Please try again.' }, { status: 500 })
+    }
+  }
+
   try {
     const orderResponse = await client.orders.create({
-      order: { locationId: LOCATION_ID, lineItems },
+      order: {
+        locationId: LOCATION_ID,
+        lineItems,
+        ...(catalogDiscountId
+          ? { discounts: [{ catalogObjectId: catalogDiscountId, scope: 'ORDER' }] }
+          : {}),
+      },
       idempotencyKey: randomUUID(),
     })
 
@@ -115,7 +152,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Failed to create order.' }, { status: 500 })
     }
 
-    const orderTotalCents = Math.round(total * 100)
+    const orderTotalCents = baseTotalCents - expectedDiscountCents
     let payment: { id?: string } | null = null
     let giftCardAmountCents = 0
 
@@ -215,6 +252,12 @@ export async function POST(request: Request) {
       ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;color:#888">Gift Card</td><td style="padding:6px 12px;border-bottom:1px solid #eee;text-align:right;color:#888">−$${(giftCardAmountCents / 100).toFixed(2)}</td></tr>`
       : ''
 
+    const discountDisplay = expectedDiscountCents > 0
+      ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;color:#888">Discount (${escapeHtml(body.discountCode!)})</td><td style="padding:6px 12px;border-bottom:1px solid #eee;text-align:right;color:#888">−$${(expectedDiscountCents / 100).toFixed(2)}</td></tr>`
+      : ''
+
+    const totalPaid = orderTotalCents / 100
+
     const ownerHtml = `
       <h2 style="font-family:sans-serif">New Mother's Day Order — ${sName}</h2>
       <table style="font-family:sans-serif;font-size:14px;border-collapse:collapse;width:100%;max-width:600px">
@@ -225,8 +268,9 @@ export async function POST(request: Request) {
         ${isDelivery && sAddress ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Address</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${sAddress}${sDeliveryTime ? ` · ${sDeliveryTime}` : ''}</td></tr>` : ''}
         <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Items</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${arrangementNames.map(escapeHtml).join('<br/>')}</td></tr>
         ${hasCard ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Card</td><td style="padding:6px 12px;border-bottom:1px solid #eee">To: ${sCardTo || '—'}<br/>${sCardMsg}</td></tr>` : ''}
+        ${discountDisplay}
         ${gcDisplay}
-        <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Total Paid</td><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:700">$${total.toFixed(2)} CAD</td></tr>
+        <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Total Paid</td><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:700">$${totalPaid.toFixed(2)} CAD</td></tr>
         <tr><td style="padding:6px 12px;font-weight:600">Square Order ID</td><td style="padding:6px 12px">${order.id}</td></tr>
       </table>
     `
@@ -242,8 +286,9 @@ export async function POST(request: Request) {
           ${resolvedVariations.map((v, i) => `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee">${escapeHtml(arrangementNames[i])}</td><td style="padding:6px 12px;border-bottom:1px solid #eee;text-align:right">$${(Number(v!.priceMoney) / 100).toFixed(2)}</td></tr>`).join('')}
           ${isDelivery ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee">Delivery — May 10th</td><td style="padding:6px 12px;border-bottom:1px solid #eee;text-align:right">$${DELIVERY_PRICE.toFixed(2)}</td></tr>` : ''}
           ${hasCard ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee">Greeting Card</td><td style="padding:6px 12px;border-bottom:1px solid #eee;text-align:right">$${CARD_PRICE.toFixed(2)}</td></tr>` : ''}
+          ${discountDisplay}
           ${gcDisplay}
-          <tr><td style="padding:6px 12px;font-weight:700">Total</td><td style="padding:6px 12px;font-weight:700;text-align:right">$${total.toFixed(2)} CAD</td></tr>
+          <tr><td style="padding:6px 12px;font-weight:700">Total</td><td style="padding:6px 12px;font-weight:700;text-align:right">$${totalPaid.toFixed(2)} CAD</td></tr>
         </table>
         <table style="font-size:14px;border-collapse:collapse;width:100%;margin-top:24px">
           <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;width:160px">Fulfillment</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${isDelivery ? `Delivery — May 10th${sAddress ? `, ${sAddress}` : ''}` : 'Pick up — May 9th, 10am–5pm, Mile End'}</td></tr>

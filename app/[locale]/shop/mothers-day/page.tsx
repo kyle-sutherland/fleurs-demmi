@@ -14,11 +14,6 @@ export default async function MothersDayPage({ params }: { params: Promise<{ loc
   const t = getDictionary(locale);
   const m = t.mothersDay;
 
-  const sdkUrl =
-    process.env.SQUARE_ENVIRONMENT === 'production'
-      ? 'https://web.squarecdn.com/v1/square.js'
-      : 'https://sandbox.web.squarecdn.com/v1/square.js'
-
   const items = await getCatalogItemsByCategory(MD_CATEGORY, locale)
 
   const allVariationIds = items.flatMap((item) => item.variations.map((v) => v.variationId))
@@ -51,11 +46,8 @@ export default async function MothersDayPage({ params }: { params: Promise<{ loc
 
         <section className="mt-12 max-w-2xl md:max-w-7xl">
           <MothersDayCheckoutForm
-            applicationId={process.env.NEXT_PUBLIC_SQUARE_APPLICATION_ID!}
-            locationId={process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID!}
-            sdkUrl={sdkUrl}
             arrangements={arrangements}
-            t={{ ...m.form, ...t.checkout.form }}
+            t={m.form}
           />
         </section>
       </main>
