@@ -41,7 +41,7 @@ export default async function AboutPage({
                 src="/ee457bb0-6711-4bd4-a478-09e127b505a6.jpeg"
                 alt="Emily Gray watering plants"
                 fill
-                sizes="(max-width: 768px) 100vw, 33vw"
+                sizes="(max-width: 768px) 33vw"
                 className="object-cover"
                 priority
               />
