@@ -8,7 +8,7 @@ import { getCatalogItemsByCategory } from '@/app/lib/catalog'
 import { sendMail } from '@/app/lib/email'
 import { escapeHtml, emailSchema, nameSchema, phoneSchema, textSchema } from '@/app/lib/validate'
 import { verifyTurnstile } from '@/app/lib/turnstile'
-import { appendToCustomerList } from '@/app/lib/sheets'
+import { upsertSquareCustomer } from '@/app/lib/squareCustomers'
 
 const MD_CATEGORY = "Mother's Day"
 const CARD_CATEGORY = 'Card Add-On'
@@ -136,10 +136,20 @@ export async function POST(request: Request) {
   }
 
   try {
+    const customerId = await upsertSquareCustomer({
+      name,
+      email,
+      phone,
+      source: "mothers-day",
+      subscribed: subscribe_to_news ? "subscribed" : "unknown",
+      isOrder: true,
+    })
+
     const orderResponse = await client.orders.create({
       order: {
         locationId: LOCATION_ID,
         lineItems,
+        ...(customerId ? { customerId } : {}),
         ...(catalogDiscountId
           ? { discounts: [{ catalogObjectId: catalogDiscountId, scope: 'ORDER' }] }
           : {}),
@@ -310,7 +320,6 @@ export async function POST(request: Request) {
       await Promise.all([
         sendMail({ to: process.env.RECIPIENT_EMAIL!, subject: `New Mother's Day order — ${name}`, html: ownerHtml }),
         sendMail({ to: email, cc: process.env.RECIPIENT_EMAIL, subject: `Your order is confirmed — Fleurs d'Emmi`, html: customerHtml }),
-        appendToCustomerList({ name, email, phone, source: 'mothers-day', subscribed: subscribe_to_news ? 'subscribed' : 'unknown' }),
       ])
     } catch (err) {
       console.error("Email error (Mother's Day checkout):", err)

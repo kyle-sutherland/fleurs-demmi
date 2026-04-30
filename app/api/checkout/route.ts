@@ -17,7 +17,7 @@ import {
 } from "@/app/lib/validate";
 import { verifyTurnstile } from "@/app/lib/turnstile";
 import { enforceRateLimit } from "@/app/lib/rateLimit";
-import { appendToCustomerList } from "@/app/lib/sheets";
+import { upsertSquareCustomer } from "@/app/lib/squareCustomers";
 import { createPickupBooking, getPickupLocation } from "@/app/lib/appointments";
 import type { CatalogObject } from "square";
 
@@ -265,11 +265,22 @@ export async function POST(request: Request) {
       };
     });
 
+    // Upsert Square customer before order creation so we can link them
+    const customerId = await upsertSquareCustomer({
+      name,
+      email,
+      phone,
+      source: "checkout",
+      subscribed: subscribe_to_news ? "subscribed" : "unknown",
+      isOrder: true,
+    });
+
     // Step 1: Create the order
     const orderResponse = await client.orders.create({
       order: {
         locationId: LOCATION_ID,
         lineItems,
+        ...(customerId ? { customerId } : {}),
         ...(catalogDiscountId
           ? { discounts: [{ catalogObjectId: catalogDiscountId, scope: "ORDER" }] }
           : {}),
@@ -667,13 +678,6 @@ export async function POST(request: Request) {
               }),
             ]
           : []),
-        appendToCustomerList({
-          name,
-          email,
-          phone,
-          source: "checkout",
-          subscribed: subscribe_to_news ? "subscribed" : "unknown",
-        }),
       ]);
     } catch (err) {
       console.error("Email error (shop checkout):", err);

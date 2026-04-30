@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { emailSchema } from '@/app/lib/validate'
 import { verifyTurnstile } from '@/app/lib/turnstile'
 import { enforceRateLimit } from '@/app/lib/rateLimit'
-import { appendToCustomerList } from '@/app/lib/sheets'
+import { upsertSquareCustomer } from '@/app/lib/squareCustomers'
 
 const bodySchema = z.object({
   email:     emailSchema,
@@ -34,11 +34,6 @@ export async function POST(req: NextRequest) {
 
   const { name, email } = body
 
-  try {
-    await appendToCustomerList({ name, email, source: 'subscribed', subscribed: 'subscribed' })
-    return NextResponse.json({ message: 'Subscribed!' })
-  } catch (err) {
-    console.error('Subscribe error:', err)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
-  }
+  await upsertSquareCustomer({ name, email, source: 'subscribed', subscribed: 'subscribed', isOrder: false })
+  return NextResponse.json({ message: 'Subscribed!' })
 }

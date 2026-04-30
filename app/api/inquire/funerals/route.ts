@@ -4,7 +4,7 @@ import { sendMail } from '@/app/lib/email'
 import { escapeHtml, emailSchema, nameSchema, phoneSchema, dateSchema, textSchema } from '@/app/lib/validate'
 import { verifyTurnstile } from '@/app/lib/turnstile'
 import { enforceRateLimit } from '@/app/lib/rateLimit'
-import { appendToCustomerList } from '@/app/lib/sheets'
+import { upsertSquareCustomer } from '@/app/lib/squareCustomers'
 
 const bodySchema = z.object({
   name:              nameSchema,
@@ -105,7 +105,7 @@ export async function POST(request: Request) {
     await Promise.all([
       sendMail({ to: process.env.RECIPIENT_EMAIL!, subject: `New funeral inquiry — ${name}`, html: ownerHtml }),
       sendMail({ to: email, cc: process.env.RECIPIENT_EMAIL, subject: `Inquiry received — Fleurs d'Emmi`, html: customerHtml }),
-      appendToCustomerList({ name, email, phone, source: 'funerals-inquiry', subscribed: 'unknown' }),
+      upsertSquareCustomer({ name, email, phone, source: 'funerals-inquiry', subscribed: 'unknown', isOrder: false }),
     ])
   } catch (err) {
     console.error('Email error (funerals inquiry):', err)

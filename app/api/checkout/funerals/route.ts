@@ -18,7 +18,7 @@ import {
 } from "@/app/lib/validate";
 import { verifyTurnstile } from "@/app/lib/turnstile";
 import { enforceRateLimit } from "@/app/lib/rateLimit";
-import { appendToCustomerList } from "@/app/lib/sheets";
+import { upsertSquareCustomer } from "@/app/lib/squareCustomers";
 
 const SYMPATHY_CATEGORY = "Sympathy";
 const CARD_CATEGORY = "Cards & Goodies";
@@ -165,8 +165,17 @@ export async function POST(request: Request) {
   const client = getSquareClient();
 
   try {
+    const customerId = await upsertSquareCustomer({
+      name,
+      email,
+      phone,
+      source: "funerals",
+      subscribed: "unknown",
+      isOrder: true,
+    });
+
     const orderResponse = await client.orders.create({
-      order: { locationId: LOCATION_ID, lineItems },
+      order: { locationId: LOCATION_ID, lineItems, ...(customerId ? { customerId } : {}) },
       idempotencyKey: randomUUID(),
     });
 
@@ -398,7 +407,6 @@ export async function POST(request: Request) {
           subject: `Your order is confirmed — Fleurs d'Emmi`,
           html: customerHtml,
         }),
-        appendToCustomerList({ name, email, phone, source: "funerals", subscribed: 'unknown' }),
       ]);
     } catch (err) {
       console.error("Email error (funerals checkout):", err);
