@@ -19,11 +19,11 @@ export const metadata: Metadata = {
     siteName: "Fleurs d'Emmi",
     locale: "fr_CA",
     type: "website",
-        images: [
+s        images: [
       {
-        url: '/HOME.jpg', // Path to public/og-image.png
-        width: 1200,
-        height: 630,
+        url: '/Flower Photos/HOME.jpg',
+        width: 2878,
+        height: 2880,
         alt: 'My Website Preview',
       },
   },
