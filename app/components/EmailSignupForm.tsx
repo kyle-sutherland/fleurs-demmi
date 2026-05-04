@@ -38,8 +38,12 @@ export default function EmailSignupForm({ t }: Props) {
         turnstile: turnstileToken,
       });
       setSubmitted(true);
-    } catch {
-      setServerError("Something went wrong. Please try again.");
+    } catch (err) {
+      if (axios.isAxiosError(err) && err.response?.data?.error) {
+        setServerError(err.response.data.error);
+      } else {
+        setServerError("Something went wrong. Please try again.");
+      }
     }
   };
 
