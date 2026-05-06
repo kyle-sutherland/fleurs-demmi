@@ -48,7 +48,6 @@ export function TurnstileWidget({ onToken, onError }: Props) {
 
       widgetId.current = turnstile.render(containerRef.current, {
         sitekey: siteKey,
-        size: 'invisible',
         callback: (token: string) => {
           if (!cancelled) onToken(token)
         },
