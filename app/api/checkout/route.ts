@@ -575,6 +575,18 @@ export async function POST(request: Request) {
       /subscription/i.test(item.name),
     );
 
+    const catalogItems = cart.items.filter(
+      (i) => !i.productId.startsWith("delivery-surcharge:"),
+    );
+    const hasVasesOrCards = catalogItems.some((i) => /vase|card/i.test(i.name));
+    const hasFlowers = catalogItems.some((i) => !/vase|card/i.test(i.name));
+    const pickupAddress =
+      hasVasesOrCards && hasFlowers
+        ? "59 Rue Bernard Ouest, Montr&#233;al (flowers) and 5333 Casgrain unit 313 (vases/cards)"
+        : hasVasesOrCards
+          ? "5333 Casgrain, unit 313"
+          : "59 Rue Bernard Ouest, Montr&#233;al";
+
     const customerHtml = email
       ? isSubscriptionOrder
         ? `
@@ -630,7 +642,7 @@ export async function POST(request: Request) {
       <div style="font-family:sans-serif;max-width:600px;color:#1a1a1a;padding-bottom:32px;border-bottom:2px solid #eee;margin-bottom:32px">
         <h1 style="font-size:28px;font-weight:900;margin-bottom:8px">Commande confirm&#233;e</h1>
         <p style="font-size:15px;line-height:1.6;color:#444">
-          Merci${safeName ? `, ${safeName}` : ""}&nbsp;! Votre commande a &#233;t&#233; re&#231;ue et votre paiement est confirm&#233;.${safePickupFr ? ` Votre cueillette est pr&#233;vue le ${safePickupFr} &#8212; ${safePickupLocation} (59 Rue Bernard Ouest, Montr&#233;al).` : ""}${safeDeliveryAddress ? ` Livraison &#224;&nbsp;: ${safeDeliveryAddress}.` : ""}
+          Merci${safeName ? `, ${safeName}` : ""}&nbsp;! Votre commande a &#233;t&#233; re&#231;ue et votre paiement est confirm&#233;.${safePickupFr ? ` Votre cueillette est pr&#233;vue le ${safePickupFr} &#8212; ${safePickupLocation} (${pickupAddress}).` : ""}${safeDeliveryAddress ? ` Livraison &#224;&nbsp;: ${safeDeliveryAddress}.` : ""}
         </p>
         <h2 style="font-size:16px;font-weight:700;margin-top:32px;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em">R&#233;sum&#233; de la commande</h2>
         <table style="font-size:14px;border-collapse:collapse;width:100%">
@@ -645,7 +657,7 @@ export async function POST(request: Request) {
       <div style="font-family:sans-serif;max-width:600px;color:#1a1a1a">
         <h1 style="font-size:28px;font-weight:900;margin-bottom:8px">Order confirmed</h1>
         <p style="font-size:15px;line-height:1.6;color:#444">
-          Thank you${safeName ? `, ${safeName}` : ""}! Your order has been received and your payment is confirmed.${safePickup ? ` Your pickup is booked for ${safePickup} &#8212; ${safePickupLocation} (59 Rue Bernard Ouest, Montr&#233;al).` : ""}${safeDeliveryAddress ? ` Delivery to: ${safeDeliveryAddress}.` : ""}
+          Thank you${safeName ? `, ${safeName}` : ""}! Your order has been received and your payment is confirmed.${safePickup ? ` Your pickup is booked for ${safePickup} &#8212; ${safePickupLocation} (${pickupAddress}).` : ""}${safeDeliveryAddress ? ` Delivery to: ${safeDeliveryAddress}.` : ""}
         </p>
         <h2 style="font-size:16px;font-weight:700;margin-top:32px;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em">Order Summary</h2>
         <table style="font-size:14px;border-collapse:collapse;width:100%">
