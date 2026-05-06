@@ -363,7 +363,7 @@ export async function POST(request: Request) {
         <table style="font-size:14px;border-collapse:collapse;width:100%;margin-top:24px">
           <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;width:160px">Date des fun&#233;railles</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${sDate}</td></tr>
           <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Mode de r&#233;ception</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${fulfillmentList.join(", ") || "&#8212;"}</td></tr>
-          ${safePickupLocation ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Lieu de cueillette</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${safePickupLocation}</td></tr>` : ""}
+          ${safePickupLocation ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Lieu de cueillette</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${safePickupLocation} (59 Rue Bernard Ouest, Montr&#233;al)</td></tr>` : ""}
           ${sLoc ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Lieu</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${sLoc}</td></tr>` : ""}
         </table>
         ${receiptUrl ? `<p style="margin-top:24px"><a href="${escapeHtml(receiptUrl)}" style="display:inline-block;padding:10px 20px;background:#1a1a1a;color:#fff;text-decoration:none;font-size:13px;font-weight:600">Voir le re&#231;u</a></p>` : ""}
@@ -385,7 +385,7 @@ export async function POST(request: Request) {
         <table style="font-size:14px;border-collapse:collapse;width:100%;margin-top:24px">
           <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;width:160px">Funeral Date</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${sDate}</td></tr>
           <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Fulfillment</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${fulfillmentList.join(", ") || "&#8212;"}</td></tr>
-          ${safePickupLocation ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Pickup Location</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${safePickupLocation}</td></tr>` : ""}
+          ${safePickupLocation ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Pickup Location</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${safePickupLocation} (59 Rue Bernard Ouest, Montr&#233;al)</td></tr>` : ""}
           ${sLoc ? `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">Location</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${sLoc}</td></tr>` : ""}
         </table>
         ${receiptUrl ? `<p style="margin-top:24px"><a href="${escapeHtml(receiptUrl)}" style="display:inline-block;padding:10px 20px;background:#1a1a1a;color:#fff;text-decoration:none;font-size:13px;font-weight:600">View Square receipt</a></p>` : ""}

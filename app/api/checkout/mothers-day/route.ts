@@ -298,7 +298,7 @@ export async function POST(request: Request) {
         <p style="font-size:15px;line-height:1.6;color:#333">
           ${isDelivery
             ? `Your flowers will be delivered to ${sAddress || 'your address'} on Sunday May 10th${sDeliveryTime ? ` at ${sDeliveryTime}` : ''}.`
-            : 'Your flowers will be available for pick up on Saturday May 9th at 59 Bernard Ouest between 10am&#8211;5pm.'}
+            : 'Your flowers will be available for pick up on Saturday May 9th at 59 Rue Bernard Ouest, Montr&#233;al between 10am&#8211;5pm.'}
         </p>
         <h2 style="font-size:16px;font-weight:700;margin-top:32px;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em">Order Summary</h2>
         <table style="font-size:14px;border-collapse:collapse;width:100%">
