@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { TurnstileWidget } from "@/app/components/TurnstileWidget";
+import { TurnstileWidget, type TurnstileHandle } from "@/app/components/TurnstileWidget";
 import { PickupScheduler } from "@/app/components/PickupScheduler";
 import type { PickupSlotSerialized } from "@/app/lib/appointments";
 import { isMontrealAddress } from "@/app/lib/validate";
@@ -62,6 +62,7 @@ export function CheckoutForm({
   const router = useRouter();
   const cardRef = useRef<SquarePaymentMethod | null>(null);
   const giftCardRef = useRef<SquarePaymentMethod | null>(null);
+  const turnstileRef = useRef<TurnstileHandle>(null);
   const paymentsRef = useRef<{
     card(): Promise<SquarePaymentMethod>;
     giftCard(): Promise<SquarePaymentMethod>;
@@ -263,65 +264,77 @@ export function CheckoutForm({
 
     if (!cardRef.current) return;
 
+    if (!turnstileToken) {
+      setError(formT.paymentError);
+      return;
+    }
+
     setError(null);
     setSubmitting(true);
 
-    const form = e.currentTarget;
-    const name = (form.elements.namedItem("name") as HTMLInputElement).value;
-    const email = (form.elements.namedItem("email") as HTMLInputElement).value;
-    const phone = (form.elements.namedItem("phone") as HTMLInputElement).value;
+    // Turnstile tokens are single-use — reset after every submit so a retry
+    // (e.g. after a card decline) gets a fresh token instead of replaying a
+    // spent one and getting a 403 from /api/checkout.
+    let success = false;
+    try {
+      const form = e.currentTarget;
+      const name = (form.elements.namedItem("name") as HTMLInputElement).value;
+      const email = (form.elements.namedItem("email") as HTMLInputElement).value;
+      const phone = (form.elements.namedItem("phone") as HTMLInputElement).value;
 
-    // Tokenize credit card
-    const tokenResult = await cardRef.current.tokenize();
-    if (tokenResult.status !== "OK") {
-      setError(tokenResult.errors?.[0]?.message ?? formT.tokenizeError);
-      setSubmitting(false);
-      return;
-    }
-    const token = tokenResult.token!;
-
-    // Tokenize gift card if balance was verified
-    let giftCardToken: string | undefined;
-    if (giftCard && giftCardRef.current) {
-      const gcResult = await giftCardRef.current.tokenize();
-      if (gcResult.status !== "OK") {
-        setError(gcResult.errors?.[0]?.message ?? formT.tokenizeError);
-        setSubmitting(false);
+      // Tokenize credit card
+      const tokenResult = await cardRef.current.tokenize();
+      if (tokenResult.status !== "OK") {
+        setError(tokenResult.errors?.[0]?.message ?? formT.tokenizeError);
         return;
       }
-      giftCardToken = gcResult.token;
+      const token = tokenResult.token!;
+
+      // Tokenize gift card if balance was verified
+      let giftCardToken: string | undefined;
+      if (giftCard && giftCardRef.current) {
+        const gcResult = await giftCardRef.current.tokenize();
+        if (gcResult.status !== "OK") {
+          setError(gcResult.errors?.[0]?.message ?? formT.tokenizeError);
+          return;
+        }
+        giftCardToken = gcResult.token;
+      }
+
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          token,
+          name,
+          email,
+          phone,
+          subscribe_to_news: subscribeToNews,
+          turnstile: turnstileToken,
+          ...(needsPickup && selectedSlot
+            ? {
+                pickupStartAt: selectedSlot.startAt,
+                pickupSegments: [selectedSlot],
+              }
+            : {}),
+          ...(hasDelivery ? { deliveryAddress } : {}),
+          ...(giftCardToken ? { giftCardToken } : {}),
+          ...(discount ? { discountCode: discount.code } : {}),
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? formT.paymentError);
+        return;
+      }
+
+      success = true;
+      router.push(`/order-confirmation?orderId=${data.orderId}`);
+    } finally {
+      turnstileRef.current?.reset();
+      if (!success) setSubmitting(false);
     }
-
-    const res = await fetch("/api/checkout", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        token,
-        name,
-        email,
-        phone,
-        subscribe_to_news: subscribeToNews,
-        turnstile: turnstileToken,
-        ...(needsPickup && selectedSlot
-          ? {
-              pickupStartAt: selectedSlot.startAt,
-              pickupSegments: [selectedSlot],
-            }
-          : {}),
-        ...(hasDelivery ? { deliveryAddress } : {}),
-        ...(giftCardToken ? { giftCardToken } : {}),
-        ...(discount ? { discountCode: discount.code } : {}),
-      }),
-    });
-
-    const data = await res.json();
-    if (!res.ok) {
-      setError(data.error ?? formT.paymentError);
-      setSubmitting(false);
-      return;
-    }
-
-    router.push(`/order-confirmation?orderId=${data.orderId}`);
   }
 
   return (
@@ -559,11 +572,11 @@ export function CheckoutForm({
         {subscribeLabel}
       </label>
 
-      <TurnstileWidget onToken={onTurnstileToken} />
+      <TurnstileWidget ref={turnstileRef} onToken={onTurnstileToken} />
 
       <button
         type="submit"
-        disabled={!sdkReady || submitting || (needsPickup && !selectedSlot)}
+        disabled={!sdkReady || submitting || !turnstileToken || (needsPickup && !selectedSlot)}
         className="self-start font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-10 py-3 hover:bg-orange-500 hover:border-[#E6E6FA] hover:text-[#E6E6FA] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
       >
         {submitting

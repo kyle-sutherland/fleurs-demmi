@@ -1,7 +1,7 @@
 'use client'
 
-import { useCallback, useState } from 'react'
-import { TurnstileWidget } from '@/app/components/TurnstileWidget'
+import { useCallback, useRef, useState } from 'react'
+import { TurnstileWidget, type TurnstileHandle } from '@/app/components/TurnstileWidget'
 
 export type SympathyArrangement = {
   variationId: string
@@ -44,6 +44,7 @@ export function FuneralsForm({ arrangements, t }: Props) {
   const [showCard, setShowCard] = useState(false)
   const [turnstileToken, setTurnstileToken] = useState('')
   const [fulfillment, setFulfillment] = useState('pickup')
+  const turnstileRef = useRef<TurnstileHandle>(null)
 
   const onTurnstileToken = useCallback((t: string) => setTurnstileToken(t), [])
 
@@ -65,6 +66,10 @@ export function FuneralsForm({ arrangements, t }: Props) {
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     if (totalSelected === 0) return
+    if (!turnstileToken) {
+      setError('Verification expired. Please try again.')
+      return
+    }
     setError(null)
     setSubmitting(true)
 
@@ -86,6 +91,7 @@ export function FuneralsForm({ arrangements, t }: Props) {
       turnstile: turnstileToken,
     }
 
+    let success = false
     try {
       const res = await fetch('/api/inquire/funerals', {
         method: 'POST',
@@ -96,14 +102,16 @@ export function FuneralsForm({ arrangements, t }: Props) {
       if (!res.ok) {
         const d = await res.json()
         setError(d.error ?? 'Something went wrong. Please try again.')
-        setSubmitting(false)
         return
       }
 
+      success = true
       setSubmitted(true)
     } catch {
       setError('Something went wrong. Please try again.')
-      setSubmitting(false)
+    } finally {
+      turnstileRef.current?.reset()
+      if (!success) setSubmitting(false)
     }
   }
 
@@ -211,11 +219,11 @@ export function FuneralsForm({ arrangements, t }: Props) {
         <p className="font-sans text-sm text-red-600 border-2 border-red-200 bg-red-50 px-4 py-3">{error}</p>
       )}
 
-      <TurnstileWidget onToken={onTurnstileToken} />
+      <TurnstileWidget ref={turnstileRef} onToken={onTurnstileToken} />
 
       <button
         type="submit"
-        disabled={submitting || totalSelected === 0}
+        disabled={submitting || totalSelected === 0 || !turnstileToken}
         className="self-start font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-10 py-3 hover:bg-foreground hover:text-background transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
       >
         {submitting ? 'Sending…' : t.submit}

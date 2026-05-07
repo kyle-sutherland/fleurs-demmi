@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useState } from "react";
-import { TurnstileWidget } from "@/app/components/TurnstileWidget";
+import { useCallback, useRef, useState } from "react";
+import { TurnstileWidget, type TurnstileHandle } from "@/app/components/TurnstileWidget";
 
 type Props = {
   t: {
@@ -37,11 +37,16 @@ export function WeddingsForm({ t }: Props) {
   );
   const [subscribeToNews, setSubscribeToNews] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState("");
+  const turnstileRef = useRef<TurnstileHandle>(null);
 
   const onTurnstileToken = useCallback((t: string) => setTurnstileToken(t), []);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (!turnstileToken) {
+      setError("Verification expired. Please try again.");
+      return;
+    }
     setSubmitting(true);
     setError(null);
 
@@ -63,6 +68,7 @@ export function WeddingsForm({ t }: Props) {
       turnstile: turnstileToken,
     };
 
+    let success = false;
     try {
       const res = await fetch("/api/inquire/weddings", {
         method: "POST",
@@ -73,15 +79,16 @@ export function WeddingsForm({ t }: Props) {
       if (!res.ok) {
         const d = await res.json();
         setError(d.error ?? "Something went wrong. Please try again.");
-
-        setSubmitting(false);
         return;
       }
 
+      success = true;
       setSubmitted(true);
     } catch {
       setError("Something went wrong. Please try again.");
-      setSubmitting(false);
+    } finally {
+      turnstileRef.current?.reset();
+      if (!success) setSubmitting(false);
     }
   }
 
@@ -218,11 +225,11 @@ export function WeddingsForm({ t }: Props) {
         {t.subscribeLabel}
       </label>
 
-      <TurnstileWidget onToken={onTurnstileToken} />
+      <TurnstileWidget ref={turnstileRef} onToken={onTurnstileToken} />
 
       <button
         type="submit"
-        disabled={submitting}
+        disabled={submitting || !turnstileToken}
         className="self-start font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-10 py-3 hover:bg-orange-500 hover:border-[#E6E6FA] hover:text-[#E6E6FA] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
       >
         {submitting ? "Sending…" : t.submit}

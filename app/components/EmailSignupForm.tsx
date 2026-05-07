@@ -1,9 +1,9 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import axios from "axios";
-import { TurnstileWidget } from "@/app/components/TurnstileWidget";
+import { TurnstileWidget, type TurnstileHandle } from "@/app/components/TurnstileWidget";
 import type { Dictionary } from "@/lib/translations/en";
 
 type FormValues = { name: string; email: string; website: string };
@@ -21,6 +21,7 @@ export default function EmailSignupForm({ t }: Props) {
   const [submitted, setSubmitted] = useState(false);
   const [serverError, setServerError] = useState("");
   const [turnstileToken, setTurnstileToken] = useState("");
+  const turnstileRef = useRef<TurnstileHandle>(null);
 
   const onTurnstileToken = useCallback((t: string) => setTurnstileToken(t), []);
 
@@ -31,6 +32,10 @@ export default function EmailSignupForm({ t }: Props) {
   } = useForm<FormValues>();
 
   const onSubmit = async (data: FormValues) => {
+    if (!turnstileToken) {
+      setServerError("Verification expired. Please try again.");
+      return;
+    }
     setServerError("");
     try {
       await axios.post("/api/subscribe", {
@@ -44,6 +49,8 @@ export default function EmailSignupForm({ t }: Props) {
       } else {
         setServerError("Something went wrong. Please try again.");
       }
+    } finally {
+      turnstileRef.current?.reset();
     }
   };
 
@@ -56,6 +63,7 @@ export default function EmailSignupForm({ t }: Props) {
   }
 
   return (
+    <div className="grow row-start-2">
     <form
       onSubmit={handleSubmit(onSubmit)}
       className="mt-8 flex flex-col gap-5 md:flex-row md:items-end"
@@ -86,7 +94,7 @@ export default function EmailSignupForm({ t }: Props) {
         />
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || !turnstileToken}
           className="md:hidden font-sans text-xs font-semibold uppercase tracking-widest text-foreground/70 px-4 py-2 whitespace-nowrap disabled:opacity-50"
         >
           {isSubmitting ? "…" : t.submit}
@@ -94,7 +102,7 @@ export default function EmailSignupForm({ t }: Props) {
       </div>
       <button
         type="submit"
-        disabled={isSubmitting}
+        disabled={isSubmitting || !turnstileToken}
         className="hidden md:block font-sans text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-4 py-2 hover:bg-orange-500 hover:border-[#E6E6FA] hover:text-[#E6E6FA] transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {isSubmitting ? "…" : t.submit}
@@ -104,7 +112,8 @@ export default function EmailSignupForm({ t }: Props) {
           {errors.email?.message ?? serverError}
         </p>
       )}
-      <TurnstileWidget onToken={onTurnstileToken} />
+      <TurnstileWidget ref={turnstileRef} onToken={onTurnstileToken} />
     </form>
+    </div>
   );
 }
