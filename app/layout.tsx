@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Courier_Prime } from "next/font/google";
 import { headers } from "next/headers";
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/next"
 
 const courierPrime = Courier_Prime({
   subsets: ["latin"],
@@ -55,6 +56,7 @@ export default async function RootLayout({
     >
       <body className="min-h-full w-full flex flex-col overflow-x-hidden">
         {children}
+        <Analytics />
       </body>
     </html>
   );
