@@ -45,7 +45,7 @@ export default async function BouquetSubscriptionPage({ params }: { params: Prom
 
         <div className="mt-12 flex flex-col md:flex-row md:gap-12 md:items-stretch">
           <section className="flex-1 max-w-[960px] flex flex-col gap-6">
-            {(subItem?.variations ?? []).map((variation) => {
+            {(subItem?.variations ?? []).filter((v) => v.bouquets !== 12).map((variation) => {
               const price = Number(variation.priceMoney) / 100
               const stockCount = inventory[variation.variationId] ?? null
               const bouquets = variation.bouquets ?? 1
