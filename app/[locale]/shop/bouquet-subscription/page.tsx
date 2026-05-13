@@ -54,7 +54,7 @@ export default async function BouquetSubscriptionPage({ params }: { params: Prom
               const tierInfo: Record<number, { label: string; dates: string }> = {
                 12: { label: 'Extended Season: Bi-Weekly Bouquets', dates: 'May 23 – Oct 24' },
                 8:  { label: 'Regular Season: Bi-weekly', dates: 'June 20 – Sept 26' },
-                4:  { label: 'Monthly for 4 months', dates: 'July 18, Aug 29, Sept 26, Oct 24' },
+                4:  { label: 'Monthly for 4 months', dates: 'June 20, July 18, Aug 25, Sept 12' },
               }
               const tier = tierInfo[bouquets]
 
