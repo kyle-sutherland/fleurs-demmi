@@ -86,8 +86,8 @@ export function FuneralsForm({ arrangements, t }: Props) {
       arrangementQuantities: quantities,
       arrangementNames: selectedArrangements.map((a) => `${quantities[a.variationId]}x ${a.name}`).concat(hasCustom ? [`${quantities['custom']}x Custom Arrangement`] : []),
       style_notes: data.get('style_notes') as string,
-      card_name: data.get('card_name') as string,
-      card_message: data.get('card_message') as string,
+      card_name: (data.get('card_name') as string | null) ?? undefined,
+      card_message: (data.get('card_message') as string | null) ?? undefined,
       turnstile: turnstileToken,
     }
 

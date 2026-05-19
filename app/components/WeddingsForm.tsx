@@ -59,7 +59,7 @@ export function WeddingsForm({ t }: Props) {
       phone: data.get("phone") as string,
       event_date: data.get("event_date") as string,
       fulfillment,
-      event_location: data.get("event_location") as string,
+      event_location: (data.get("event_location") as string | null) ?? undefined,
       guest_count: data.get("guest_count") as string,
       items: data.getAll("items"),
       style_notes: data.get("style_notes") as string,
