@@ -40,7 +40,12 @@ export default function SaturdayMultiSelect({
     return () => document.removeEventListener("mousedown", onClick);
   }, [open]);
 
-  const summary = selected.length === 0 ? label : `${selected.length} selected`;
+  const summary =
+    selected.length === 0 ?
+      label
+    : locale === "fr" ?
+      `${selected.length} sélectionné(s)`
+    : `${selected.length} selected`;
 
   return (
     <div className="flex flex-col gap-2" ref={ref}>
