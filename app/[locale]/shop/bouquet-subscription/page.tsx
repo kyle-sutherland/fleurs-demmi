@@ -40,16 +40,16 @@ export default async function BouquetSubscriptionPage({
     : {};
 
   const saturdays = [
-    new Date(2026, 6, 20),
-    new Date(2026, 7, 4),
-    new Date(2026, 7, 18),
-    new Date(2026, 8, 1),
-    new Date(2026, 8, 15),
-    new Date(2026, 8, 29),
-    new Date(2026, 9, 12),
-    new Date(2026, 9, 26),
-    new Date(2026, 10, 10),
-    new Date(2026, 10, 24),
+    new Date(2026, 5, 20),
+    new Date(2026, 6, 4),
+    new Date(2026, 6, 18),
+    new Date(2026, 7, 1),
+    new Date(2026, 7, 15),
+    new Date(2026, 7, 29),
+    new Date(2026, 8, 12),
+    new Date(2026, 8, 26),
+    new Date(2026, 9, 10),
+    new Date(2026, 9, 24),
   ].map((d) => formatDate(d, locale));
 
   return (
