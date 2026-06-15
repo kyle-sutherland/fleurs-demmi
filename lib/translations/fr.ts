@@ -30,12 +30,12 @@ export const fr: Dictionary = {
     },
   },
   home: {
-    shopNow: "Magasiner",
+    shopNow: "Réservez un bouquet",
     flowersAndThings: "fleurs & choses",
     servicesHeading: "Services",
     aboutHeading: "\u00c0 propos",
     aboutBody:
-      "fleurs d\u2019emmi est le projet floral d\u2019Emily Gray, bas\u00e9e \u00e0 Montr\u00e9al, Qu\u00e9bec, utilisant principalement des fleurs cultiv\u00e9es par des agriculteurs locaux et dans son propre jardin. Avec une formation en arts visuels (BFA c.2017) et plus de 10 ans d\u2019exp\u00e9rience dans des fermes biologiques \u00e0 petite \u00e9chelle \u00e0 travers le Canada, sa passion pour le travail avec les fleurs est n\u00e9e naturellement et continue de grandir.",
+      "fleurs d’emmi est le projet floral à échelle humaine d’Emily Gray. En puisant dans les fleurs cultivées sur son toit du Mile End et dans ses parcelles à Boucherville, et en s’appuyant sur sa formation en arts visuels ainsi que sur ses années d’expérience en fermes biologiques, elle crée des arrangements intuitifs et non traditionnels, portés par des palettes audacieuses et un profond attachement à son quartier.",
     readMore: "En savoir plus",
     products: {
       bouquetSubscription: {

@@ -69,14 +69,12 @@ export default async function AboutPage({
                 const withItalic = withBold[0].split("fleurs d\u2019emmi");
                 content = (
                   <>
-                    {withItalic.length > 1 ? (
+                    {withItalic.length > 1 ?
                       <>
                         <em>fleurs d&apos;emmi</em>
                         {withItalic[1]}
                       </>
-                    ) : (
-                      withBold[0]
-                    )}
+                    : withBold[0]}
                     <strong>Emily Gray</strong>
                     {withBold[1]}
                   </>
@@ -95,13 +93,13 @@ export default async function AboutPage({
           <div className="flex gap-4 mt-10">
             <Link
               href={`/${locale}/shop`}
-              className="font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-8 py-3 hover:bg-orange-500 hover:border-[#E6E6FA] hover:text-[#E6E6FA] transition-colors"
+              className="font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-8 py-3 hover:bg-[#ff5129] hover:border-[#E6E6FA] hover:text-[#E6E6FA] transition-colors"
             >
               {t.about.shopBtn}
             </Link>
             <Link
               href={`/${locale}/services`}
-              className="font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-8 py-3 hover:bg-orange-500 hover:border-[#E6E6FA] hover:text-[#E6E6FA] transition-colors"
+              className="font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-8 py-3 hover:bg-[#ff5129] hover:border-[#E6E6FA] hover:text-[#E6E6FA] transition-colors"
             >
               {t.about.servicesBtn}
             </Link>

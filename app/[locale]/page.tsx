@@ -1,20 +1,30 @@
 import Image from "next/image";
 import Link from "next/link";
 import SiteHeader from "@/app/components/SiteHeader";
+import ShopCta from "@/app/components/ShopCta";
 import GiftCardBanner from "@/app/components/GiftCardBanner";
 import { getDictionary } from "@/lib/i18n";
 
-export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
+export default async function Home({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
   const { locale } = await params;
   const t = getDictionary(locale);
 
   return (
-    <div className="flex flex-col flex-1">
+    <div className="flex flex-col flex-1 pt-22">
+      <ShopCta
+        href={`/${locale}/shop/bouquet-subscription`}
+        label={t.home.shopNow}
+      />
       <SiteHeader locale={locale} />
-
       <main className="flex flex-col">
+        {/* Shop CTA */}
+
         {/* Hero */}
-        <div className="relative mt-4 md:mt-16">
+        <div className="flex flex-col mt-4 md:mt-16">
           <h1 className="relative z-10 font-display font-black text-foreground text-[13vw] md:text-[7.425vw] leading-none text-center pb-0 px-[3.75rem] md:px-2 mb-12 md:mb-0">
             Fleurs D&apos;Emmi
           </h1>
@@ -30,18 +40,8 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
           </div>
         </div>
 
-        {/* Shop CTA */}
-        <div className="flex justify-center mt-0 md:-mt-4">
-          <Link
-            href={`/${locale}/shop`}
-            className="font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-10 py-3 hover:bg-orange-500 hover:border-[#E6E6FA] hover:text-[#E6E6FA] transition-colors"
-          >
-            {t.home.shopNow}
-          </Link>
-        </div>
-
         {/* Flowers & things */}
-        <h2 className="font-display font-black text-[10vw] md:text-[5vw] leading-none text-center mt-16 md:mt-24 md:mx-32">
+        {/* <h2 className="font-display font-black text-[10vw] md:text-[5vw] leading-none text-center mt-16 md:mt-24 md:mx-32">
           {t.home.flowersAndThings}
         </h2>
 
@@ -78,10 +78,10 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
             label={t.home.products.giftCard.label}
             sublabel={t.home.products.giftCard.sublabel}
           />
-        </div>
+        </div> */}
 
         {/* Services teaser */}
-        <div className="mt-16 md:mt-24 mx-12 md:mx-32 border-t-2 border-foreground/20 pt-12">
+        {/* <div className="mt-16 md:mt-24 mx-12 md:mx-32 border-t-2 border-foreground/20 pt-12">
           <h2 className="font-display font-black text-[10vw] md:text-[5vw] leading-none">
             {t.home.servicesHeading}
           </h2>
@@ -101,20 +101,39 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
               imageClass="scale-[1.5625] [filter:brightness(1.0)_contrast(1.04)_saturate(1.15)_sepia(0.18)]"
             />
           </div>
-        </div>
+        </div> */}
 
         {/* About blurb */}
         <div className="mx-12 md:mx-32 mt-12 md:mt-16">
           <div className="flex flex-col md:flex-row md:items-start md:gap-12">
-            <div className="flex-1">
-              <h2 className="font-display font-black text-[8vw] md:text-[4vw] leading-none">
+            <div className="relative w-full aspect-[4/3] md:w-[40%] md:flex-shrink-0">
+              <Image
+                src="/Flower Photos/025101080017.jpg"
+                alt="Fleurs d'Emmi"
+                fill
+                sizes="(max-width: 768px) 100vw, 40vw"
+                className="object-cover object-center"
+              />
+            </div>
+            <div className="flex-1 mt-6 md:mt-0">
+              {/* <h2 className="font-display font-black text-[8vw] md:text-[4vw] leading-none">
                 {t.home.aboutHeading}
-              </h2>
+              </h2> */}
               <p className="font-sans text-base leading-relaxed mt-4 text-foreground/80">
                 {(() => {
-                  const body = t.home.aboutBody.replace(/^fleurs d[\u2019\u0027]emmi/, "");
+                  const body = t.home.aboutBody.replace(
+                    /^fleurs d[\u2019\u0027]emmi/,
+                    "",
+                  );
                   const [before, after] = body.split("Emily Gray");
-                  return <><em>fleurs d&apos;emmi</em>{before}<strong>Emily Gray</strong>{after}</>;
+                  return (
+                    <>
+                      <em>fleurs d&apos;emmi</em>
+                      {before}
+                      <strong>Emily Gray</strong>
+                      {after}
+                    </>
+                  );
                 })()}
               </p>
               <Link
@@ -123,6 +142,17 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
               >
                 {t.home.readMore}
               </Link>
+              <div className="flex justify-end mt-12">
+                <div className="bg-red-500 w-full md:w-80 aspect-square relative overflow-hidden mb-[-120]">
+                  <Image
+                    src="/Flower Photos/contact.jpg"
+                    alt="Flowers"
+                    fill
+                    sizes="(max-width: 768px) 50vw, 320px"
+                    className="object-cover object-center"
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -131,43 +161,90 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
   );
 }
 
-function ProductCard({
-  href, label, sublabel, bg, image, imageStyle,
-}: {
-  href: string; label: string; sublabel: string; bg: string; image?: string; imageStyle?: React.CSSProperties;
-}) {
-  return (
-    <Link href={href} className="group flex flex-col overflow-hidden border-2 border-foreground/10 transition-colors">
-      <div className={`${bg} aspect-[4/3] w-full relative`}>
-        {image && <Image src={image} alt={label} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" style={imageStyle} />}
-      </div>
-      <div className="p-5">
-        <p className="font-display font-black text-xl md:text-2xl leading-tight group-hover:underline">{label}</p>
-        <p className="font-sans text-sm mt-2 text-foreground/60">{sublabel}</p>
-      </div>
-    </Link>
-  );
-}
+// function ProductCard({
+//   href,
+//   label,
+//   sublabel,
+//   bg,
+//   image,
+//   imageStyle,
+// }: {
+//   href: string;
+//   label: string;
+//   sublabel: string;
+//   bg: string;
+//   image?: string;
+//   imageStyle?: React.CSSProperties;
+// }) {
+//   return (
+//     <Link
+//       href={href}
+//       className="group flex flex-col overflow-hidden border-2 border-foreground/10 transition-colors"
+//     >
+//       <div className={`${bg} aspect-[4/3] w-full relative`}>
+//         {image && (
+//           <Image
+//             src={image}
+//             alt={label}
+//             fill
+//             sizes="(max-width: 768px) 100vw, 50vw"
+//             className="object-cover"
+//             style={imageStyle}
+//           />
+//         )}
+//       </div>
+//       <div className="p-5">
+//         <p className="font-display font-black text-xl md:text-2xl leading-tight group-hover:underline">
+//           {label}
+//         </p>
+//         <p className="font-sans text-sm mt-2 text-foreground/60">{sublabel}</p>
+//       </div>
+//     </Link>
+//   );
+// }
 
-function ServiceCard({
-  href, label, body, image, imagePosition, imageClass,
-}: {
-  href: string; label: string; body: string; image?: string; imagePosition?: string; imageClass?: string;
-}) {
-  return (
-    <Link href={href} className="group flex flex-col overflow-hidden border-2 border-foreground/10 transition-colors">
-      {image && (
-        <div className="relative aspect-[4/3] w-full overflow-hidden">
-          <Image src={image} alt={label} fill sizes="(max-width: 768px) 100vw, 50vw" className={`object-cover ${imagePosition ?? "object-center"} ${imageClass ?? ""}`} />
-        </div>
-      )}
-      <div className="flex flex-col gap-3 p-6">
-        <p className="font-display font-black text-xl md:text-2xl leading-tight group-hover:underline">{label}</p>
-        <p className="font-sans text-sm text-foreground/70 leading-relaxed">{body}</p>
-        <span className="font-sans text-xs uppercase tracking-widest font-semibold mt-auto pt-2 underline underline-offset-4">
-          Learn more →
-        </span>
-      </div>
-    </Link>
-  );
-}
+// function ServiceCard({
+//   href,
+//   label,
+//   body,
+//   image,
+//   imagePosition,
+//   imageClass,
+// }: {
+//   href: string;
+//   label: string;
+//   body: string;
+//   image?: string;
+//   imagePosition?: string;
+//   imageClass?: string;
+// }) {
+//   return (
+//     <Link
+//       href={href}
+//       className="group flex flex-col overflow-hidden border-2 border-foreground/10 transition-colors"
+//     >
+//       {image && (
+//         <div className="relative aspect-[4/3] w-full overflow-hidden">
+//           <Image
+//             src={image}
+//             alt={label}
+//             fill
+//             sizes="(max-width: 768px) 100vw, 50vw"
+//             className={`object-cover ${imagePosition ?? "object-center"} ${imageClass ?? ""}`}
+//           />
+//         </div>
+//       )}
+//       <div className="flex flex-col gap-3 p-6">
+//         <p className="font-display font-black text-xl md:text-2xl leading-tight group-hover:underline">
+//           {label}
+//         </p>
+//         <p className="font-sans text-sm text-foreground/70 leading-relaxed">
+//           {body}
+//         </p>
+//         <span className="font-sans text-xs uppercase tracking-widest font-semibold mt-auto pt-2 underline underline-offset-4">
+//           Learn more →
+//         </span>
+//       </div>
+//     </Link>
+//   );
+// }

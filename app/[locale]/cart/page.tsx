@@ -1,30 +1,30 @@
-import Link from 'next/link'
-import { cookies } from 'next/headers'
-import SiteHeader from '@/app/components/SiteHeader'
-import { CartItemControls } from '@/app/components/CartItemControls'
-import { parseCart, cartTotal } from '@/app/lib/cart'
-import { getDictionary } from '@/lib/i18n'
+import Link from "next/link";
+import { cookies } from "next/headers";
+import SiteHeader from "@/app/components/SiteHeader";
+import { CartItemControls } from "@/app/components/CartItemControls";
+import { parseCart, cartTotal } from "@/app/lib/cart";
+import { getDictionary } from "@/lib/i18n";
 
 export const metadata = {
   title: "Cart — Fleurs d'Emmi",
-}
+};
 
 export default async function CartPage({
   params,
 }: {
-  params: Promise<{ locale: string }>
+  params: Promise<{ locale: string }>;
 }) {
-  const { locale } = await params
-  const t = getDictionary(locale)
-  const cookieStore = await cookies()
-  const cart = parseCart(cookieStore.get('cart')?.value)
-  const total = cartTotal(cart)
+  const { locale } = await params;
+  const t = getDictionary(locale);
+  const cookieStore = await cookies();
+  const cart = parseCart(cookieStore.get("cart")?.value);
+  const total = cartTotal(cart);
 
   const surchargeIdByVariation = new Map(
     cart.items
-      .filter((i) => i.productId.startsWith('delivery-surcharge:'))
-      .map((i) => [i.productId.slice('delivery-surcharge:'.length), i.id])
-  )
+      .filter((i) => i.productId.startsWith("delivery-surcharge:"))
+      .map((i) => [i.productId.slice("delivery-surcharge:".length), i.id]),
+  );
 
   return (
     <div className="flex flex-col flex-1">
@@ -35,24 +35,27 @@ export default async function CartPage({
           {t.cart.heading}
         </h1>
 
-        {cart.items.length === 0 ? (
+        {cart.items.length === 0 ?
           <div className="mt-12 flex flex-col gap-5">
-            <p className="font-sans text-base text-foreground/60">{t.cart.empty}</p>
+            <p className="font-sans text-base text-foreground/60">
+              {t.cart.empty}
+            </p>
             <Link
               href={`/${locale}/shop`}
-              className="self-start font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-8 py-3 hover:bg-orange-500 hover:border-[#E6E6FA] hover:text-[#E6E6FA] transition-colors"
+              className="self-start font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-8 py-3 hover:bg-[#ff5129] hover:border-[#E6E6FA] hover:text-[#E6E6FA] transition-colors"
             >
               {t.cart.browseShop}
             </Link>
           </div>
-        ) : (
-          <div className="mt-10 flex flex-col gap-12 md:flex-row md:gap-16 md:items-start">
+        : <div className="mt-10 flex flex-col gap-12 md:flex-row md:gap-16 md:items-start">
             {/* Item list */}
             <div className="flex-1 flex flex-col divide-y-2 divide-foreground/10">
               {cart.items.map((item) => (
                 <div key={item.id} className="py-6 flex flex-col gap-1">
                   <div className="flex items-start justify-between gap-4">
-                    <p className="font-display font-black text-xl leading-tight">{item.name}</p>
+                    <p className="font-display font-black text-xl leading-tight">
+                      {item.name}
+                    </p>
                     <p className="font-display font-black text-xl whitespace-nowrap">
                       ${(item.price * item.quantity).toFixed(2)}
                     </p>
@@ -62,7 +65,7 @@ export default async function CartPage({
                     <p className="font-sans text-xs text-foreground/50">
                       {Object.entries(item.options)
                         .map(([k, v]) => `${k}: ${v}`)
-                        .join(' · ')}
+                        .join(" · ")}
                     </p>
                   )}
 
@@ -70,22 +73,27 @@ export default async function CartPage({
                     ${item.price.toFixed(2)} {t.cart.each}
                   </p>
 
-                  {item.productId.startsWith('delivery-surcharge:') ? (
-                    <p className="font-sans text-xs text-foreground/40 mt-2 uppercase tracking-widest">{t.cart.includedWithDelivery}</p>
-                  ) : (
-                    <CartItemControls
+                  {item.productId.startsWith("delivery-surcharge:") ?
+                    <p className="font-sans text-xs text-foreground/40 mt-2 uppercase tracking-widest">
+                      {t.cart.includedWithDelivery}
+                    </p>
+                  : <CartItemControls
                       id={item.id}
                       quantity={item.quantity}
-                      linkedSurchargeId={surchargeIdByVariation.get(item.productId)}
+                      linkedSurchargeId={surchargeIdByVariation.get(
+                        item.productId,
+                      )}
                     />
-                  )}
+                  }
                 </div>
               ))}
             </div>
 
             {/* Order summary */}
             <div className="md:w-72 flex flex-col gap-5 border-2 border-foreground/20 p-6">
-              <p className="font-display font-black text-xl">{t.cart.orderSummary}</p>
+              <p className="font-display font-black text-xl">
+                {t.cart.orderSummary}
+              </p>
 
               <div className="flex justify-between font-sans text-sm text-foreground/70">
                 <span>{t.cart.subtotal}</span>
@@ -99,18 +107,18 @@ export default async function CartPage({
 
               <Link
                 href="/checkout"
-                className="font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-8 py-3 text-center hover:bg-orange-500 hover:border-[#E6E6FA] hover:text-[#E6E6FA] transition-colors"
+                className="font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-8 py-3 text-center hover:bg-[#ff5129] hover:border-[#E6E6FA] hover:text-[#E6E6FA] transition-colors"
               >
                 {t.cart.proceedToCheckout}
               </Link>
             </div>
           </div>
-        )}
+        }
       </main>
 
       <footer className="border-t-2 border-foreground/10 mt-auto py-8 text-center text-xs font-sans text-foreground/50">
         &copy; {new Date().getFullYear()} Fleurs d&apos;Emmi · Montréal, QC
       </footer>
     </div>
-  )
+  );
 }
