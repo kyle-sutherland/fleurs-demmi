@@ -2,7 +2,10 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { TurnstileWidget, type TurnstileHandle } from "@/app/components/TurnstileWidget";
+import {
+  TurnstileWidget,
+  type TurnstileHandle,
+} from "@/app/components/TurnstileWidget";
 import { PickupScheduler } from "@/app/components/PickupScheduler";
 import type { PickupSlotSerialized } from "@/app/lib/appointments";
 import { isMontrealAddress } from "@/app/lib/validate";
@@ -103,13 +106,15 @@ export function CheckoutForm({
   const [discountError, setDiscountError] = useState<string | null>(null);
   const [discountLoading, setDiscountLoading] = useState(false);
 
-  const discountSavings = discount
-    ? discount.discountType === "FIXED_PERCENTAGE"
-      ? total * (parseFloat(discount.percentage!) / 100)
+  const discountSavings =
+    discount ?
+      discount.discountType === "FIXED_PERCENTAGE" ?
+        total * (parseFloat(discount.percentage!) / 100)
       : (discount.amountCents ?? 0) / 100
     : 0;
   const discountedTotal = Math.max(0, total - discountSavings);
-  const giftCardSavings = giftCard ? Math.min(giftCard.balance, discountedTotal) : 0;
+  const giftCardSavings =
+    giftCard ? Math.min(giftCard.balance, discountedTotal) : 0;
   const displayTotal = Math.max(0, discountedTotal - giftCardSavings);
 
   const onTurnstileToken = useCallback((t: string) => setTurnstileToken(t), []);
@@ -279,8 +284,10 @@ export function CheckoutForm({
     try {
       const form = e.currentTarget;
       const name = (form.elements.namedItem("name") as HTMLInputElement).value;
-      const email = (form.elements.namedItem("email") as HTMLInputElement).value;
-      const phone = (form.elements.namedItem("phone") as HTMLInputElement).value;
+      const email = (form.elements.namedItem("email") as HTMLInputElement)
+        .value;
+      const phone = (form.elements.namedItem("phone") as HTMLInputElement)
+        .value;
 
       // Tokenize credit card
       const tokenResult = await cardRef.current.tokenize();
@@ -311,12 +318,12 @@ export function CheckoutForm({
           phone,
           subscribe_to_news: subscribeToNews,
           turnstile: turnstileToken,
-          ...(needsPickup && selectedSlot
-            ? {
-                pickupStartAt: selectedSlot.startAt,
-                pickupSegments: [selectedSlot],
-              }
-            : {}),
+          ...(needsPickup && selectedSlot ?
+            {
+              pickupStartAt: selectedSlot.startAt,
+              pickupSegments: [selectedSlot],
+            }
+          : {}),
           ...(hasDelivery ? { deliveryAddress } : {}),
           ...(giftCardToken ? { giftCardToken } : {}),
           ...(discount ? { discountCode: discount.code } : {}),
@@ -394,10 +401,13 @@ export function CheckoutForm({
 
       {/* Gift card */}
       <div className="flex flex-col gap-2">
-        <label htmlFor="gift-card-gan" className="font-sans text-xs uppercase tracking-widest font-semibold">
+        <label
+          htmlFor="gift-card-gan"
+          className="font-sans text-xs uppercase tracking-widest font-semibold"
+        >
           {formT.giftCardLabel}
         </label>
-        {!giftCard ? (
+        {!giftCard ?
           <>
             <div className="flex gap-2">
               <input
@@ -426,8 +436,7 @@ export function CheckoutForm({
               </p>
             )}
           </>
-        ) : (
-          <>
+        : <>
             <div className="flex items-center justify-between border-2 border-foreground/20 px-4 py-3 font-sans text-sm">
               <span>
                 <span className="font-semibold">{formT.giftCardApplied}</span>
@@ -458,7 +467,7 @@ export function CheckoutForm({
               </p>
             )}
           </>
-        )}
+        }
       </div>
 
       {/* Discount code */}
@@ -469,7 +478,7 @@ export function CheckoutForm({
         >
           {formT.discountLabel}
         </label>
-        {!discount ? (
+        {!discount ?
           <>
             <div className="flex gap-2">
               <input
@@ -496,16 +505,15 @@ export function CheckoutForm({
               <p className="font-sans text-sm text-red-600">{discountError}</p>
             )}
           </>
-        ) : (
-          <div className="flex items-center justify-between border-2 border-foreground/20 px-4 py-3 font-sans text-sm">
+        : <div className="flex items-center justify-between border-2 border-foreground/20 px-4 py-3 font-sans text-sm">
             <span>
               <span className="font-semibold">{formT.discountApplied}</span>
               {" ("}
               {discount.code}
               {") — "}
-              {discount.discountType === "FIXED_PERCENTAGE"
-                ? `${discount.percentage}% off`
-                : `−$${((discount.amountCents ?? 0) / 100).toFixed(2)}`}
+              {discount.discountType === "FIXED_PERCENTAGE" ?
+                `${discount.percentage}% off`
+              : `−$${((discount.amountCents ?? 0) / 100).toFixed(2)}`}
             </span>
             <button
               type="button"
@@ -515,7 +523,7 @@ export function CheckoutForm({
               {formT.discountRemove}
             </button>
           </div>
-        )}
+        }
       </div>
 
       <div className="flex flex-col gap-2">
@@ -576,12 +584,17 @@ export function CheckoutForm({
 
       <button
         type="submit"
-        disabled={!sdkReady || submitting || !turnstileToken || (needsPickup && !selectedSlot)}
-        className="self-start font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-10 py-3 hover:bg-orange-500 hover:border-[#E6E6FA] hover:text-[#E6E6FA] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        disabled={
+          !sdkReady ||
+          submitting ||
+          !turnstileToken ||
+          (needsPickup && !selectedSlot)
+        }
+        className="self-start font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-10 py-3 hover:bg-[#ff5129] hover:border-[#E6E6FA] hover:text-[#E6E6FA] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
       >
-        {submitting
-          ? formT.processing
-          : `${formT.pay} $${displayTotal.toFixed(2)}`}
+        {submitting ?
+          formT.processing
+        : `${formT.pay} $${displayTotal.toFixed(2)}`}
       </button>
     </form>
   );
