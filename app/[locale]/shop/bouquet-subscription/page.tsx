@@ -12,7 +12,7 @@ const SUB_CATEGORY = "Bouquet Subscriptions";
 // Variation that lets the customer pick their own delivery Saturdays.
 const SATURDAY_PICK_VARIATION_ID = "RGV4OAM2625ZOKVZYYLOYZTF";
 
-/** Every Saturday from today through the given end date (inclusive). */
+/** Format a date label for display (e.g. "Jun 20" / "20 juin"). */
 function formatDate(d: Date, locale: string): string {
   d.setHours(0, 0, 0, 0);
   return d.toLocaleDateString(locale === "fr" ? "fr-CA" : "en-US", {
