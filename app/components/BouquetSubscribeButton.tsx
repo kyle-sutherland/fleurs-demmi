@@ -43,8 +43,10 @@ export function BouquetSubscribeButton({
 
   const soldOut = stockCount === 0;
 
+  const quantity = saturdayOptions ? saturdays.length || 1 : tierBouquets;
+
   const isDelivery = delivery === "delivery";
-  const total = isDelivery ? tierPrice + 10 * tierBouquets : tierPrice;
+  const total = isDelivery ? tierPrice + 10 * quantity : tierPrice;
 
   async function handleClick() {
     setState("adding");
@@ -53,7 +55,7 @@ export function BouquetSubscribeButton({
       productId: variationId,
       name: tierLabel,
       price: tierPrice,
-      quantity: saturdays.length || 1,
+      quantity,
       options: {
         pickup:
           delivery === "pickup1" ? pickUpOption
@@ -72,7 +74,7 @@ export function BouquetSubscribeButton({
               productId: `delivery-surcharge:${variationId}`,
               name: "Home Delivery",
               price: 10,
-              quantity: tierBouquets,
+              quantity,
               options: { for: tierLabel },
             },
           ],
