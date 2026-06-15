@@ -142,8 +142,8 @@ export default async function Home({
               >
                 {t.home.readMore}
               </Link>
-              <div className="flex justify-end mt-12 lg:mb-[-120]">
-                <div className="bg-red-500 w-full md:w-80 aspect-square relative overflow-hidden">
+              <div className="flex justify-end mt-12">
+                <div className="bg-red-500 w-full md:w-80 aspect-square relative overflow-hidden mb-[-120]">
                   <Image
                     src="/Flower Photos/contact.jpg"
                     alt="Flowers"
