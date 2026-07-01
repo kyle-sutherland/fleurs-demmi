@@ -24,11 +24,11 @@ export default async function Home({
         {/* Shop CTA */}
 
         {/* Hero */}
-        <div className="flex flex-col mt-4 md:mt-16">
-          <h1 className="relative z-10 font-display font-black text-foreground text-[13vw] md:text-[7.425vw] leading-none text-center pb-0 px-[3.75rem] md:px-2 mb-12 md:mb-0">
+        <div className="mt-4 md:mt-16">
+          <h1 className="absolute inset-x-0 z-10 font-display font-black text-foreground text-[11vw] md:text-[7.425vw] leading-none text-center pb-0 px-[3.75rem] md:px-2">
             Fleurs D&apos;Emmi
           </h1>
-          <div className="clip-bowtie relative mx-12 md:mx-auto md:w-[calc(67.5vw-10.8rem)] aspect-square -mt-[12vw] md:-mt-[4.05vw]">
+          <div className="clip-bowtie relative md:mx-auto md:w-[calc(67.5vw-10.8rem)] aspect-square mt-4 md:mt-12">
             <Image
               src="/Flower Photos/HOME.jpg"
               alt="Fleurs d'Emmi hero"
