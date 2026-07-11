@@ -1,10 +1,15 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import { del } from '@vercel/blob'
 import { sendMail } from '@/app/lib/email'
 import { escapeHtml, emailSchema, nameSchema, phoneSchema, dateSchema, textSchema } from '@/app/lib/validate'
 import { verifyTurnstile } from '@/app/lib/turnstile'
 import { enforceRateLimit } from '@/app/lib/rateLimit'
 import { upsertSquareCustomer } from '@/app/lib/squareCustomers'
+
+// Blob URLs look like https://<store>.public.blob.vercel-storage.com/<path>
+// Restrict fetches to that host so an attacker can't coerce us into pulling arbitrary URLs.
+const BLOB_HOST_RE = /^https:\/\/[a-z0-9-]+\.public\.blob\.vercel-storage\.com\//
 
 const bodySchema = z.object({
   name:           nameSchema,
@@ -18,6 +23,7 @@ const bodySchema = z.object({
   style_notes:        textSchema.nullish(),
   additional:         textSchema.nullish(),
   subscribe_to_news:  z.boolean().optional(),
+  photo_urls:         z.array(z.string().url().regex(BLOB_HOST_RE, 'Invalid photo URL')).max(10).optional(),
   turnstile:          z.string().optional(),
   website:            z.string().max(0, 'Honeypot').optional(),
 })
@@ -103,15 +109,43 @@ export async function POST(request: Request) {
     </div>
   `
 
+  const photoUrls = body.photo_urls ?? []
+
   try {
-    await Promise.all([
-      sendMail({ to: process.env.RECIPIENT_EMAIL!, subject: `New wedding inquiry — ${name}`, html: ownerHtml }),
-      sendMail({ to: email, cc: process.env.RECIPIENT_EMAIL, subject: `Inquiry received — Fleurs d'Emmi`, html: customerHtml }),
-      upsertSquareCustomer({ name, email, phone, source: 'weddings-inquiry', subscribed: subscribe_to_news ? 'subscribed' : 'unknown', isOrder: false }),
-    ])
-  } catch (err) {
-    console.error('Email error (weddings inquiry):', err)
-    // Don't fail the request over email — the inquiry was received
+    const attachmentResults = await Promise.allSettled(
+      photoUrls.map(async (url, i) => {
+        const res = await fetch(url)
+        if (!res.ok) throw new Error(`Blob fetch failed (${res.status}): ${url}`)
+        const content = Buffer.from(await res.arrayBuffer())
+        const filename = decodeURIComponent(new URL(url).pathname.split('/').pop() || `photo-${i + 1}.jpg`)
+        const contentType = res.headers.get('content-type') ?? 'application/octet-stream'
+        return { filename, content, contentType }
+      }),
+    )
+    const attachments: { filename: string; content: Buffer; contentType: string }[] = []
+    for (const r of attachmentResults) {
+      if (r.status === 'fulfilled') attachments.push(r.value)
+      else console.error('Blob attachment error (weddings inquiry):', r.reason)
+    }
+
+    try {
+      await Promise.all([
+        sendMail({ to: process.env.RECIPIENT_EMAIL!, subject: `New wedding inquiry — ${name}`, html: ownerHtml, attachments: attachments.length ? attachments : undefined }),
+        sendMail({ to: email, cc: process.env.RECIPIENT_EMAIL, subject: `Inquiry received — Fleurs d'Emmi`, html: customerHtml }),
+        upsertSquareCustomer({ name, email, phone, source: 'weddings-inquiry', subscribed: subscribe_to_news ? 'subscribed' : 'unknown', isOrder: false }),
+      ])
+    } catch (err) {
+      console.error('Email error (weddings inquiry):', err)
+      // Don't fail the request over email — the inquiry was received
+    }
+  } finally {
+    if (photoUrls.length > 0) {
+      try {
+        await del(photoUrls)
+      } catch (err) {
+        console.error('Blob delete failed (weddings inquiry):', err)
+      }
+    }
   }
 
   return NextResponse.json({ ok: true })

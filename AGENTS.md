@@ -124,6 +124,7 @@ All env vars in `.env.local` (gitignored via `.env*`). Required:
 - `TURNSTILE_SECRET_KEY`, `NEXT_PUBLIC_TURNSTILE_SITE_KEY` — Cloudflare Turnstile
 - `CART_COOKIE_SECRET` — HMAC-SHA256 secret for signing the cart cookie (generate: `openssl rand -base64 32`). Required in production; falls back to an insecure placeholder in dev.
 - `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` — Upstash Redis for distributed rate limiting (required in production; rate limiting is silently skipped in dev if unset). Create a free database at console.upstash.com.
+- `BLOB_READ_WRITE_TOKEN` — Vercel Blob token used by the wedding photo upload flow (`/api/upload/wedding-photos` issues client tokens; `/api/inquire/weddings` fetches + deletes the uploaded blobs). Auto-injected in production once Blob is enabled in the project dashboard; for local dev, run `vercel env pull` or paste from the dashboard into `.env.local`.
 - `NODE_OPTIONS=--dns-result-order=ipv4first` is set locally (IPv6 issues with some providers)
 
 Scripts load `.env.local` **manually** via `fs.readFileSync` — tsx doesn't auto-load. Copy that pattern for new scripts.

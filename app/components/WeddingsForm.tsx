@@ -1,7 +1,12 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
+import { upload } from "@vercel/blob/client";
 import { TurnstileWidget, type TurnstileHandle } from "@/app/components/TurnstileWidget";
+
+const MAX_FILES = 10;
+const MAX_FILE_BYTES = 5 * 1024 * 1024;
+const MAX_TOTAL_BYTES = 15 * 1024 * 1024;
 
 type Props = {
   t: {
@@ -30,16 +35,51 @@ type Props = {
 
 export function WeddingsForm({ t }: Props) {
   const [submitting, setSubmitting] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fulfillment, setFulfillment] = useState<"pickup" | "delivery" | "">(
     "",
   );
   const [subscribeToNews, setSubscribeToNews] = useState(false);
+  const [files, setFiles] = useState<File[]>([]);
   const [turnstileToken, setTurnstileToken] = useState("");
   const turnstileRef = useRef<TurnstileHandle>(null);
 
   const onTurnstileToken = useCallback((t: string) => setTurnstileToken(t), []);
+
+  function onFilesChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const picked = Array.from(e.target.files ?? []);
+    if (picked.length > MAX_FILES) {
+      setError(`Please attach no more than ${MAX_FILES} photos.`);
+      e.target.value = "";
+      setFiles([]);
+      return;
+    }
+    const tooBig = picked.find((f) => f.size > MAX_FILE_BYTES);
+    if (tooBig) {
+      setError(`Each photo must be under 5 MB (${tooBig.name} is too large).`);
+      e.target.value = "";
+      setFiles([]);
+      return;
+    }
+    const total = picked.reduce((s, f) => s + f.size, 0);
+    if (total > MAX_TOTAL_BYTES) {
+      setError("Total photo size must be under 15 MB.");
+      e.target.value = "";
+      setFiles([]);
+      return;
+    }
+    const nonImage = picked.find((f) => !f.type.startsWith("image/"));
+    if (nonImage) {
+      setError(`Only image files are allowed (${nonImage.name}).`);
+      e.target.value = "";
+      setFiles([]);
+      return;
+    }
+    setError(null);
+    setFiles(picked);
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -53,6 +93,32 @@ export function WeddingsForm({ t }: Props) {
     const form = e.currentTarget;
     const data = new FormData(form);
 
+    let photo_urls: string[] = [];
+    if (files.length > 0) {
+      setUploading(true);
+      try {
+        const results = await Promise.all(
+          files.map((file) =>
+            upload(file.name, file, {
+              access: "public",
+              handleUploadUrl: "/api/upload/wedding-photos",
+              contentType: file.type,
+            }),
+          ),
+        );
+        photo_urls = results.map((r) => r.url);
+      } catch (err) {
+        console.error("Photo upload failed:", err);
+        setError(
+          "Photo upload failed. Please try again, or submit without photos.",
+        );
+        setUploading(false);
+        setSubmitting(false);
+        return;
+      }
+      setUploading(false);
+    }
+
     const body = {
       name: data.get("name") as string,
       email: data.get("email") as string,
@@ -65,6 +131,7 @@ export function WeddingsForm({ t }: Props) {
       style_notes: data.get("style_notes") as string,
       additional: data.get("additional") as string,
       subscribe_to_news: subscribeToNews,
+      photo_urls: photo_urls.length > 0 ? photo_urls : undefined,
       turnstile: turnstileToken,
     };
 
@@ -202,6 +269,8 @@ export function WeddingsForm({ t }: Props) {
           name="images"
           multiple
           accept="image/*"
+          onChange={onFilesChange}
+          aria-label={t.images}
           className="font-sans text-sm file:mr-4 file:py-2 file:px-4 file:border-2 file:border-foreground file:bg-transparent file:font-sans file:font-semibold file:text-xs file:uppercase file:tracking-widest cursor-pointer"
         />
         <p className="font-sans text-xs text-foreground/40 mt-1">
@@ -232,7 +301,7 @@ export function WeddingsForm({ t }: Props) {
         disabled={submitting || !turnstileToken}
         className="self-start font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-10 py-3 hover:bg-orange-500 hover:border-[#E6E6FA] hover:text-[#E6E6FA] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
       >
-        {submitting ? "Sending…" : t.submit}
+        {uploading ? "Uploading photos…" : submitting ? "Sending…" : t.submit}
       </button>
     </form>
   );
