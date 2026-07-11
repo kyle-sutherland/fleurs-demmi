@@ -28,16 +28,17 @@ export const en = {
     },
   },
   home: {
-    shopNow: "Shop Now",
+    shopNow: "Reserve a bouquet",
     flowersAndThings: "flowers & things",
     servicesHeading: "Services",
     aboutHeading: "About",
     aboutBody:
-      "fleurs d\u2019emmi is the floral project of Emily Gray, currently based in Montr\u00e9al, Qu\u00e9bec using primarily blooms grown by local farmers and from her own garden. With a background in visual arts (BFA c.2017) and over 10 years of experience working on small scale, organic farms across Canada, her passion for working with flowers emerged naturally and continues to grow.",
+      "fleurs d’emmi is the small‑scale floral project of Emily Gray. Using blooms from her Mile End rooftop and Boucherville plots, and drawing on a visual arts background and years on organic farms, she creates intuitive, non‑traditional arrangements shaped by bold palettes, and a deep connection to her neighbourhood.",
+    // "fleurs d\u2019emmi is the floral project of Emily Gray, currently based in Montr\u00e9al, Qu\u00e9bec using primarily blooms grown by local farmers and from her own garden. With a background in visual arts (BFA c.2017) and over 10 years of experience working on small scale, organic farms across Canada, her passion for working with flowers emerged naturally and continues to grow.",
     readMore: "Read more",
     products: {
       bouquetSubscription: {
-        label: "Bouquet Subscription",
+        label: "Bouquets",
         sublabel: "Bi-weekly seasonal bouquets \u00b7 Pick up or delivery",
       },
       mothersDay: {
@@ -72,8 +73,8 @@ export const en = {
     heading: "flowers & things",
     products: {
       bouquetSubscription: {
-        label: "Bouquet Subscription",
-        sublabel: "Bi-weekly seasonal bouquets \u00b7 from $150",
+        label: "Bouquets",
+        sublabel: "Seasonal bouquets \u00b7 from $50",
       },
       mothersDay: {
         label: "Mother\u2019s Day Bouquets",
@@ -205,9 +206,9 @@ export const en = {
     },
   },
   bouquetSubscription: {
-    heading: "Bouquet\nSubscription",
+    heading: "Seasonal Bouquets",
     intro:
-      "Subscribe to regularly receive seasonal bouquet arrangements made with local flowers. Pick up on Saturdays at Caf\u00e9 Replika (252 Rue Rachel E, Montr\u00e9al) or D\u00e9panneur Le Pick-Up (7032 Rue Waverly) between 11am\u20134pm. Home delivery available for an extra $10.00 per bouquet.",
+      "Order your hand tied bouquets made with seasonal, local flowers. Pick up on Saturdays at Caf\u00e9 Replika (252 Rue Rachel E, Montr\u00e9al) or D\u00e9panneur Le Pick-Up (7032 Rue Waverly) between 11am\u20134pm. Home delivery available for an extra $10.00 per bouquet.",
     from: "From",
     available: "available",
     deliveryLabel: "Delivery option",
@@ -217,7 +218,7 @@ export const en = {
       "Pick up \u2014 D\u00e9panneur Le Pick-Up (7032 Rue Waverly), Saturdays 11am\u20134pm",
     deliveryOption: "Home delivery (+$10/bouquet)",
     paymentSoon: "Payment integration coming soon",
-    subscribeBtn: "Subscribe \u2014 $",
+    subscribeBtn: "Reserve now \u2014 $",
   },
   mothersDay: {
     heading: "Mother\u2019s Day\nBouquets",

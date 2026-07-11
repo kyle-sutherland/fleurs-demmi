@@ -125,7 +125,8 @@ export function WeddingsForm({ t }: Props) {
       phone: data.get("phone") as string,
       event_date: data.get("event_date") as string,
       fulfillment,
-      event_location: (data.get("event_location") as string | null) ?? undefined,
+      event_location:
+        (data.get("event_location") as string | null) ?? undefined,
       guest_count: data.get("guest_count") as string,
       items: data.getAll("items"),
       style_notes: data.get("style_notes") as string,
@@ -299,7 +300,7 @@ export function WeddingsForm({ t }: Props) {
       <button
         type="submit"
         disabled={submitting || !turnstileToken}
-        className="self-start font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-10 py-3 hover:bg-orange-500 hover:border-[#E6E6FA] hover:text-[#E6E6FA] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        className="self-start font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-10 py-3 hover:bg-[#ff5129] hover:border-[#E6E6FA] hover:text-[#E6E6FA] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
       >
         {uploading ? "Uploading photos…" : submitting ? "Sending…" : t.submit}
       </button>

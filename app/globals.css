@@ -55,9 +55,39 @@
 @utility clip-bowtie {
   clip-path: polygon(0% 0%, 50% 9%, 100% 0%, 100% 100%, 50% 91%, 0% 100%);
 }
-
+@utility clip-bowtie-reverse {
+  clip-path: polygon(0% 0%, 9% 50%, 0% 100%, 100% 100%, 91% 50%, 100% 0%);
+}
 body {
   background-color: var(--color-brand-yellow);
   color: var(--color-brand-green);
   font-family: var(--font-sans);
 }
+
+/* Seamless looping banner — track is duplicated, shift by exactly half */
+@keyframes marquee-loop {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* Per-letter ripple — flapping flag */
+@keyframes flag-wave {
+  0%,
+  100% {
+    transform: translateY(0) skewX(0deg) rotateZ(0deg);
+  }
+  25% {
+    transform: translateY(-3px) skewX(10deg) rotateZ(-3deg);
+  }
+  50% {
+    transform: translateY(0) skewX(0deg) rotateZ(0deg);
+  }
+  75% {
+    transform: translateY(3px) skewX(-10deg) rotateZ(3deg);
+  }
+}
+

@@ -54,7 +54,7 @@ export default async function RootLayout({
       lang={locale}
       className={`${courierPrime.variable} h-full antialiased overflow-x-hidden`}
     >
-      <body className="min-h-full w-full flex flex-col overflow-x-hidden">
+      <body className="min-h-full w-full flex flex-col">
         {children}
         <Analytics />
       </body>

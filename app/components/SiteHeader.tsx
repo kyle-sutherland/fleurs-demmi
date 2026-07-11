@@ -5,7 +5,13 @@ import MobileMenu from "@/app/components/MobileMenu";
 import { CartBadge, CartBadgeMobile } from "@/app/components/CartBadge";
 import { getDictionary } from "@/lib/i18n";
 
-export default function SiteHeader({ locale, active }: { locale: string; active?: string }) {
+export default function SiteHeader({
+  locale,
+  active,
+}: {
+  locale: string;
+  active?: string;
+}) {
   const t = getDictionary(locale);
   const links = [
     { href: `/${locale}/shop`, label: t.nav.shop, key: "shop" },
@@ -16,10 +22,14 @@ export default function SiteHeader({ locale, active }: { locale: string; active?
   return (
     <header className="relative flex items-center justify-end px-12 min-h-[160px] md:min-h-0 md:py-0 md:flex-col md:items-center md:justify-between md:pt-6 md:pb-0">
       <div className="md:hidden absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-        <Link href={`/${locale}`}><DaisyLogo size={116} /></Link>
+        <Link href={`/${locale}`}>
+          <DaisyLogo size={116} />
+        </Link>
       </div>
       <div className="hidden md:flex md:flex-col md:items-center md:gap-5">
-        <Link href={`/${locale}`}><DaisyLogo size={175} /></Link>
+        <Link href={`/${locale}`}>
+          <DaisyLogo size={175} />
+        </Link>
         <nav className="flex gap-10 text-[0.992rem] font-sans tracking-widest uppercase text-foreground">
           {links.map(({ href, label, key }) => (
             <Link

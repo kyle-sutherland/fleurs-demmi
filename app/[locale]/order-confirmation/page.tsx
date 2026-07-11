@@ -1,20 +1,20 @@
-import Link from 'next/link'
-import SiteHeader from '@/app/components/SiteHeader'
-import { Metadata } from 'next'
+import Link from "next/link";
+import SiteHeader from "@/app/components/SiteHeader";
+import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Order Confirmed — Fleurs d'Emmi",
-}
+};
 
 export default async function OrderConfirmationPage({
   params,
   searchParams,
 }: {
-  params: Promise<{ locale: string }>
-  searchParams: Promise<{ orderId?: string }>
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<{ orderId?: string }>;
 }) {
-  const { locale } = await params
-  const { orderId } = await searchParams
+  const { locale } = await params;
+  const { orderId } = await searchParams;
 
   return (
     <div className="flex flex-col flex-1">
@@ -26,8 +26,8 @@ export default async function OrderConfirmationPage({
         </h1>
 
         <p className="font-sans text-base mt-6 max-w-lg text-foreground/80 leading-relaxed">
-          Your order has been received and your payment is confirmed. Emmi will be in touch soon
-          with pickup or delivery details.
+          Your order has been received and your payment is confirmed. Emmi will
+          be in touch soon with pickup or delivery details.
         </p>
 
         {orderId && (
@@ -38,7 +38,7 @@ export default async function OrderConfirmationPage({
 
         <Link
           href={`/${locale}/shop`}
-          className="mt-10 self-start inline-block font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-8 py-3 hover:bg-orange-500 hover:border-[#E6E6FA] hover:text-[#E6E6FA] transition-colors"
+          className="mt-10 self-start inline-block font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-8 py-3 hover:bg-[#ff5129] hover:border-[#E6E6FA] hover:text-[#E6E6FA] transition-colors"
         >
           Back to Shop
         </Link>
@@ -48,5 +48,5 @@ export default async function OrderConfirmationPage({
         &copy; {new Date().getFullYear()} Fleurs d&apos;Emmi · Montréal, QC
       </footer>
     </div>
-  )
+  );
 }
