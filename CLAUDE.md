@@ -1,6 +1,8 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Guidance for Claude Code when working with code in this repository. Fleurs d'Emmi — Montréal florist
+e-commerce. The authoritative, project-wide knowledge base lives in `AGENTS.md` (loaded below);
+**keep this file lean and defer to `AGENTS.md`** rather than duplicating it.
 
 @AGENTS.md
 
@@ -13,52 +15,26 @@ pnpm start      # Start production server
 pnpm lint       # Run ESLint directly (next lint is removed in v16)
 ```
 
-There are no tests configured yet.
+No unit test suite is configured; a Playwright smoke-test scaffold exists under `tests/`
+(`pnpm exec playwright test`). Validate changes via `pnpm lint` + `pnpm build` + manual click-through.
 
 ## Stack
 
-- **Next.js 16.2** with App Router (no Pages Router)
-- **React 19.2** (canary, built into App Router)
-- **TypeScript** (strict mode, `@/*` maps to project root)
-- **Tailwind CSS v4** via `@tailwindcss/postcss`
-- **Turbopack** is the default bundler for both dev and build
+- **Next.js 16.2** App Router only, **React 19.2**, **TypeScript** (strict, `@/*` → project root)
+- **Tailwind CSS v4** via `@tailwindcss/postcss`, **Turbopack** for dev/build
+- **Square** payments + catalog, **Gmail OAuth2** (nodemailer + Google Sheets API), Couriers_Prime font
 
-## Key Next.js 16 Breaking Changes
+## How this repo differs from a stock Next.js 16 scaffold
 
-Before writing any code, read the relevant guide in `node_modules/next/dist/docs/`. Critical changes from v15→v16:
+- Every page lives under `app/[locale]/` (routes `/en` and `/fr`); locale is resolved in `proxy.ts`
+  (NOT `middleware.ts`, deprecated in v16). See `AGENTS.md` "CRITICAL: Next.js 16".
+- Server Components by default; business logic sits in `app/lib/` (Square, cart, email, sheets,
+  validate, turnstile, rate limit). Client components only handle state/forms/widgets.
+- Products flow from Square → site by **category name** — no hardcoded item/variation IDs in code.
+  Money is **BigInt cents**. See `AGENTS.md` CONVENTIONS and ANTI-PATTERNS.
 
-**Async-only Request APIs** — `cookies()`, `headers()`, `draftMode()`, `params`, and `searchParams` are now async-only. Always `await` them:
-```tsx
-export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params
-}
-```
+## First read before touching Next 16 internals
 
-**`middleware` → `proxy`** — The middleware file convention is deprecated. Use `proxy.ts` with `export function proxy(request: Request)`. Note: `proxy` runs Node.js runtime only (not edge).
-
-**`next lint` removed** — Use `eslint` directly. `next build` no longer runs the linter.
-
-**`next/legacy/image` deprecated** — Use `next/image` only.
-
-**`images.domains` deprecated** — Use `images.remotePatterns` instead.
-
-**`serverRuntimeConfig`/`publicRuntimeConfig` removed** — Use `process.env` directly in Server Components; prefix client-accessible vars with `NEXT_PUBLIC_`.
-
-**PPR (`experimental_ppr`)** removed — Use `cacheComponents: true` in `next.config.ts` for cache component behavior.
-
-**Parallel routes** — All `@slot` directories now require explicit `default.js` files or builds fail.
-
-**`next dev` outputs to `.next/dev`** — `next build` uses `.next/` as before; the two can run concurrently.
-
-## Architecture
-
-This is a fresh App Router project (`app/` directory). All layouts and pages are Server Components by default. Add `'use client'` only for components needing interactivity, browser APIs, or hooks.
-
-- `app/layout.tsx` — Root layout with Geist fonts and global CSS
-- `app/page.tsx` — Home page (`/`)
-- `app/globals.css` — Global styles (Tailwind base)
-- `public/` — Static assets served at `/`
-- `next.config.ts` — Next.js configuration (TypeScript)
-- `eslint.config.mjs` — ESLint flat config (required for v16)
-
-Import alias `@/*` resolves to the project root (e.g. `@/app/components/Foo`).
+Read the relevant guide in `node_modules/next/dist/docs/` before writing code (async-only
+`params`/`cookies`/`headers`, `proxy` over `middleware`, `images.remotePatterns`, PPR → `cacheComponents`).
+`AGENTS.md` summarizes the v15→v16 breaking changes that apply here.

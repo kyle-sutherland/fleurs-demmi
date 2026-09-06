@@ -141,7 +141,7 @@ Scripts load `.env.local` **manually** via `fs.readFileSync` — tsx doesn't aut
 
 ## KNOWN QUIRKS & GOTCHAS
 
-- **No CI, no tests** — validate via `pnpm lint` + manual click-through.
+- **No CI, no unit tests** — a Playwright smoke scaffold lives in `tests/` (`pnpm exec playwright test`); validate via `pnpm lint` + `pnpm build` + manual click-through.
 - **`proxy.ts` runs Node runtime only** (Next 16 constraint). Don't use edge-only APIs there.
 - **Production launch requires creating the catalog in production Square.** Code uses **category names** only, not IDs — so switching `SQUARE_ENVIRONMENT=production` just works once the production account has categories named `Vases`, `Bouquet Subscriptions`, `Mother's Day`, `Sympathy`, and `Card Add-On`. The `scripts/*.ts` one-offs still contain sandbox item IDs and must be updated before running against production.
 - **Cart state is a signed cookie** (`cart` cookie, httpOnly, sameSite=lax, 30d). No DB. See `app/lib/cart.ts` + `app/api/cart/route.ts`.
