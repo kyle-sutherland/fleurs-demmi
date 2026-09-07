@@ -91,24 +91,7 @@ export default async function BouquetSubscriptionPage({
                 const pricePerBouquet = (price / bouquets).toFixed(2);
                 const picksSaturdays =
                   variation.variationId === SATURDAY_PICK_VARIATION_ID;
-                const tierInfo: Record<
-                  number,
-                  { label: string; dates: string }
-                > = {
-                  12: {
-                    label: "Extended Season: Bi-Weekly Bouquets",
-                    dates: "May 23 – Oct 24",
-                  },
-                  8: {
-                    label: "Regular Season: Bi-weekly",
-                    dates: "June 20 – Sept 26",
-                  },
-                  4: {
-                    label: "Monthly for 4 months",
-                    dates: "June 20, July 18, Aug 25, Sept 12",
-                  },
-                };
-                const tier = tierInfo[bouquets];
+                const tier = b.tiers[bouquets as keyof typeof b.tiers];
 
                 return (
                   <div
@@ -153,6 +136,7 @@ export default async function BouquetSubscriptionPage({
                           "Choisissez vos samedis"
                         : "Select your Saturdays"
                       }
+                      labels={t.addToCart}
                       locale={locale}
                     />
                   </div>

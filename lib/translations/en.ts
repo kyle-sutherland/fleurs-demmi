@@ -74,7 +74,7 @@ export const en = {
     products: {
       bouquetSubscription: {
         label: "Bouquets",
-        sublabel: "Seasonal bouquets \u00b7 from $50",
+        sublabel: "Seasonal bouquets \u00b7 from $150",
       },
       mothersDay: {
         label: "Mother\u2019s Day Bouquets",
@@ -219,6 +219,20 @@ export const en = {
     deliveryOption: "Home delivery (+$10/bouquet)",
     paymentSoon: "Payment integration coming soon",
     subscribeBtn: "Reserve now \u2014 $",
+    tiers: {
+      12: {
+        label: "Extended Season: Bi-Weekly Bouquets",
+        dates: "May 23 \u2013 Oct 24",
+      },
+      8: {
+        label: "Regular Season: Bi-weekly",
+        dates: "June 20 \u2013 Sept 26",
+      },
+      4: {
+        label: "Monthly for 4 months",
+        dates: "June 20, July 18, Aug 25, Sept 12",
+      },
+    },
   },
   mothersDay: {
     heading: "Mother\u2019s Day\nBouquets",

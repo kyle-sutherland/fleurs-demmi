@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import type { Dictionary } from "@/lib/translations/en";
 import SaturdayMultiSelect from "@/app/components/SaturdayMultiSelect";
 
 type Props = {
@@ -18,6 +19,7 @@ type Props = {
   /** When provided, shows a Saturday picker whose selection is added to the cart options. */
   saturdayOptions?: string[];
   saturdayLabel?: string;
+  labels: Dictionary["addToCart"];
   locale: string;
 };
 
@@ -34,6 +36,7 @@ export function BouquetSubscribeButton({
   stockCount,
   saturdayOptions,
   saturdayLabel,
+  labels,
   locale,
 }: Props) {
   const router = useRouter();
@@ -132,15 +135,11 @@ export function BouquetSubscribeButton({
         className="self-start font-sans font-semibold text-sm uppercase tracking-widest border-2 border-foreground text-foreground px-4 py-2 hover:bg-[#ff5129] hover:border-[#E6E6FA] hover:text-[#E6E6FA] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {soldOut ?
-          locale === "fr" ?
-            "Épuisé"
-          : "Sold Out"
+          labels.soldOut
         : state === "adding" ?
-          "Adding…"
+          labels.adding
         : state === "added" ?
-          locale === "fr" ?
-            "Ajouté !"
-          : "Added!"
+          labels.added
         : `${subscribeBtn}${total}.00`}
       </button>
     </div>
